@@ -6,12 +6,14 @@ import org.testng.annotations.Test;
 
 import teammates.common.datatransfer.attributes.InstructorAttributes;
 import teammates.common.util.Const;
+import teammates.logic.api.CoursesLogicAPI;
 import teammates.ui.output.CourseSectionNamesData;
 
 /**
  * SUT: {@link GetCourseSectionNamesAction}.
  */
 public class GetCourseSectionNamesActionTest extends BaseActionTest<GetCourseSectionNamesAction> {
+    private final CoursesLogicAPI coursesLogic = CoursesLogicAPI.inst();
 
     @Override
     protected String getActionUri() {
@@ -32,7 +34,7 @@ public class GetCourseSectionNamesActionTest extends BaseActionTest<GetCourseSec
     @Test
     protected void testExecute_typicalUsage_shouldPass() throws Exception {
         InstructorAttributes instructor1OfCourse1 = typicalBundle.instructors.get("instructor1OfCourse1");
-        List<String> expectedSectionNames = logic.getSectionNamesForCourse(instructor1OfCourse1.getCourseId());
+        List<String> expectedSectionNames = coursesLogic.getSectionNamesForCourse(instructor1OfCourse1.getCourseId());
 
         loginAsInstructor(instructor1OfCourse1.getGoogleId());
 

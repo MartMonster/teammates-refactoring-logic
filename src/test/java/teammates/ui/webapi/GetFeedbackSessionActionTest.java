@@ -14,6 +14,7 @@ import teammates.common.exception.EntityDoesNotExistException;
 import teammates.common.exception.InvalidParametersException;
 import teammates.common.util.Const;
 import teammates.common.util.TimeHelper;
+import teammates.logic.api.FeedbackSessionsLogicAPI;
 import teammates.ui.output.FeedbackSessionData;
 import teammates.ui.output.FeedbackSessionPublishStatus;
 import teammates.ui.output.FeedbackSessionSubmissionStatus;
@@ -25,6 +26,7 @@ import teammates.ui.request.Intent;
  * SUT: {@link GetFeedbackSessionAction}.
  */
 public class GetFeedbackSessionActionTest extends BaseActionTest<GetFeedbackSessionAction> {
+    private final FeedbackSessionsLogicAPI feedbackSessionsLogic = FeedbackSessionsLogicAPI.inst();
 
     @Override
     protected String getActionUri() {
@@ -1310,7 +1312,7 @@ public class GetFeedbackSessionActionTest extends BaseActionTest<GetFeedbackSess
     private void updateFirstFeedbackSessionOfTypicalCourse1(Instant newEndTime, Map<String, Instant> studentDeadlines,
             Map<String, Instant> instructorDeadlines) {
         try {
-            logic.updateFeedbackSession(FeedbackSessionAttributes
+            feedbackSessionsLogic.updateFeedbackSession(FeedbackSessionAttributes
                     .updateOptionsBuilder("First feedback session", "idOfTypicalCourse1")
                     .withEndTime(newEndTime)
                     .withStudentDeadlines(studentDeadlines)

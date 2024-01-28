@@ -23,6 +23,8 @@ import teammates.common.exception.InvalidParametersException;
 import teammates.common.util.Const;
 import teammates.common.util.SanitizationHelper;
 import teammates.common.util.TimeHelper;
+import teammates.logic.api.FeedbackSessionsLogicAPI;
+import teammates.logic.api.InstructorsLogicAPI;
 import teammates.ui.output.FeedbackResponseData;
 import teammates.ui.output.FeedbackResponsesData;
 import teammates.ui.request.FeedbackResponsesRequest;
@@ -32,6 +34,8 @@ import teammates.ui.request.Intent;
  * SUT: {@link SubmitFeedbackResponsesAction}.
  */
 public class SubmitFeedbackResponsesActionTest extends BaseActionTest<SubmitFeedbackResponsesAction> {
+    private final FeedbackSessionsLogicAPI feedbackSessionsLogic = FeedbackSessionsLogicAPI.inst();
+    private final InstructorsLogicAPI instructorsLogic = InstructorsLogicAPI.inst();
     @Override
     protected String getActionUri() {
         return Const.ResourceURIs.RESPONSES;
@@ -91,7 +95,7 @@ public class SubmitFeedbackResponsesActionTest extends BaseActionTest<SubmitFeed
         String courseId = session.getCourseId();
         Instant startTime = TimeHelper.getInstantDaysOffsetFromNow(days);
 
-        logic.updateFeedbackSession(
+        feedbackSessionsLogic.updateFeedbackSession(
                 FeedbackSessionAttributes.updateOptionsBuilder(sessionName, courseId)
                         .withStartTime(startTime)
                         .build());
@@ -103,7 +107,7 @@ public class SubmitFeedbackResponsesActionTest extends BaseActionTest<SubmitFeed
         String courseId = session.getCourseId();
         Instant endTime = TimeHelper.getInstantDaysOffsetFromNow(days);
 
-        logic.updateFeedbackSession(
+        feedbackSessionsLogic.updateFeedbackSession(
                 FeedbackSessionAttributes.updateOptionsBuilder(sessionName, courseId)
                         .withEndTime(endTime)
                         .build());
@@ -118,7 +122,7 @@ public class SubmitFeedbackResponsesActionTest extends BaseActionTest<SubmitFeed
 
         Map<String, Instant> deadlines = Map.of(instructor.getEmail(), TimeHelper.getInstantDaysOffsetFromNow(days));
 
-        logic.updateFeedbackSession(
+        feedbackSessionsLogic.updateFeedbackSession(
                 FeedbackSessionAttributes.updateOptionsBuilder(sessionName, courseId)
                         .withInstructorDeadlines(deadlines)
                         .build());
@@ -131,7 +135,7 @@ public class SubmitFeedbackResponsesActionTest extends BaseActionTest<SubmitFeed
 
         Map<String, Instant> deadlines = Map.of(student.getEmail(), TimeHelper.getInstantDaysOffsetFromNow(days));
 
-        logic.updateFeedbackSession(
+        feedbackSessionsLogic.updateFeedbackSession(
                 FeedbackSessionAttributes.updateOptionsBuilder(sessionName, courseId)
                         .withStudentDeadlines(deadlines)
                         .build());
@@ -170,7 +174,7 @@ public class SubmitFeedbackResponsesActionTest extends BaseActionTest<SubmitFeed
         InstructorPrivileges instructorPrivileges = new InstructorPrivileges();
         instructorPrivileges.updatePrivilege(Const.InstructorPermissions.CAN_MODIFY_SESSION_COMMENT_IN_SECTIONS, value);
 
-        logic.updateInstructor(InstructorAttributes.updateOptionsWithEmailBuilder(courseId, instructor.getEmail())
+        instructorsLogic.updateInstructor(InstructorAttributes.updateOptionsWithEmailBuilder(courseId, instructor.getEmail())
                 .withPrivileges(instructorPrivileges).build());
     }
 

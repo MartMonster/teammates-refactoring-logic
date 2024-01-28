@@ -4,6 +4,7 @@ import teammates.common.datatransfer.InstructorPermissionSet;
 import teammates.common.datatransfer.attributes.CourseAttributes;
 import teammates.common.datatransfer.attributes.InstructorAttributes;
 import teammates.common.util.Const;
+import teammates.logic.api.CoursesLogicAPI;
 import teammates.ui.output.CourseData;
 
 /**
@@ -24,7 +25,7 @@ class GetCourseAction extends Action {
 
         String courseId = getNonNullRequestParamValue(Const.ParamsNames.COURSE_ID);
         String entityType = getNonNullRequestParamValue(Const.ParamsNames.ENTITY_TYPE);
-        CourseAttributes course = logic.getCourse(courseId);
+        CourseAttributes course = coursesLogic.getCourse(courseId);
 
         if (Const.EntityType.INSTRUCTOR.equals(entityType)) {
             gateKeeper.verifyAccessible(getPossiblyUnregisteredInstructor(courseId), course);
@@ -42,7 +43,7 @@ class GetCourseAction extends Action {
     @Override
     public JsonResult execute() {
         String courseId = getNonNullRequestParamValue(Const.ParamsNames.COURSE_ID);
-        CourseAttributes courseAttributes = logic.getCourse(courseId);
+        CourseAttributes courseAttributes = coursesLogic.getCourse(courseId);
         if (courseAttributes == null) {
             throw new EntityNotFoundException("No course with id: " + courseId);
         }

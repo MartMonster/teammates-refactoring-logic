@@ -38,7 +38,7 @@ class RegenerateInstructorKeyAction extends AdminOnlyAction {
 
         InstructorAttributes updatedInstructor;
         try {
-            updatedInstructor = logic.regenerateInstructorRegistrationKey(courseId, instructorEmailAddress);
+            updatedInstructor = instructorsLogic.regenerateInstructorRegistrationKey(courseId, instructorEmailAddress);
         } catch (EntityDoesNotExistException ex) {
             throw new EntityNotFoundException(ex);
         } catch (EntityAlreadyExistsException ex) {

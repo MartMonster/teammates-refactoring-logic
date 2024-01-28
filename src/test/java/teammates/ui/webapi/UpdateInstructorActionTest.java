@@ -5,6 +5,8 @@ import org.testng.annotations.Test;
 import teammates.common.datatransfer.attributes.InstructorAttributes;
 import teammates.common.util.Const;
 import teammates.common.util.FieldValidator;
+import teammates.logic.api.CoursesLogicAPI;
+import teammates.logic.api.InstructorsLogicAPI;
 import teammates.ui.output.InstructorData;
 import teammates.ui.request.InstructorCreateRequest;
 import teammates.ui.request.InvalidHttpRequestBodyException;
@@ -13,6 +15,8 @@ import teammates.ui.request.InvalidHttpRequestBodyException;
  * SUT: {@link UpdateInstructorAction}.
  */
 public class UpdateInstructorActionTest extends BaseActionTest<UpdateInstructorAction> {
+    private final InstructorsLogicAPI instructorsLogic = InstructorsLogicAPI.inst();
+    private final CoursesLogicAPI coursesLogic = CoursesLogicAPI.inst();
 
     @Override
     protected String getActionUri() {
@@ -53,7 +57,7 @@ public class UpdateInstructorActionTest extends BaseActionTest<UpdateInstructorA
 
         InstructorData response = (InstructorData) actionOutput.getOutput();
 
-        InstructorAttributes editedInstructor = logic.getInstructorForGoogleId(courseId, instructorId);
+        InstructorAttributes editedInstructor = instructorsLogic.getInstructorForGoogleId(courseId, instructorId);
         assertEquals(newInstructorName, editedInstructor.getName());
         assertEquals(newInstructorName, response.getName());
         assertEquals(newInstructorEmail, editedInstructor.getEmail());
@@ -105,14 +109,14 @@ public class UpdateInstructorActionTest extends BaseActionTest<UpdateInstructorA
 
         response = (InstructorData) actionOutput.getOutput();
 
-        editedInstructor = logic.getInstructorForGoogleId(courseId, instructorId);
+        editedInstructor = instructorsLogic.getInstructorForGoogleId(courseId, instructorId);
         assertEquals(newInstructorEmail, editedInstructor.getEmail());
         assertEquals(newInstructorEmail, response.getEmail());
         assertEquals(newInstructorName, editedInstructor.getName());
         assertEquals(newInstructorName, response.getName());
 
         //remove the new instructor entity that was created
-        logic.deleteCourseCascade("icieat.courseId");
+        coursesLogic.deleteCourseCascade("icieat.courseId");
 
         verifySpecifiedTasksAdded(Const.TaskQueue.SEARCH_INDEXING_QUEUE_NAME, 1);
 

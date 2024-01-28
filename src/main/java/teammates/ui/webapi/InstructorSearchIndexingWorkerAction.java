@@ -5,6 +5,7 @@ import org.apache.http.HttpStatus;
 import teammates.common.datatransfer.attributes.InstructorAttributes;
 import teammates.common.exception.SearchServiceException;
 import teammates.common.util.Const.ParamsNames;
+import teammates.logic.api.InstructorsLogicAPI;
 
 /**
  * Task queue worker action: performs instructor search indexing.
@@ -16,9 +17,9 @@ public class InstructorSearchIndexingWorkerAction extends AdminOnlyAction {
         String courseId = getNonNullRequestParamValue(ParamsNames.COURSE_ID);
         String email = getNonNullRequestParamValue(ParamsNames.INSTRUCTOR_EMAIL);
 
-        InstructorAttributes instructor = logic.getInstructorForEmail(courseId, email);
+        InstructorAttributes instructor = instructorsLogic.getInstructorForEmail(courseId, email);
         try {
-            logic.putInstructorDocument(instructor);
+            instructorsLogic.putInstructorDocument(instructor);
         } catch (SearchServiceException e) {
             // Set an arbitrary retry code outside of the range 200-299 to trigger automatic retry
             return new JsonResult("Failure", HttpStatus.SC_BAD_GATEWAY);

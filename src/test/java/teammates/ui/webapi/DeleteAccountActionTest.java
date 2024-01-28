@@ -4,12 +4,15 @@ import org.testng.annotations.Test;
 
 import teammates.common.datatransfer.attributes.AccountAttributes;
 import teammates.common.util.Const;
+import teammates.logic.api.AccountsLogicAPI;
 import teammates.ui.output.MessageOutput;
 
 /**
  * SUT: {@link DeleteAccountAction}.
  */
 public class DeleteAccountActionTest extends BaseActionTest<DeleteAccountAction> {
+
+    private final AccountsLogicAPI accountsLogic = AccountsLogicAPI.inst();
 
     @Override
     protected String getActionUri() {
@@ -43,7 +46,7 @@ public class DeleteAccountActionTest extends BaseActionTest<DeleteAccountAction>
 
         assertEquals(msg.getMessage(), "Account is successfully deleted.");
 
-        assertNull(logic.getAccount(acc.getGoogleId()));
+        assertNull(accountsLogic.getAccount(acc.getGoogleId()));
 
         ______TS("Typical case, delete non-existing account");
 

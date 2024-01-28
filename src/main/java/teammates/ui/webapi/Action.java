@@ -17,14 +17,7 @@ import teammates.common.util.Const;
 import teammates.common.util.HttpRequestHelper;
 import teammates.common.util.JsonUtils;
 import teammates.common.util.StringHelper;
-import teammates.logic.api.AuthProxy;
-import teammates.logic.api.EmailGenerator;
-import teammates.logic.api.EmailSender;
-import teammates.logic.api.Logic;
-import teammates.logic.api.LogsProcessor;
-import teammates.logic.api.RecaptchaVerifier;
-import teammates.logic.api.TaskQueuer;
-import teammates.logic.api.UserProvision;
+import teammates.logic.api.*;
 import teammates.ui.request.BasicRequest;
 import teammates.ui.request.InvalidHttpRequestBodyException;
 
@@ -34,6 +27,16 @@ import teammates.ui.request.InvalidHttpRequestBodyException;
  * this object can talk to the back end to perform that action.
  */
 public abstract class Action {
+
+    InstructorsLogicAPI instructorsLogic = InstructorsLogicAPI.inst();
+    CoursesLogicAPI coursesLogic = CoursesLogicAPI.inst();
+    AccountsLogicAPI accountsLogic = AccountsLogicAPI.inst();
+    NotificationsLogicAPI notificationsLogic = NotificationsLogicAPI.inst();
+    StudentsLogicAPI studentsLogic = StudentsLogicAPI.inst();
+    FeedbackSessionsLogicAPI feedbackSessionsLogic = FeedbackSessionsLogicAPI.inst();
+    FeedbackQuestionsLogicAPI feedbackQuestionsLogic = FeedbackQuestionsLogicAPI.inst();
+    FeedbackResponsesLogicAPI feedbackResponsesLogic = FeedbackResponsesLogicAPI.inst();
+    FeedbackResponseCommentsLogicAPI feedbackResponseCommentsLogic = FeedbackResponseCommentsLogicAPI.inst();
 
     Logic logic = Logic.inst();
     UserProvision userProvision = UserProvision.inst();
@@ -223,7 +226,7 @@ public abstract class Action {
     }
 
     FeedbackSessionAttributes getNonNullFeedbackSession(String feedbackSessionName, String courseId) {
-        FeedbackSessionAttributes feedbackSession = logic.getFeedbackSession(feedbackSessionName, courseId);
+        FeedbackSessionAttributes feedbackSession = feedbackSessionsLogic.getFeedbackSession(feedbackSessionName, courseId);
         if (feedbackSession == null) {
             throw new EntityNotFoundException("Feedback session not found");
         }
@@ -248,7 +251,7 @@ public abstract class Action {
     Optional<StudentAttributes> getUnregisteredStudent() {
         String key = getRequestParamValue(Const.ParamsNames.REGKEY);
         if (!StringHelper.isEmpty(key)) {
-            StudentAttributes studentAttributes = logic.getStudentForRegistrationKey(key);
+            StudentAttributes studentAttributes = studentsLogic.getStudentForRegistrationKey(key);
             if (studentAttributes == null) {
                 return Optional.empty();
             }
@@ -264,7 +267,7 @@ public abstract class Action {
     Optional<InstructorAttributes> getUnregisteredInstructor() {
         String key = getRequestParamValue(Const.ParamsNames.REGKEY);
         if (!StringHelper.isEmpty(key)) {
-            InstructorAttributes instructorAttributes = logic.getInstructorForRegistrationKey(key);
+            InstructorAttributes instructorAttributes = instructorsLogic.getInstructorForRegistrationKey(key);
             if (instructorAttributes == null) {
                 return Optional.empty();
             }
@@ -279,7 +282,7 @@ public abstract class Action {
             if (userInfo == null) {
                 return null;
             }
-            return logic.getInstructorForGoogleId(courseId, userInfo.getId());
+            return instructorsLogic.getInstructorForGoogleId(courseId, userInfo.getId());
         });
     }
 
@@ -288,7 +291,7 @@ public abstract class Action {
             if (userInfo == null) {
                 return null;
             }
-            return logic.getStudentForGoogleId(courseId, userInfo.getId());
+            return studentsLogic.getStudentForGoogleId(courseId, userInfo.getId());
         });
     }
 

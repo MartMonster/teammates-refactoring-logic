@@ -4,6 +4,8 @@ import org.testng.annotations.Test;
 
 import teammates.common.util.Const;
 import teammates.common.util.StringHelper;
+import teammates.logic.api.InstructorsLogicAPI;
+import teammates.logic.api.StudentsLogicAPI;
 import teammates.ui.output.RegkeyValidityData;
 import teammates.ui.request.Intent;
 
@@ -11,6 +13,8 @@ import teammates.ui.request.Intent;
  * SUT: {@link GetRegkeyValidityAction}.
  */
 public class GetRegkeyValidityActionTest extends BaseActionTest<GetRegkeyValidityAction> {
+    private final StudentsLogicAPI studentsLogic = StudentsLogicAPI.inst();
+    private final InstructorsLogicAPI instructorsLogic = InstructorsLogicAPI.inst();
 
     @Override
     protected String getActionUri() {
@@ -28,8 +32,8 @@ public class GetRegkeyValidityActionTest extends BaseActionTest<GetRegkeyValidit
 
         String courseId = "idOfTypicalCourse1";
 
-        String student1Key = logic.getStudentForEmail(courseId, "student1InCourse1@gmail.tmt").getKey();
-        String instructor1Key = logic.getInstructorForEmail(courseId, "instructor1@course1.tmt").getKey();
+        String student1Key = studentsLogic.getStudentForEmail(courseId, "student1InCourse1@gmail.tmt").getKey();
+        String instructor1Key = instructorsLogic.getInstructorForEmail(courseId, "instructor1@course1.tmt").getKey();
 
         ______TS("Failure Case: No intent parameter");
 
@@ -143,8 +147,8 @@ public class GetRegkeyValidityActionTest extends BaseActionTest<GetRegkeyValidit
 
         ______TS("Normal case: No logged in user for an unused regkey; should be valid/unused/allowed");
 
-        logic.resetStudentGoogleId("student1InCourse1@gmail.tmt", courseId);
-        logic.resetInstructorGoogleId("instructor1@course1.tmt", courseId);
+        studentsLogic.resetStudentGoogleId("student1InCourse1@gmail.tmt", courseId);
+        instructorsLogic.resetInstructorGoogleId("instructor1@course1.tmt", courseId);
 
         logoutUser();
 

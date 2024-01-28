@@ -2,6 +2,7 @@ package teammates.ui.webapi;
 
 import teammates.common.datatransfer.attributes.InstructorAttributes;
 import teammates.common.util.Const;
+import teammates.logic.api.InstructorsLogicAPI;
 import teammates.ui.output.InstructorPrivilegeData;
 
 /**
@@ -21,7 +22,7 @@ class GetInstructorPrivilegeAction extends Action {
         }
 
         String courseId = getNonNullRequestParamValue(Const.ParamsNames.COURSE_ID);
-        InstructorAttributes instructor = logic.getInstructorForGoogleId(courseId, userInfo.getId());
+        InstructorAttributes instructor = instructorsLogic.getInstructorForGoogleId(courseId, userInfo.getId());
         if (instructor == null) {
             throw new UnauthorizedAccessException("Not instructor of the course");
         }
@@ -36,15 +37,15 @@ class GetInstructorPrivilegeAction extends Action {
         InstructorAttributes instructor;
         if (instructorId == null) {
             if (instructorEmail == null) {
-                instructor = logic.getInstructorForGoogleId(courseId, userInfo.getId());
+                instructor = instructorsLogic.getInstructorForGoogleId(courseId, userInfo.getId());
             } else {
-                instructor = logic.getInstructorForEmail(courseId, instructorEmail);
+                instructor = instructorsLogic.getInstructorForEmail(courseId, instructorEmail);
                 if (instructor == null) {
                     throw new EntityNotFoundException("Instructor does not exist.");
                 }
             }
         } else {
-            instructor = logic.getInstructorForGoogleId(courseId, instructorId);
+            instructor = instructorsLogic.getInstructorForGoogleId(courseId, instructorId);
             if (instructor == null) {
                 throw new EntityNotFoundException("Instructor does not exist.");
             }

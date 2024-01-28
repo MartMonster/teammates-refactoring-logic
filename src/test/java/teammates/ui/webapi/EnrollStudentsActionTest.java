@@ -9,6 +9,7 @@ import org.testng.annotations.Test;
 import teammates.common.datatransfer.attributes.InstructorAttributes;
 import teammates.common.datatransfer.attributes.StudentAttributes;
 import teammates.common.util.Const;
+import teammates.logic.api.StudentsLogicAPI;
 import teammates.ui.output.EnrollStudentsData;
 import teammates.ui.output.StudentData;
 import teammates.ui.request.StudentsEnrollRequest;
@@ -17,6 +18,7 @@ import teammates.ui.request.StudentsEnrollRequest;
  * SUT: {@link EnrollStudentsAction}.
  */
 public class EnrollStudentsActionTest extends BaseActionTest<EnrollStudentsAction> {
+    private final StudentsLogicAPI studentsLogic = StudentsLogicAPI.inst();
 
     @Override
     protected String getActionUri() {
@@ -66,7 +68,7 @@ public class EnrollStudentsActionTest extends BaseActionTest<EnrollStudentsActio
 
         // verify student in database
         StudentAttributes actualStudent =
-                logic.getStudentForEmail(enrolledStudents.get(0).getCourseId(), enrolledStudents.get(0).getEmail());
+                studentsLogic.getStudentForEmail(enrolledStudents.get(0).getCourseId(), enrolledStudents.get(0).getEmail());
         assertEquals(newStudent.getCourse(), actualStudent.getCourse());
         assertEquals(newStudent.getName(), actualStudent.getName());
         assertEquals(newStudent.getEmail(), actualStudent.getEmail());
@@ -107,7 +109,7 @@ public class EnrollStudentsActionTest extends BaseActionTest<EnrollStudentsActio
         StudentAttributes studentToUpdate = typicalBundle.students.get("student5InCourse1");
         String courseId = studentToUpdate.getCourse();
 
-        List<StudentAttributes> students = logic.getStudentsForCourse(courseId);
+        List<StudentAttributes> students = studentsLogic.getStudentsForCourse(courseId);
 
         // Ensure that student5InCourse1 has a unique team name in the course.
         // Otherwise, it will give a duplicate team name error when changing section name.
@@ -297,7 +299,7 @@ public class EnrollStudentsActionTest extends BaseActionTest<EnrollStudentsActio
     private void verifyStudentInDatabase(StudentAttributes expectedStudent,
                                          String actualStudentCourse, String actualStudentEmail) {
         StudentAttributes actualStudent =
-                logic.getStudentForEmail(actualStudentCourse, actualStudentEmail);
+                studentsLogic.getStudentForEmail(actualStudentCourse, actualStudentEmail);
         assertEquals(expectedStudent.getCourse(), actualStudent.getCourse());
         assertEquals(expectedStudent.getName(), actualStudent.getName());
         assertEquals(expectedStudent.getEmail(), actualStudent.getEmail());

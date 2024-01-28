@@ -6,6 +6,7 @@ import teammates.common.datatransfer.attributes.CourseAttributes;
 import teammates.common.datatransfer.attributes.InstructorAttributes;
 import teammates.common.datatransfer.attributes.StudentAttributes;
 import teammates.common.util.Const;
+import teammates.logic.api.CoursesLogicAPI;
 import teammates.ui.output.CourseData;
 import teammates.ui.request.CourseCreateRequest;
 
@@ -13,6 +14,7 @@ import teammates.ui.request.CourseCreateRequest;
  * SUT: {@link CreateCourseAction}.
  */
 public class CreateCourseActionTest extends BaseActionTest<CreateCourseAction> {
+    private final CoursesLogicAPI coursesLogic = CoursesLogicAPI.inst();
 
     @Override
     protected String getActionUri() {
@@ -48,8 +50,8 @@ public class CreateCourseActionTest extends BaseActionTest<CreateCourseAction> {
         String instructorId = instructor1OfCourse1.getGoogleId();
         String courseId = instructor1OfCourse1.getCourseId();
 
-        if (logic.getCourse("new-course") != null) {
-            logic.deleteCourseCascade("new-course");
+        if (coursesLogic.getCourse("new-course") != null) {
+            coursesLogic.deleteCourseCascade("new-course");
         }
 
         loginAsInstructor(instructorId);
@@ -65,7 +67,7 @@ public class CreateCourseActionTest extends BaseActionTest<CreateCourseAction> {
         assertEquals(courseData.getTimeZone(), "UTC");
         assertEquals(courseData.getInstitute(), "TEAMMATES Test Institute 1");
 
-        CourseAttributes createdCourse = logic.getCourse("new-course");
+        CourseAttributes createdCourse = coursesLogic.getCourse("new-course");
         assertNotNull(createdCourse);
         assertEquals("New Course", createdCourse.getName());
         assertEquals("UTC", createdCourse.getTimeZone());

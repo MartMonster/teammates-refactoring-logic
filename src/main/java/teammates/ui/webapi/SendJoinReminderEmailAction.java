@@ -6,6 +6,8 @@ import teammates.common.datatransfer.attributes.CourseAttributes;
 import teammates.common.datatransfer.attributes.InstructorAttributes;
 import teammates.common.datatransfer.attributes.StudentAttributes;
 import teammates.common.util.Const;
+import teammates.logic.api.CoursesLogicAPI;
+import teammates.logic.api.InstructorsLogicAPI;
 
 /**
  * Send join reminder emails to register for a course.
@@ -21,14 +23,14 @@ class SendJoinReminderEmailAction extends Action {
     void checkSpecificAccessControl() throws UnauthorizedAccessException {
         String courseId = getNonNullRequestParamValue(Const.ParamsNames.COURSE_ID);
 
-        CourseAttributes course = logic.getCourse(courseId);
+        CourseAttributes course = coursesLogic.getCourse(courseId);
         if (course == null) {
             throw new EntityNotFoundException("Course with ID " + courseId + " does not exist!");
         }
 
         String studentEmail = getRequestParamValue(Const.ParamsNames.STUDENT_EMAIL);
         String instructorEmail = getRequestParamValue(Const.ParamsNames.INSTRUCTOR_EMAIL);
-        InstructorAttributes instructor = logic.getInstructorForGoogleId(courseId, userInfo.id);
+        InstructorAttributes instructor = instructorsLogic.getInstructorForGoogleId(courseId, userInfo.id);
 
         boolean isSendingToStudent = studentEmail != null;
         boolean isSendingToInstructor = instructorEmail != null;
@@ -47,7 +49,7 @@ class SendJoinReminderEmailAction extends Action {
     public JsonResult execute() {
         String courseId = getNonNullRequestParamValue(Const.ParamsNames.COURSE_ID);
 
-        CourseAttributes course = logic.getCourse(courseId);
+        CourseAttributes course = coursesLogic.getCourse(courseId);
         if (course == null) {
             throw new EntityNotFoundException("Course with ID " + courseId + " does not exist!");
         }
@@ -61,7 +63,7 @@ class SendJoinReminderEmailAction extends Action {
 
         if (isSendingToStudent) {
             taskQueuer.scheduleCourseRegistrationInviteToStudent(courseId, studentEmail, false);
-            StudentAttributes studentData = logic.getStudentForEmail(courseId, studentEmail);
+            StudentAttributes studentData = studentsLogic.getStudentForEmail(courseId, studentEmail);
             if (studentData == null) {
                 throw new EntityNotFoundException(
                         "Student with email " + studentEmail + " does not exist in course " + courseId + "!");
@@ -72,7 +74,7 @@ class SendJoinReminderEmailAction extends Action {
             taskQueuer.scheduleCourseRegistrationInviteToInstructor(userInfo.id,
                     instructorEmail, courseId, false);
 
-            InstructorAttributes instructorData = logic.getInstructorForEmail(courseId, instructorEmail);
+            InstructorAttributes instructorData = instructorsLogic.getInstructorForEmail(courseId, instructorEmail);
             if (instructorData == null) {
                 throw new EntityNotFoundException(
                         "Instructor with email " + instructorEmail + " does not exist in course " + courseId + "!");
@@ -80,7 +82,7 @@ class SendJoinReminderEmailAction extends Action {
             statusMsg = new JsonResult("An email has been sent to " + instructorEmail);
 
         } else {
-            List<StudentAttributes> studentDataList = logic.getUnregisteredStudentsForCourse(courseId);
+            List<StudentAttributes> studentDataList = studentsLogic.getUnregisteredStudentsForCourse(courseId);
             for (StudentAttributes student : studentDataList) {
                 taskQueuer.scheduleCourseRegistrationInviteToStudent(course.getId(), student.getEmail(), false);
             }

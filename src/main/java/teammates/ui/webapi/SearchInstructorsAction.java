@@ -6,6 +6,8 @@ import java.util.List;
 import teammates.common.datatransfer.attributes.InstructorAttributes;
 import teammates.common.exception.SearchServiceException;
 import teammates.common.util.Const;
+import teammates.logic.api.CoursesLogicAPI;
+import teammates.logic.api.InstructorsLogicAPI;
 import teammates.ui.output.InstructorData;
 import teammates.ui.output.InstructorsData;
 
@@ -19,7 +21,7 @@ class SearchInstructorsAction extends AdminOnlyAction {
         String searchKey = getNonNullRequestParamValue(Const.ParamsNames.SEARCH_KEY);
         List<InstructorAttributes> instructors;
         try {
-            instructors = logic.searchInstructorsInWholeSystem(searchKey);
+            instructors = instructorsLogic.searchInstructorsInWholeSystem(searchKey);
         } catch (SearchServiceException e) {
             return new JsonResult(e.getMessage(), e.getStatusCode());
         }
@@ -29,7 +31,7 @@ class SearchInstructorsAction extends AdminOnlyAction {
             InstructorData instructorData = new InstructorData(instructor);
             instructorData.addAdditionalInformationForAdminSearch(
                     instructor.getKey(),
-                    logic.getCourseInstitute(instructor.getCourseId()),
+                    coursesLogic.getCourseInstitute(instructor.getCourseId()),
                     instructor.getGoogleId());
 
             instructorDataList.add(instructorData);

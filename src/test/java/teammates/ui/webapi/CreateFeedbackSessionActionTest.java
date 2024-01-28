@@ -9,6 +9,7 @@ import teammates.common.datatransfer.attributes.InstructorAttributes;
 import teammates.common.util.Const;
 import teammates.common.util.StringHelperExtension;
 import teammates.common.util.TimeHelperExtension;
+import teammates.logic.api.FeedbackSessionsLogicAPI;
 import teammates.ui.output.FeedbackSessionData;
 import teammates.ui.output.ResponseVisibleSetting;
 import teammates.ui.output.SessionVisibleSetting;
@@ -18,6 +19,7 @@ import teammates.ui.request.FeedbackSessionCreateRequest;
  * SUT: {@link CreateFeedbackSessionAction}.
  */
 public class CreateFeedbackSessionActionTest extends BaseActionTest<CreateFeedbackSessionAction> {
+    private final FeedbackSessionsLogicAPI feedbackSessionsLogic = FeedbackSessionsLogicAPI.inst();
 
     @Override
     protected String getActionUri() {
@@ -56,7 +58,7 @@ public class CreateFeedbackSessionActionTest extends BaseActionTest<CreateFeedba
         FeedbackSessionData response = (FeedbackSessionData) r.getOutput();
 
         FeedbackSessionAttributes createdSession =
-                logic.getFeedbackSession(createRequest.getFeedbackSessionName(), course.getId());
+                feedbackSessionsLogic.getFeedbackSession(createRequest.getFeedbackSessionName(), course.getId());
         assertEquals(createdSession.getCourseId(), response.getCourseId());
         assertEquals(createdSession.getTimeZone(), response.getTimeZone());
         assertEquals(createdSession.getFeedbackSessionName(), response.getFeedbackSessionName());
@@ -139,7 +141,7 @@ public class CreateFeedbackSessionActionTest extends BaseActionTest<CreateFeedba
         response = (FeedbackSessionData) r.getOutput();
 
         FeedbackSessionAttributes copiedSession =
-                logic.getFeedbackSession(createRequest.getFeedbackSessionName(), course.getId());
+                feedbackSessionsLogic.getFeedbackSession(createRequest.getFeedbackSessionName(), course.getId());
         assertEquals(copiedSession.getCourseId(), response.getCourseId());
         assertEquals(copiedSession.getTimeZone(), response.getTimeZone());
         assertEquals(copiedSession.getFeedbackSessionName(), response.getFeedbackSessionName());

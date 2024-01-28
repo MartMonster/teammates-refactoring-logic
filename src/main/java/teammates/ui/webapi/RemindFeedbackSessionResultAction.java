@@ -22,7 +22,7 @@ class RemindFeedbackSessionResultAction extends Action {
         FeedbackSessionAttributes feedbackSession = getNonNullFeedbackSession(feedbackSessionName, courseId);
 
         gateKeeper.verifyAccessible(
-                logic.getInstructorForGoogleId(courseId, userInfo.getId()),
+                instructorsLogic.getInstructorForGoogleId(courseId, userInfo.getId()),
                 feedbackSession,
                 Const.InstructorPermissions.CAN_MODIFY_SESSION);
     }

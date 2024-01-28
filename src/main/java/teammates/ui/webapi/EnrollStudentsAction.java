@@ -13,6 +13,7 @@ import teammates.common.exception.EntityDoesNotExistException;
 import teammates.common.exception.InvalidParametersException;
 import teammates.common.util.Const;
 import teammates.common.util.RequestTracer;
+import teammates.logic.api.CoursesLogicAPI;
 import teammates.ui.output.EnrollStudentsData;
 import teammates.ui.output.StudentsData;
 import teammates.ui.request.InvalidHttpRequestBodyException;
@@ -41,9 +42,9 @@ class EnrollStudentsAction extends Action {
         }
         String courseId = getRequestParamValue(Const.ParamsNames.COURSE_ID);
 
-        InstructorAttributes instructor = logic.getInstructorForGoogleId(courseId, userInfo.id);
+        InstructorAttributes instructor = instructorsLogic.getInstructorForGoogleId(courseId, userInfo.id);
         gateKeeper.verifyAccessible(
-                instructor, logic.getCourse(courseId), Const.InstructorPermissions.CAN_MODIFY_STUDENT);
+                instructor, coursesLogic.getCourse(courseId), Const.InstructorPermissions.CAN_MODIFY_STUDENT);
     }
 
     @Override
@@ -62,12 +63,12 @@ class EnrollStudentsAction extends Action {
         });
 
         try {
-            logic.validateSectionsAndTeams(studentsToEnroll, courseId);
+            studentsLogic.validateSectionsAndTeams(studentsToEnroll, courseId);
         } catch (EnrollException e) {
             throw new InvalidOperationException(e);
         }
 
-        List<StudentAttributes> existingStudents = logic.getStudentsForCourse(courseId);
+        List<StudentAttributes> existingStudents = studentsLogic.getStudentsForCourse(courseId);
 
         Set<String> existingStudentsEmail =
                 existingStudents.stream().map(StudentAttributes::getEmail).collect(Collectors.toSet());
@@ -85,7 +86,7 @@ class EnrollStudentsAction extends Action {
                                 .withComment(student.getComments())
                                 .build();
                 try {
-                    StudentAttributes updatedStudent = logic.updateStudentCascade(updateOptions);
+                    StudentAttributes updatedStudent = studentsLogic.updateStudentCascade(updateOptions);
                     taskQueuer.scheduleStudentForSearchIndexing(updatedStudent.getCourse(), updatedStudent.getEmail());
                     enrolledStudents.add(updatedStudent);
                 } catch (InvalidParametersException | EntityDoesNotExistException
@@ -97,7 +98,7 @@ class EnrollStudentsAction extends Action {
             } else {
                 // The student is new.
                 try {
-                    StudentAttributes newStudent = logic.createStudent(student);
+                    StudentAttributes newStudent = studentsLogic.createStudent(student);
                     taskQueuer.scheduleStudentForSearchIndexing(newStudent.getCourse(), newStudent.getEmail());
                     enrolledStudents.add(newStudent);
                 } catch (InvalidParametersException | EntityAlreadyExistsException exception) {

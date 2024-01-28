@@ -2,6 +2,7 @@ package teammates.ui.webapi;
 
 import teammates.common.datatransfer.attributes.InstructorAttributes;
 import teammates.common.util.Const;
+import teammates.logic.api.CoursesLogicAPI;
 
 /**
  * Action: deletes all students in a course.
@@ -19,9 +20,9 @@ class DeleteStudentsAction extends Action {
             throw new UnauthorizedAccessException("Instructor privilege is required to delete students from course.");
         }
         String courseId = getNonNullRequestParamValue(Const.ParamsNames.COURSE_ID);
-        InstructorAttributes instructor = logic.getInstructorForGoogleId(courseId, userInfo.id);
+        InstructorAttributes instructor = instructorsLogic.getInstructorForGoogleId(courseId, userInfo.id);
         gateKeeper.verifyAccessible(
-                instructor, logic.getCourse(courseId), Const.InstructorPermissions.CAN_MODIFY_STUDENT);
+                instructor, coursesLogic.getCourse(courseId), Const.InstructorPermissions.CAN_MODIFY_STUDENT);
     }
 
     @Override
@@ -29,7 +30,7 @@ class DeleteStudentsAction extends Action {
         var courseId = getNonNullRequestParamValue(Const.ParamsNames.COURSE_ID);
         var limit = getNonNullRequestParamValue(Const.ParamsNames.LIMIT);
 
-        logic.deleteStudentsInCourseCascade(courseId, Integer.parseInt(limit));
+        studentsLogic.deleteStudentsInCourseCascade(courseId, Integer.parseInt(limit));
 
         return new JsonResult("Successful");
     }

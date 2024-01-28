@@ -5,11 +5,15 @@ import org.testng.annotations.Test;
 import teammates.common.util.Const;
 import teammates.common.util.EmailType;
 import teammates.common.util.EmailWrapper;
+import teammates.logic.api.InstructorsLogicAPI;
+import teammates.logic.api.StudentsLogicAPI;
 
 /**
  * SUT: {@link JoinCourseAction}.
  */
 public class JoinCourseActionTest extends BaseActionTest<JoinCourseAction> {
+    private final StudentsLogicAPI studentsLogic = StudentsLogicAPI.inst();
+    private final InstructorsLogicAPI instructorsLogic = InstructorsLogicAPI.inst();
 
     @Override
     protected String getActionUri() {
@@ -51,7 +55,7 @@ public class JoinCourseActionTest extends BaseActionTest<JoinCourseAction> {
         ______TS("Failure case: student is already registered");
 
         String registeredStudentKey =
-                logic.getStudentForEmail("idOfTypicalCourse1", "student1InCourse1@gmail.tmt").getKey();
+                studentsLogic.getStudentForEmail("idOfTypicalCourse1", "student1InCourse1@gmail.tmt").getKey();
 
         params = new String[] {
                 Const.ParamsNames.REGKEY, registeredStudentKey,
@@ -66,7 +70,7 @@ public class JoinCourseActionTest extends BaseActionTest<JoinCourseAction> {
         ______TS("Normal case: student is not registered");
 
         String unregisteredStudentKey =
-                logic.getStudentForEmail("idOfUnregisteredCourse", "student1InUnregisteredCourse@gmail.tmt").getKey();
+                studentsLogic.getStudentForEmail("idOfUnregisteredCourse", "student1InUnregisteredCourse@gmail.tmt").getKey();
 
         params = new String[] {
                 Const.ParamsNames.REGKEY, unregisteredStudentKey,
@@ -98,7 +102,7 @@ public class JoinCourseActionTest extends BaseActionTest<JoinCourseAction> {
         ______TS("Failure case: instructor is already registered");
 
         String registeredInstructorKey =
-                logic.getInstructorForEmail("idOfTypicalCourse1", "instructor1@course1.tmt").getKey();
+                instructorsLogic.getInstructorForEmail("idOfTypicalCourse1", "instructor1@course1.tmt").getKey();
 
         params = new String[] {
                 Const.ParamsNames.REGKEY, registeredInstructorKey,
@@ -113,7 +117,7 @@ public class JoinCourseActionTest extends BaseActionTest<JoinCourseAction> {
         ______TS("Normal case: instructor is not registered");
 
         String unregisteredInstructorKey =
-                logic.getInstructorForEmail("idOfTypicalCourse1", "instructorNotYetJoinedCourse1@email.tmt").getKey();
+                instructorsLogic.getInstructorForEmail("idOfTypicalCourse1", "instructorNotYetJoinedCourse1@email.tmt").getKey();
 
         params = new String[] {
                 Const.ParamsNames.REGKEY, unregisteredInstructorKey,

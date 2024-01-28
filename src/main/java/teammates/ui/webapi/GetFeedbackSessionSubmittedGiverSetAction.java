@@ -21,7 +21,7 @@ class GetFeedbackSessionSubmittedGiverSetAction extends Action {
         String feedbackSessionName = getNonNullRequestParamValue(Const.ParamsNames.FEEDBACK_SESSION_NAME);
 
         FeedbackSessionAttributes feedbackSession = getNonNullFeedbackSession(feedbackSessionName, courseId);
-        InstructorAttributes instructor = logic.getInstructorForGoogleId(courseId, userInfo.id);
+        InstructorAttributes instructor = instructorsLogic.getInstructorForGoogleId(courseId, userInfo.id);
 
         gateKeeper.verifyAccessible(instructor, feedbackSession);
     }
@@ -34,7 +34,7 @@ class GetFeedbackSessionSubmittedGiverSetAction extends Action {
 
         FeedbackSessionSubmittedGiverSet output =
                 new FeedbackSessionSubmittedGiverSet(
-                        logic.getGiverSetThatAnswerFeedbackSession(courseId, feedbackSessionName));
+                        feedbackResponsesLogic.getGiverSetThatAnswerFeedbackSession(courseId, feedbackSessionName));
 
         return new JsonResult(output);
     }

@@ -4,6 +4,7 @@ import org.testng.annotations.Test;
 
 import teammates.common.datatransfer.attributes.InstructorAttributes;
 import teammates.common.util.Const;
+import teammates.logic.api.InstructorsLogicAPI;
 import teammates.ui.output.CourseArchiveData;
 import teammates.ui.request.CourseArchiveRequest;
 
@@ -11,6 +12,7 @@ import teammates.ui.request.CourseArchiveRequest;
  * SUT: {@link ArchiveCourseAction}.
  */
 public class ArchiveCourseActionTest extends BaseActionTest<ArchiveCourseAction> {
+    private final InstructorsLogicAPI instructorsLogic = InstructorsLogicAPI.inst();
 
     @Override
     protected String getActionUri() {
@@ -48,7 +50,7 @@ public class ArchiveCourseActionTest extends BaseActionTest<ArchiveCourseAction>
         JsonResult result = getJsonResult(archiveCourseAction);
         CourseArchiveData courseArchiveData = (CourseArchiveData) result.getOutput();
 
-        InstructorAttributes theInstructor = logic.getInstructorForGoogleId(
+        InstructorAttributes theInstructor = instructorsLogic.getInstructorForGoogleId(
                 instructor1OfCourse1.getCourseId(), instructor1OfCourse1.getGoogleId());
 
         assertTrue(theInstructor.isArchived());
@@ -62,7 +64,7 @@ public class ArchiveCourseActionTest extends BaseActionTest<ArchiveCourseAction>
         result = getJsonResult(archiveCourseAction);
         courseArchiveData = (CourseArchiveData) result.getOutput();
 
-        theInstructor = logic.getInstructorForGoogleId(
+        theInstructor = instructorsLogic.getInstructorForGoogleId(
                 instructor1OfCourse1.getCourseId(), instructor1OfCourse1.getGoogleId());
 
         assertTrue(theInstructor.isArchived());
@@ -76,7 +78,7 @@ public class ArchiveCourseActionTest extends BaseActionTest<ArchiveCourseAction>
         result = getJsonResult(unarchiveAction);
         courseArchiveData = (CourseArchiveData) result.getOutput();
 
-        theInstructor = logic.getInstructorForGoogleId(instructor1OfCourse1.getCourseId(),
+        theInstructor = instructorsLogic.getInstructorForGoogleId(instructor1OfCourse1.getCourseId(),
                 instructor1OfCourse1.getGoogleId());
 
         assertFalse(theInstructor.isArchived());
@@ -90,7 +92,7 @@ public class ArchiveCourseActionTest extends BaseActionTest<ArchiveCourseAction>
         result = getJsonResult(unarchiveAction);
         courseArchiveData = (CourseArchiveData) result.getOutput();
 
-        theInstructor = logic.getInstructorForGoogleId(
+        theInstructor = instructorsLogic.getInstructorForGoogleId(
                 instructor1OfCourse1.getCourseId(), instructor1OfCourse1.getGoogleId());
 
         assertFalse(theInstructor.isArchived());
@@ -105,7 +107,7 @@ public class ArchiveCourseActionTest extends BaseActionTest<ArchiveCourseAction>
         result = getJsonResult(archiveCourseAction);
         courseArchiveData = (CourseArchiveData) result.getOutput();
 
-        theInstructor = logic.getInstructorForGoogleId(
+        theInstructor = instructorsLogic.getInstructorForGoogleId(
                 instructor1OfCourse1.getCourseId(), instructor1OfCourse1.getGoogleId());
 
         assertTrue(theInstructor.isArchived());

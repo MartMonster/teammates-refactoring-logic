@@ -21,10 +21,10 @@ class RestoreFeedbackSessionAction extends Action {
     void checkSpecificAccessControl() throws UnauthorizedAccessException {
         String courseId = getNonNullRequestParamValue(Const.ParamsNames.COURSE_ID);
         String feedbackSessionName = getNonNullRequestParamValue(Const.ParamsNames.FEEDBACK_SESSION_NAME);
-        FeedbackSessionAttributes feedbackSession = logic.getFeedbackSessionFromRecycleBin(feedbackSessionName, courseId);
+        FeedbackSessionAttributes feedbackSession = feedbackSessionsLogic.getFeedbackSessionFromRecycleBin(feedbackSessionName, courseId);
 
         gateKeeper.verifyAccessible(
-                logic.getInstructorForGoogleId(courseId, userInfo.getId()),
+                instructorsLogic.getInstructorForGoogleId(courseId, userInfo.getId()),
                 feedbackSession,
                 Const.InstructorPermissions.CAN_MODIFY_SESSION);
     }
@@ -35,20 +35,20 @@ class RestoreFeedbackSessionAction extends Action {
         String courseId = getNonNullRequestParamValue(Const.ParamsNames.COURSE_ID);
         String feedbackSessionName = getNonNullRequestParamValue(Const.ParamsNames.FEEDBACK_SESSION_NAME);
 
-        FeedbackSessionAttributes feedbackSession = logic.getFeedbackSessionFromRecycleBin(feedbackSessionName, courseId);
+        FeedbackSessionAttributes feedbackSession = feedbackSessionsLogic.getFeedbackSessionFromRecycleBin(feedbackSessionName, courseId);
         if (feedbackSession == null) {
             throw new EntityNotFoundException("Feedback session is not in recycle bin");
         }
 
         try {
-            logic.restoreFeedbackSessionFromRecycleBin(feedbackSessionName, courseId);
+            feedbackSessionsLogic.restoreFeedbackSessionFromRecycleBin(feedbackSessionName, courseId);
         } catch (EntityDoesNotExistException e) {
             throw new EntityNotFoundException(e);
         }
 
         FeedbackSessionAttributes restoredFs = getNonNullFeedbackSession(feedbackSessionName, courseId);
         FeedbackSessionData output = new FeedbackSessionData(restoredFs);
-        InstructorAttributes instructor = logic.getInstructorForGoogleId(courseId, userInfo.getId());
+        InstructorAttributes instructor = instructorsLogic.getInstructorForGoogleId(courseId, userInfo.getId());
         InstructorPermissionSet privilege = constructInstructorPrivileges(instructor, feedbackSessionName);
         output.setPrivileges(privilege);
 

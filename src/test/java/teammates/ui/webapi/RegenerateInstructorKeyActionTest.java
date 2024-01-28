@@ -7,12 +7,16 @@ import teammates.common.datatransfer.attributes.InstructorAttributes;
 import teammates.common.util.Const;
 import teammates.common.util.EmailType;
 import teammates.common.util.EmailWrapper;
+import teammates.logic.api.CoursesLogicAPI;
+import teammates.logic.api.InstructorsLogicAPI;
 import teammates.ui.output.RegenerateKeyData;
 
 /**
  * SUT: {@link RegenerateInstructorKeyAction}.
  */
 public class RegenerateInstructorKeyActionTest extends BaseActionTest<RegenerateInstructorKeyAction> {
+    private final InstructorsLogicAPI instructorsLogic = InstructorsLogicAPI.inst();
+    private final CoursesLogicAPI coursesLogic = CoursesLogicAPI.inst();
 
     @Override
     protected String getActionUri() {
@@ -62,7 +66,7 @@ public class RegenerateInstructorKeyActionTest extends BaseActionTest<Regenerate
                 Const.ParamsNames.COURSE_ID, "non-existent-course",
         };
 
-        assertNull(logic.getCourse("non-existent-course"));
+        assertNull(coursesLogic.getCourse("non-existent-course"));
 
         verifyEntityNotFound(nonExistingParams);
     }
@@ -78,7 +82,7 @@ public class RegenerateInstructorKeyActionTest extends BaseActionTest<Regenerate
                 Const.ParamsNames.COURSE_ID, instructor1OfCourse1.getCourseId(),
         };
 
-        assertNull(logic.getInstructorForEmail(instructor1OfCourse1.getCourseId(), "non-existent-instructor@abc.com"));
+        assertNull(instructorsLogic.getInstructorForEmail(instructor1OfCourse1.getCourseId(), "non-existent-instructor@abc.com"));
 
         verifyEntityNotFound(nonExistingParams);
     }

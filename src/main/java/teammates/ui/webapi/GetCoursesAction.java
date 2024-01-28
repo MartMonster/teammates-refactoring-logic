@@ -9,6 +9,7 @@ import teammates.common.datatransfer.InstructorPermissionSet;
 import teammates.common.datatransfer.attributes.CourseAttributes;
 import teammates.common.datatransfer.attributes.InstructorAttributes;
 import teammates.common.util.Const;
+import teammates.logic.api.CoursesLogicAPI;
 import teammates.ui.output.CourseData;
 import teammates.ui.output.CoursesData;
 
@@ -47,7 +48,7 @@ class GetCoursesAction extends Action {
     }
 
     private JsonResult getStudentCourses() {
-        List<CourseAttributes> courses = logic.getCoursesForStudentAccount(userInfo.id);
+        List<CourseAttributes> courses = coursesLogic.getCoursesForStudentAccount(userInfo.id);
         CoursesData coursesData = new CoursesData(courses);
         coursesData.getCourses().forEach(CourseData::hideInformationForStudent);
         return new JsonResult(coursesData);
@@ -59,18 +60,18 @@ class GetCoursesAction extends Action {
         List<InstructorAttributes> instructors;
         switch (courseStatus) {
         case Const.CourseStatus.ACTIVE:
-            instructors = logic.getInstructorsForGoogleId(userInfo.id, true);
+            instructors = instructorsLogic.getInstructorsForGoogleId(userInfo.id, true);
             courses = getCourse(instructors);
             break;
         case Const.CourseStatus.ARCHIVED:
-            instructors = logic.getInstructorsForGoogleId(userInfo.id)
+            instructors = instructorsLogic.getInstructorsForGoogleId(userInfo.id)
                     .stream()
                     .filter(InstructorAttributes::isArchived)
                     .collect(Collectors.toList());
             courses = getCourse(instructors);
             break;
         case Const.CourseStatus.SOFT_DELETED:
-            instructors = logic.getInstructorsForGoogleId(userInfo.id);
+            instructors = instructorsLogic.getInstructorsForGoogleId(userInfo.id);
             courses = getSoftDeletedCourse(instructors);
             break;
         default:
@@ -94,10 +95,10 @@ class GetCoursesAction extends Action {
     }
 
     private List<CourseAttributes> getCourse(List<InstructorAttributes> instructors) {
-        return logic.getCoursesForInstructor(instructors);
+        return coursesLogic.getCoursesForInstructor(instructors);
     }
 
     private List<CourseAttributes> getSoftDeletedCourse(List<InstructorAttributes> instructors) {
-        return logic.getSoftDeletedCoursesForInstructors(instructors);
+        return coursesLogic.getSoftDeletedCoursesForInstructors(instructors);
     }
 }

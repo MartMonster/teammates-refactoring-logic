@@ -28,7 +28,7 @@ class GetFeedbackResponsesAction extends BasicFeedbackSubmissionAction {
     @Override
     void checkSpecificAccessControl() throws UnauthorizedAccessException {
         String feedbackQuestionId = getNonNullRequestParamValue(Const.ParamsNames.FEEDBACK_QUESTION_ID);
-        FeedbackQuestionAttributes feedbackQuestion = logic.getFeedbackQuestion(feedbackQuestionId);
+        FeedbackQuestionAttributes feedbackQuestion = feedbackQuestionsLogic.getFeedbackQuestion(feedbackQuestionId);
         if (feedbackQuestion == null) {
             throw new EntityNotFoundException("The feedback question does not exist.");
         }
@@ -60,19 +60,19 @@ class GetFeedbackResponsesAction extends BasicFeedbackSubmissionAction {
     public JsonResult execute() {
         String feedbackQuestionId = getNonNullRequestParamValue(Const.ParamsNames.FEEDBACK_QUESTION_ID);
         Intent intent = Intent.valueOf(getNonNullRequestParamValue(Const.ParamsNames.INTENT));
-        FeedbackQuestionAttributes questionAttributes = logic.getFeedbackQuestion(feedbackQuestionId);
+        FeedbackQuestionAttributes questionAttributes = feedbackQuestionsLogic.getFeedbackQuestion(feedbackQuestionId);
 
         List<FeedbackResponseAttributes> responses;
         switch (intent) {
         case STUDENT_SUBMISSION:
             StudentAttributes studentAttributes = getStudentOfCourseFromRequest(questionAttributes.getCourseId());
-            responses = logic.getFeedbackResponsesFromStudentOrTeamForQuestion(questionAttributes,
+            responses = feedbackResponsesLogic.getFeedbackResponsesFromStudentOrTeamForQuestion(questionAttributes,
                     studentAttributes);
             break;
         case INSTRUCTOR_SUBMISSION:
             InstructorAttributes instructorAttributes = getInstructorOfCourseFromRequest(
                     questionAttributes.getCourseId());
-            responses = logic.getFeedbackResponsesFromInstructorForQuestion(questionAttributes,
+            responses = feedbackResponsesLogic.getFeedbackResponsesFromInstructorForQuestion(questionAttributes,
                     instructorAttributes);
             break;
         default:
@@ -83,7 +83,7 @@ class GetFeedbackResponsesAction extends BasicFeedbackSubmissionAction {
 
         responses.forEach(response -> {
             FeedbackResponseData data = new FeedbackResponseData(response);
-            FeedbackResponseCommentAttributes comment = logic
+            FeedbackResponseCommentAttributes comment = feedbackResponseCommentsLogic
                     .getFeedbackResponseCommentForResponseFromParticipant(response.getId());
             if (comment != null) {
                 data.setGiverComment(new FeedbackResponseCommentData(comment));

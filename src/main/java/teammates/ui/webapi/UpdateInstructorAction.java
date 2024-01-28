@@ -7,6 +7,8 @@ import teammates.common.exception.InstructorUpdateException;
 import teammates.common.exception.InvalidParametersException;
 import teammates.common.util.Const;
 import teammates.common.util.SanitizationHelper;
+import teammates.logic.api.CoursesLogicAPI;
+import teammates.logic.api.InstructorsLogicAPI;
 import teammates.ui.output.InstructorData;
 import teammates.ui.request.InstructorCreateRequest;
 import teammates.ui.request.InvalidHttpRequestBodyException;
@@ -29,8 +31,8 @@ class UpdateInstructorAction extends Action {
 
         String courseId = getNonNullRequestParamValue(Const.ParamsNames.COURSE_ID);
 
-        InstructorAttributes instructor = logic.getInstructorForGoogleId(courseId, userInfo.id);
-        gateKeeper.verifyAccessible(instructor, logic.getCourse(courseId),
+        InstructorAttributes instructor = instructorsLogic.getInstructorForGoogleId(courseId, userInfo.id);
+        gateKeeper.verifyAccessible(instructor, coursesLogic.getCourse(courseId),
                 Const.InstructorPermissions.CAN_MODIFY_INSTRUCTOR);
     }
 
@@ -45,12 +47,12 @@ class UpdateInstructorAction extends Action {
                         instructorRequest.getRoleName(), instructorRequest.getIsDisplayedToStudent(),
                         instructorRequest.getDisplayName());
 
-        logic.updateToEnsureValidityOfInstructorsForTheCourse(courseId, instructorToEdit);
+        instructorsLogic.updateToEnsureValidityOfInstructorsForTheCourse(courseId, instructorToEdit);
 
         try {
             InstructorAttributes updatedInstructor;
             if (instructorRequest.getId() == null) {
-                updatedInstructor = logic.updateInstructor(
+                updatedInstructor = instructorsLogic.updateInstructor(
                         InstructorAttributes
                                 .updateOptionsWithEmailBuilder(instructorToEdit.getCourseId(), instructorRequest.getEmail())
                                 .withName(instructorToEdit.getName())
@@ -60,7 +62,7 @@ class UpdateInstructorAction extends Action {
                                 .withPrivileges(instructorToEdit.getPrivileges())
                                 .build());
             } else {
-                updatedInstructor = logic.updateInstructorCascade(
+                updatedInstructor = instructorsLogic.updateInstructorCascade(
                         InstructorAttributes
                                 .updateOptionsWithGoogleIdBuilder(instructorToEdit.getCourseId(), instructorRequest.getId())
                                 .withEmail(instructorToEdit.getEmail())
@@ -105,9 +107,9 @@ class UpdateInstructorAction extends Action {
                                                           boolean isDisplayedToStudents, String displayedName) {
         InstructorAttributes instructorToEdit;
         if (instructorId == null) {
-            instructorToEdit = logic.getInstructorForEmail(courseId, instructorEmail);
+            instructorToEdit = instructorsLogic.getInstructorForEmail(courseId, instructorEmail);
         } else {
-            instructorToEdit = logic.getInstructorForGoogleId(courseId, instructorId);
+            instructorToEdit = instructorsLogic.getInstructorForGoogleId(courseId, instructorId);
         }
 
         String newDisplayedName = displayedName;

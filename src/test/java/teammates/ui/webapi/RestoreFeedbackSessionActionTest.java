@@ -5,13 +5,14 @@ import org.testng.annotations.Test;
 import teammates.common.datatransfer.attributes.FeedbackSessionAttributes;
 import teammates.common.datatransfer.attributes.InstructorAttributes;
 import teammates.common.util.Const;
+import teammates.logic.api.FeedbackSessionsLogicAPI;
 import teammates.ui.output.FeedbackSessionData;
 
 /**
  * SUT: {@link RestoreFeedbackSessionAction}.
  */
 public class RestoreFeedbackSessionActionTest extends BaseActionTest<RestoreFeedbackSessionAction> {
-
+    private final FeedbackSessionsLogicAPI feedbackSessionsLogic = FeedbackSessionsLogicAPI.inst();
     private final InstructorAttributes instructor1OfCourse1 = typicalBundle.instructors.get("instructor1OfCourse1");
     private final FeedbackSessionAttributes firstFeedbackSession = typicalBundle.feedbackSessions.get("session1InCourse1");
     private final String instructorId = instructor1OfCourse1.getGoogleId();
@@ -41,7 +42,7 @@ public class RestoreFeedbackSessionActionTest extends BaseActionTest<RestoreFeed
     @Test
     protected void testExecute_withSessionInBin_shouldRestoreSession() throws Exception {
         loginAsInstructor(instructorId);
-        logic.moveFeedbackSessionToRecycleBin(feedbackSessionName, courseId);
+        feedbackSessionsLogic.moveFeedbackSessionToRecycleBin(feedbackSessionName, courseId);
         RestoreFeedbackSessionAction action = getAction(submissionParams);
         JsonResult result = getJsonResult(action);
         FeedbackSessionData feedbackSessionMessage = (FeedbackSessionData) result.getOutput();
@@ -51,7 +52,7 @@ public class RestoreFeedbackSessionActionTest extends BaseActionTest<RestoreFeed
         assertEquals(feedbackSessionName, feedbackSessionMessage.getFeedbackSessionName());
 
         // Verify model
-        assertFalse(logic.getFeedbackSession(feedbackSessionName, courseId).isSessionDeleted());
+        assertFalse(feedbackSessionsLogic.getFeedbackSession(feedbackSessionName, courseId).isSessionDeleted());
     }
 
     @Test
@@ -72,7 +73,7 @@ public class RestoreFeedbackSessionActionTest extends BaseActionTest<RestoreFeed
     @Test
     @Override
     protected void testAccessControl() throws Exception {
-        logic.moveFeedbackSessionToRecycleBin(feedbackSessionName, courseId);
+        feedbackSessionsLogic.moveFeedbackSessionToRecycleBin(feedbackSessionName, courseId);
 
         verifyOnlyInstructorsOfTheSameCourseWithCorrectCoursePrivilegeCanAccess(
                 Const.InstructorPermissions.CAN_MODIFY_SESSION, submissionParams);

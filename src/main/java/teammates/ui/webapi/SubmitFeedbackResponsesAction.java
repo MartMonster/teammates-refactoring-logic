@@ -45,7 +45,7 @@ class SubmitFeedbackResponsesAction extends BasicFeedbackSubmissionAction {
     @Override
     void checkSpecificAccessControl() throws UnauthorizedAccessException {
         String feedbackQuestionId = getNonNullRequestParamValue(Const.ParamsNames.FEEDBACK_QUESTION_ID);
-        FeedbackQuestionAttributes feedbackQuestion = logic.getFeedbackQuestion(feedbackQuestionId);
+        FeedbackQuestionAttributes feedbackQuestion = feedbackQuestionsLogic.getFeedbackQuestion(feedbackQuestionId);
         if (feedbackQuestion == null) {
             throw new EntityNotFoundException("The feedback question does not exist.");
         }
@@ -88,7 +88,7 @@ class SubmitFeedbackResponsesAction extends BasicFeedbackSubmissionAction {
     @Override
     public JsonResult execute() throws InvalidHttpRequestBodyException, InvalidOperationException {
         String feedbackQuestionId = getNonNullRequestParamValue(Const.ParamsNames.FEEDBACK_QUESTION_ID);
-        FeedbackQuestionAttributes feedbackQuestion = logic.getFeedbackQuestion(feedbackQuestionId);
+        FeedbackQuestionAttributes feedbackQuestion = feedbackQuestionsLogic.getFeedbackQuestion(feedbackQuestionId);
         if (feedbackQuestion == null) {
             throw new EntityNotFoundException("The feedback question does not exist.");
         }
@@ -118,18 +118,18 @@ class SubmitFeedbackResponsesAction extends BasicFeedbackSubmissionAction {
                     feedbackQuestion.getGiverType() == FeedbackParticipantType.TEAMS
                             ? studentAttributes.getTeam() : studentAttributes.getEmail();
             giverSection = studentAttributes.getSection();
-            existingResponses = logic.getFeedbackResponsesFromStudentOrTeamForQuestion(feedbackQuestion, studentAttributes);
-            recipientsOfTheQuestion = logic.getRecipientsOfQuestion(feedbackQuestion, null, studentAttributes);
-            logic.populateFieldsToGenerateInQuestion(feedbackQuestion,
+            existingResponses = feedbackResponsesLogic.getFeedbackResponsesFromStudentOrTeamForQuestion(feedbackQuestion, studentAttributes);
+            recipientsOfTheQuestion = feedbackQuestionsLogic.getRecipientsOfQuestion(feedbackQuestion, null, studentAttributes);
+            feedbackQuestionsLogic.populateFieldsToGenerateInQuestion(feedbackQuestion,
                     studentAttributes.getEmail(), studentAttributes.getTeam());
             break;
         case INSTRUCTOR_SUBMISSION:
             InstructorAttributes instructorAttributes = getInstructorOfCourseFromRequest(feedbackQuestion.getCourseId());
             giverIdentifier = instructorAttributes.getEmail();
             giverSection = Const.DEFAULT_SECTION;
-            existingResponses = logic.getFeedbackResponsesFromInstructorForQuestion(feedbackQuestion, instructorAttributes);
-            recipientsOfTheQuestion = logic.getRecipientsOfQuestion(feedbackQuestion, instructorAttributes, null);
-            logic.populateFieldsToGenerateInQuestion(feedbackQuestion,
+            existingResponses = feedbackResponsesLogic.getFeedbackResponsesFromInstructorForQuestion(feedbackQuestion, instructorAttributes);
+            recipientsOfTheQuestion = feedbackQuestionsLogic.getRecipientsOfQuestion(feedbackQuestion, instructorAttributes, null);
+            feedbackQuestionsLogic.populateFieldsToGenerateInQuestion(feedbackQuestion,
                     instructorAttributes.getEmail(), null);
             break;
         default:
@@ -227,19 +227,19 @@ class SubmitFeedbackResponsesAction extends BasicFeedbackSubmissionAction {
                     .collect(Collectors.toList());
 
             for (FeedbackResponseAttributes feedbackResponse : feedbackResponsesToDelete) {
-                logic.deleteFeedbackResponseCascade(feedbackResponse.getId());
+                feedbackResponsesLogic.deleteFeedbackResponseCascade(feedbackResponse.getId());
             }
         } else if (submitRequest.getRecipients().isEmpty() && existingResponsesPerRecipient.containsKey(recipientId)) {
             // delete a single recipient submission
             FeedbackResponseAttributes feedbackResponseToDelete = existingResponsesPerRecipient.get(recipientId);
-            logic.deleteFeedbackResponseCascade(feedbackResponseToDelete.getId());
+            feedbackResponsesLogic.deleteFeedbackResponseCascade(feedbackResponseToDelete.getId());
         }
 
         List<FeedbackResponseAttributes> output = new ArrayList<>();
 
         for (FeedbackResponseAttributes feedbackResponse : feedbackResponsesToAdd) {
             try {
-                output.add(logic.createFeedbackResponse(feedbackResponse));
+                output.add(feedbackResponsesLogic.createFeedbackResponse(feedbackResponse));
             } catch (InvalidParametersException | EntityAlreadyExistsException e) {
                 // None of the exceptions should be happening as the responses have been pre-validated
                 log.severe("Encountered exception when creating response: " + e.getMessage(), e);
@@ -248,7 +248,7 @@ class SubmitFeedbackResponsesAction extends BasicFeedbackSubmissionAction {
 
         for (FeedbackResponseAttributes.UpdateOptions feedbackResponse : feedbackResponsesToUpdate) {
             try {
-                output.add(logic.updateFeedbackResponseCascade(feedbackResponse));
+                output.add(feedbackResponsesLogic.updateFeedbackResponseCascade(feedbackResponse));
             } catch (InvalidParametersException | EntityAlreadyExistsException | EntityDoesNotExistException e) {
                 // None of the exceptions should be happening as the responses have been pre-validated
                 log.severe("Encountered exception when updating response: " + e.getMessage(), e);

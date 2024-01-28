@@ -15,6 +15,8 @@ import teammates.common.datatransfer.questions.FeedbackQuestionType;
 import teammates.common.datatransfer.questions.FeedbackTextQuestionDetails;
 import teammates.common.util.Const;
 import teammates.common.util.JsonUtils;
+import teammates.logic.api.FeedbackQuestionsLogicAPI;
+import teammates.logic.api.FeedbackSessionsLogicAPI;
 import teammates.ui.output.FeedbackQuestionData;
 import teammates.ui.output.FeedbackVisibilityType;
 import teammates.ui.output.NumberOfEntitiesToGiveFeedbackToSetting;
@@ -24,6 +26,8 @@ import teammates.ui.request.FeedbackQuestionUpdateRequest;
  * SUT: {@link UpdateFeedbackQuestionAction}.
  */
 public class UpdateFeedbackQuestionActionTest extends BaseActionTest<UpdateFeedbackQuestionAction> {
+    private final FeedbackQuestionsLogicAPI feedbackQuestionsLogic = FeedbackQuestionsLogicAPI.inst();
+    private final FeedbackSessionsLogicAPI feedbackSessionsLogic = FeedbackSessionsLogicAPI.inst();
 
     @Override
     protected String getActionUri() {
@@ -62,7 +66,7 @@ public class UpdateFeedbackQuestionActionTest extends BaseActionTest<UpdateFeedb
 
         FeedbackQuestionData response = (FeedbackQuestionData) r.getOutput();
 
-        typicalQuestion = logic.getFeedbackQuestion(typicalQuestion.getId());
+        typicalQuestion = feedbackQuestionsLogic.getFeedbackQuestion(typicalQuestion.getId());
         assertEquals(typicalQuestion.getQuestionNumber(), response.getQuestionNumber());
         assertEquals(2, typicalQuestion.getQuestionNumber());
 
@@ -119,7 +123,7 @@ public class UpdateFeedbackQuestionActionTest extends BaseActionTest<UpdateFeedb
         UpdateFeedbackQuestionAction a = getAction(updateRequest, param);
         getJsonResult(a);
 
-        typicalQuestion = logic.getFeedbackQuestion(typicalQuestion.getId());
+        typicalQuestion = feedbackQuestionsLogic.getFeedbackQuestion(typicalQuestion.getId());
 
         assertEquals(10, typicalQuestion.getNumberOfEntitiesToGiveFeedbackTo());
     }
@@ -146,7 +150,7 @@ public class UpdateFeedbackQuestionActionTest extends BaseActionTest<UpdateFeedb
         UpdateFeedbackQuestionAction a = getAction(updateRequest, param);
         getJsonResult(a);
 
-        typicalQuestion = logic.getFeedbackQuestion(typicalQuestion.getId());
+        typicalQuestion = feedbackQuestionsLogic.getFeedbackQuestion(typicalQuestion.getId());
 
         assertEquals(FeedbackParticipantType.STUDENTS, typicalQuestion.getGiverType());
         assertEquals(FeedbackParticipantType.TEAMS, typicalQuestion.getRecipientType());
@@ -177,7 +181,7 @@ public class UpdateFeedbackQuestionActionTest extends BaseActionTest<UpdateFeedb
         UpdateFeedbackQuestionAction a = getAction(updateRequest, param);
         getJsonResult(a);
 
-        typicalQuestion = logic.getFeedbackQuestion(typicalQuestion.getId());
+        typicalQuestion = feedbackQuestionsLogic.getFeedbackQuestion(typicalQuestion.getId());
 
         assertEquals(FeedbackParticipantType.STUDENTS, typicalQuestion.getGiverType());
         assertEquals(FeedbackParticipantType.SELF, typicalQuestion.getRecipientType());
@@ -246,7 +250,7 @@ public class UpdateFeedbackQuestionActionTest extends BaseActionTest<UpdateFeedb
 
         // question is not updated
         assertEquals(typicalQuestion.getQuestionDescription(),
-                logic.getFeedbackQuestion(typicalQuestion.getId()).getQuestionDescription());
+                feedbackQuestionsLogic.getFeedbackQuestion(typicalQuestion.getId()).getQuestionDescription());
     }
 
     // TODO: ADD this test case in FeedbackTextQuestionDetailsTest
@@ -273,7 +277,7 @@ public class UpdateFeedbackQuestionActionTest extends BaseActionTest<UpdateFeedb
 
         // question is not updated
         assertEquals(typicalQuestion.getQuestionDescription(),
-                logic.getFeedbackQuestion(typicalQuestion.getId()).getQuestionDescription());
+                feedbackQuestionsLogic.getFeedbackQuestion(typicalQuestion.getId()).getQuestionDescription());
 
         // recommended length does not change
         assertNull(((FeedbackTextQuestionDetails) typicalQuestion.getQuestionDetailsCopy()).getRecommendedLength());
@@ -299,7 +303,7 @@ public class UpdateFeedbackQuestionActionTest extends BaseActionTest<UpdateFeedb
 
         // question is not updated
         assertEquals(typicalQuestion.getQuestionDescription(),
-                logic.getFeedbackQuestion(typicalQuestion.getId()).getQuestionDescription());
+                feedbackQuestionsLogic.getFeedbackQuestion(typicalQuestion.getId()).getQuestionDescription());
     }
 
     @Test
@@ -317,9 +321,9 @@ public class UpdateFeedbackQuestionActionTest extends BaseActionTest<UpdateFeedb
 
         ______TS("Check response rate before editing question 1");
 
-        fs = logic.getFeedbackSession(fs.getFeedbackSessionName(), fs.getCourseId());
-        int submittedTotal = logic.getActualTotalSubmission(fs);
-        int expectedTotal = logic.getExpectedTotalSubmission(fs);
+        fs = feedbackSessionsLogic.getFeedbackSession(fs.getFeedbackSessionName(), fs.getCourseId());
+        int submittedTotal = feedbackSessionsLogic.getActualTotalSubmission(fs);
+        int expectedTotal = feedbackSessionsLogic.getExpectedTotalSubmission(fs);
         assertEquals(numStudentRespondents + numInstructorRespondents, submittedTotal);
         assertEquals(totalStudents + totalInstructors, expectedTotal);
 
@@ -345,9 +349,9 @@ public class UpdateFeedbackQuestionActionTest extends BaseActionTest<UpdateFeedb
         // Response rate should not change because other questions have the same respondents
         // Response rate should decrease by 1 as response from student1 in qn1 is changed
         numStudentRespondents--;
-        fs = logic.getFeedbackSession(fs.getFeedbackSessionName(), fs.getCourseId());
-        submittedTotal = logic.getActualTotalSubmission(fs);
-        expectedTotal = logic.getExpectedTotalSubmission(fs);
+        fs = feedbackSessionsLogic.getFeedbackSession(fs.getFeedbackSessionName(), fs.getCourseId());
+        submittedTotal = feedbackSessionsLogic.getActualTotalSubmission(fs);
+        expectedTotal = feedbackSessionsLogic.getExpectedTotalSubmission(fs);
         assertEquals(numStudentRespondents + numInstructorRespondents, submittedTotal);
         assertEquals(totalStudents + totalInstructors, expectedTotal);
 
@@ -367,9 +371,9 @@ public class UpdateFeedbackQuestionActionTest extends BaseActionTest<UpdateFeedb
         getJsonResult(a);
 
         // Response rate should decrease by 1 because the response of the unique instructor respondent is deleted
-        fs = logic.getFeedbackSession(fs.getFeedbackSessionName(), fs.getCourseId());
-        submittedTotal = logic.getActualTotalSubmission(fs);
-        expectedTotal = logic.getExpectedTotalSubmission(fs);
+        fs = feedbackSessionsLogic.getFeedbackSession(fs.getFeedbackSessionName(), fs.getCourseId());
+        submittedTotal = feedbackSessionsLogic.getActualTotalSubmission(fs);
+        expectedTotal = feedbackSessionsLogic.getExpectedTotalSubmission(fs);
         assertEquals(numStudentRespondents, submittedTotal);
         assertEquals(totalStudents + totalInstructors, expectedTotal);
 
@@ -389,9 +393,9 @@ public class UpdateFeedbackQuestionActionTest extends BaseActionTest<UpdateFeedb
 
         // Total possible respondents should decrease because instructors
         // (except session creator) are no longer possible respondents
-        fs = logic.getFeedbackSession(fs.getFeedbackSessionName(), fs.getCourseId());
-        submittedTotal = logic.getActualTotalSubmission(fs);
-        expectedTotal = logic.getExpectedTotalSubmission(fs);
+        fs = feedbackSessionsLogic.getFeedbackSession(fs.getFeedbackSessionName(), fs.getCourseId());
+        submittedTotal = feedbackSessionsLogic.getActualTotalSubmission(fs);
+        expectedTotal = feedbackSessionsLogic.getExpectedTotalSubmission(fs);
         assertEquals(numStudentRespondents, submittedTotal);
         assertEquals(totalStudents + 1, expectedTotal);
     }

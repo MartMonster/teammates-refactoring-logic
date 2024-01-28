@@ -11,6 +11,7 @@ import teammates.common.datatransfer.attributes.InstructorAttributes;
 import teammates.common.datatransfer.attributes.NotificationAttributes;
 import teammates.common.datatransfer.attributes.StudentAttributes;
 import teammates.common.util.Const;
+import teammates.logic.api.NotificationsLogicAPI;
 import teammates.ui.output.NotificationData;
 import teammates.ui.output.NotificationsData;
 
@@ -18,6 +19,7 @@ import teammates.ui.output.NotificationsData;
  * SUT: {@link GetNotificationsAction}.
  */
 public class GetNotificationsActionTest extends BaseActionTest<GetNotificationsAction> {
+    private final NotificationsLogicAPI notificationsLogic = NotificationsLogicAPI.inst();
 
     @Override
     String getActionUri() {
@@ -94,7 +96,7 @@ public class GetNotificationsActionTest extends BaseActionTest<GetNotificationsA
         loginAsInstructor(instructor.getGoogleId());
         NotificationAttributes notification = typicalBundle.notifications.get("notification5");
         int expectedNumberOfNotifications =
-                logic.getActiveNotificationsByTargetUser(notification.getTargetUser()).size();
+                notificationsLogic.getActiveNotificationsByTargetUser(notification.getTargetUser()).size();
 
         String[] requestParams = new String[] {
                 Const.ParamsNames.NOTIFICATION_TARGET_USER, NotificationTargetUser.INSTRUCTOR.toString(),
@@ -130,7 +132,7 @@ public class GetNotificationsActionTest extends BaseActionTest<GetNotificationsA
         List<NotificationData> notifications = output.getNotifications();
 
         assertEquals(expectedNumberOfNotifications,
-                logic.getAllNotifications().size());
+                notificationsLogic.getAllNotifications().size());
         assertEquals(expectedNumberOfNotifications, notifications.size());
 
         NotificationData expected = new NotificationData(notification);
@@ -139,7 +141,7 @@ public class GetNotificationsActionTest extends BaseActionTest<GetNotificationsA
 
         // notification's shown attribute should not be updated
         List<NotificationAttributes> notificationAttributes =
-                logic.getActiveNotificationsByTargetUser(notification.getTargetUser());
+                notificationsLogic.getActiveNotificationsByTargetUser(notification.getTargetUser());
         notificationAttributes.forEach(n -> assertFalse(n.isShown()));
     }
 
@@ -193,7 +195,7 @@ public class GetNotificationsActionTest extends BaseActionTest<GetNotificationsA
 
         // should update notification has shown attribute
         List<NotificationAttributes> notificationAttributes =
-                logic.getActiveNotificationsByTargetUser(NotificationTargetUser.INSTRUCTOR);
+                notificationsLogic.getActiveNotificationsByTargetUser(NotificationTargetUser.INSTRUCTOR);
         notificationAttributes = notificationAttributes.stream()
                 .filter(n -> !readNotificationsId.contains(n.getNotificationId()))
                 .collect(Collectors.toList());

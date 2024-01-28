@@ -23,12 +23,12 @@ class DeleteFeedbackResponseCommentAction extends BasicCommentSubmissionAction {
     @Override
     void checkSpecificAccessControl() throws UnauthorizedAccessException {
         long feedbackResponseCommentId = getLongRequestParamValue(Const.ParamsNames.FEEDBACK_RESPONSE_COMMENT_ID);
-        FeedbackResponseCommentAttributes frc = logic.getFeedbackResponseComment(feedbackResponseCommentId);
+        FeedbackResponseCommentAttributes frc = feedbackResponseCommentsLogic.getFeedbackResponseComment(feedbackResponseCommentId);
         if (frc == null) {
             return;
         }
         FeedbackSessionAttributes session = getNonNullFeedbackSession(frc.getFeedbackSessionName(), frc.getCourseId());
-        FeedbackQuestionAttributes question = logic.getFeedbackQuestion(frc.getFeedbackQuestionId());
+        FeedbackQuestionAttributes question = feedbackQuestionsLogic.getFeedbackQuestion(frc.getFeedbackQuestionId());
 
         Intent intent = Intent.valueOf(getNonNullRequestParamValue(Const.ParamsNames.INTENT));
         String courseId = frc.getCourseId();
@@ -62,7 +62,7 @@ class DeleteFeedbackResponseCommentAction extends BasicCommentSubmissionAction {
             break;
         case INSTRUCTOR_RESULT:
             gateKeeper.verifyLoggedInUserPrivileges(userInfo);
-            InstructorAttributes instructor = logic.getInstructorForGoogleId(courseId, userInfo.getId());
+            InstructorAttributes instructor = instructorsLogic.getInstructorForGoogleId(courseId, userInfo.getId());
             if (instructor == null) {
                 throw new UnauthorizedAccessException("Trying to access system using a non-existent instructor entity");
             }
@@ -70,7 +70,7 @@ class DeleteFeedbackResponseCommentAction extends BasicCommentSubmissionAction {
                 return;
             }
 
-            FeedbackResponseAttributes response = logic.getFeedbackResponse(frc.getFeedbackResponseId());
+            FeedbackResponseAttributes response = feedbackResponsesLogic.getFeedbackResponse(frc.getFeedbackResponseId());
             gateKeeper.verifyAccessible(instructor, session, response.getGiverSection(),
                     Const.InstructorPermissions.CAN_MODIFY_SESSION_COMMENT_IN_SECTIONS);
             gateKeeper.verifyAccessible(instructor, session, response.getRecipientSection(),
@@ -85,7 +85,7 @@ class DeleteFeedbackResponseCommentAction extends BasicCommentSubmissionAction {
     public JsonResult execute() {
         long feedbackResponseCommentId = getLongRequestParamValue(Const.ParamsNames.FEEDBACK_RESPONSE_COMMENT_ID);
 
-        logic.deleteFeedbackResponseComment(feedbackResponseCommentId);
+        feedbackResponseCommentsLogic.deleteFeedbackResponseComment(feedbackResponseCommentId);
 
         return new JsonResult("Successfully deleted feedback response comment.");
     }

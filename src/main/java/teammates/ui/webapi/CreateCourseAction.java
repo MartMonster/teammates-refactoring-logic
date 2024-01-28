@@ -9,6 +9,7 @@ import teammates.common.exception.EntityAlreadyExistsException;
 import teammates.common.exception.InvalidParametersException;
 import teammates.common.util.Const;
 import teammates.common.util.FieldValidator;
+import teammates.logic.api.CoursesLogicAPI;
 import teammates.ui.output.CourseData;
 import teammates.ui.request.CourseCreateRequest;
 import teammates.ui.request.InvalidHttpRequestBodyException;
@@ -31,11 +32,11 @@ class CreateCourseAction extends Action {
 
         String institute = getNonNullRequestParamValue(Const.ParamsNames.INSTRUCTOR_INSTITUTION);
 
-        List<InstructorAttributes> existingInstructors = logic.getInstructorsForGoogleId(userInfo.getId());
+        List<InstructorAttributes> existingInstructors = instructorsLogic.getInstructorsForGoogleId(userInfo.getId());
         boolean canCreateCourse = existingInstructors
                 .stream()
                 .filter(InstructorAttributes::hasCoownerPrivileges)
-                .map(instructor -> logic.getCourse(instructor.getCourseId()))
+                .map(instructor -> coursesLogic.getCourse(instructor.getCourseId()))
                 .filter(Objects::nonNull)
                 .anyMatch(course -> institute.equals(course.getInstitute()));
         if (!canCreateCourse) {
@@ -68,9 +69,9 @@ class CreateCourseAction extends Action {
                         .build();
 
         try {
-            logic.createCourseAndInstructor(userInfo.getId(), courseAttributes);
+            coursesLogic.createCourseAndInstructor(userInfo.getId(), courseAttributes);
 
-            InstructorAttributes instructorCreatedForCourse = logic.getInstructorForGoogleId(newCourseId, userInfo.getId());
+            InstructorAttributes instructorCreatedForCourse = instructorsLogic.getInstructorForGoogleId(newCourseId, userInfo.getId());
             taskQueuer.scheduleInstructorForSearchIndexing(instructorCreatedForCourse.getCourseId(),
                     instructorCreatedForCourse.getEmail());
         } catch (EntityAlreadyExistsException e) {
@@ -81,6 +82,6 @@ class CreateCourseAction extends Action {
             throw new InvalidHttpRequestBodyException(e);
         }
 
-        return new JsonResult(new CourseData(logic.getCourse(newCourseId)));
+        return new JsonResult(new CourseData(coursesLogic.getCourse(newCourseId)));
     }
 }

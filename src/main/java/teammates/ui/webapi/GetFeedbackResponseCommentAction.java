@@ -33,7 +33,7 @@ class GetFeedbackResponseCommentAction extends BasicCommentSubmissionAction {
         } catch (InvalidParametersException ipe) {
             throw new InvalidHttpParameterException(ipe);
         }
-        FeedbackResponseAttributes feedbackResponseAttributes = logic.getFeedbackResponse(feedbackResponseId);
+        FeedbackResponseAttributes feedbackResponseAttributes = feedbackResponsesLogic.getFeedbackResponse(feedbackResponseId);
 
         if (feedbackResponseAttributes == null) {
             throw new EntityNotFoundException("The feedback response does not exist.");
@@ -43,7 +43,7 @@ class GetFeedbackResponseCommentAction extends BasicCommentSubmissionAction {
                 getNonNullFeedbackSession(feedbackResponseAttributes.getFeedbackSessionName(),
                         feedbackResponseAttributes.getCourseId());
         FeedbackQuestionAttributes feedbackQuestion =
-                logic.getFeedbackQuestion(feedbackResponseAttributes.getFeedbackQuestionId());
+                feedbackQuestionsLogic.getFeedbackQuestion(feedbackResponseAttributes.getFeedbackQuestionId());
 
         verifyInstructorCanSeeQuestionIfInModeration(feedbackQuestion);
         verifyNotPreview();
@@ -80,9 +80,9 @@ class GetFeedbackResponseCommentAction extends BasicCommentSubmissionAction {
         case STUDENT_SUBMISSION:
         case INSTRUCTOR_SUBMISSION:
             FeedbackResponseCommentAttributes comment =
-                    logic.getFeedbackResponseCommentForResponseFromParticipant(feedbackResponseId);
+                    feedbackResponseCommentsLogic.getFeedbackResponseCommentForResponseFromParticipant(feedbackResponseId);
             if (comment == null) {
-                FeedbackResponseAttributes fr = logic.getFeedbackResponse(feedbackResponseId);
+                FeedbackResponseAttributes fr = feedbackResponsesLogic.getFeedbackResponse(feedbackResponseId);
                 if (fr == null) {
                     throw new EntityNotFoundException("The feedback response does not exist.");
                 }

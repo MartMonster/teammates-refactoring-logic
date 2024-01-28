@@ -11,13 +11,17 @@ import teammates.common.datatransfer.DataBundle;
 import teammates.common.datatransfer.attributes.InstructorAttributes;
 import teammates.common.datatransfer.attributes.StudentAttributes;
 import teammates.common.util.TimeHelper;
+import teammates.logic.api.InstructorsLogicAPI;
 import teammates.logic.api.Logic;
+import teammates.logic.api.StudentsLogicAPI;
 import teammates.storage.entity.Course;
 
 /**
  * Script to populate search documents into the system back-end.
  */
 public class PopulateCourseSearchDocuments extends DataMigrationEntitiesBaseScript<Course> {
+    private final StudentsLogicAPI studentsLogic = StudentsLogicAPI.inst();
+    private final InstructorsLogicAPI instructorsLogic = InstructorsLogicAPI.inst();
 
     private static final int STUDENT_SIZE_LIMIT = 300;
     private final Logic logic = Logic.inst();
@@ -60,8 +64,8 @@ public class PopulateCourseSearchDocuments extends DataMigrationEntitiesBaseScri
 
     @Override
     protected void migrateEntity(Course course) throws Exception {
-        List<StudentAttributes> students = logic.getStudentsForCourse(course.getUniqueId());
-        List<InstructorAttributes> instructors = logic.getInstructorsForCourse(course.getUniqueId());
+        List<StudentAttributes> students = studentsLogic.getStudentsForCourse(course.getUniqueId());
+        List<InstructorAttributes> instructors = instructorsLogic.getInstructorsForCourse(course.getUniqueId());
 
         int nLoop = students.size() / STUDENT_SIZE_LIMIT;
 

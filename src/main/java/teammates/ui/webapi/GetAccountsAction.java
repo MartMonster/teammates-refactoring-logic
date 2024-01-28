@@ -5,6 +5,7 @@ import java.util.List;
 import teammates.common.datatransfer.attributes.AccountAttributes;
 import teammates.common.util.Const;
 import teammates.common.util.SanitizationHelper;
+import teammates.logic.api.AccountsLogicAPI;
 import teammates.ui.output.AccountsData;
 
 /**
@@ -17,7 +18,7 @@ class GetAccountsAction extends AdminOnlyAction {
         String email = getNonNullRequestParamValue(Const.ParamsNames.USER_EMAIL);
         email = SanitizationHelper.sanitizeEmail(email);
 
-        List<AccountAttributes> accounts = logic.getAccountsForEmail(email);
+        List<AccountAttributes> accounts = accountsLogic.getAccountsForEmail(email);
 
         return new JsonResult(new AccountsData(accounts));
     }

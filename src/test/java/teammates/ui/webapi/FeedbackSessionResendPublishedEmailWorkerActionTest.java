@@ -11,6 +11,7 @@ import teammates.common.util.Const;
 import teammates.common.util.EmailType;
 import teammates.common.util.EmailWrapper;
 import teammates.common.util.TaskWrapper;
+import teammates.logic.api.CoursesLogicAPI;
 import teammates.ui.request.FeedbackSessionRemindRequest;
 import teammates.ui.request.SendEmailRequest;
 
@@ -19,6 +20,7 @@ import teammates.ui.request.SendEmailRequest;
  */
 public class FeedbackSessionResendPublishedEmailWorkerActionTest
         extends BaseActionTest<FeedbackSessionResendPublishedEmailWorkerAction> {
+    private final CoursesLogicAPI coursesLogic = CoursesLogicAPI.inst();
 
     @Override
     protected String getActionUri() {
@@ -59,7 +61,7 @@ public class FeedbackSessionResendPublishedEmailWorkerActionTest
         // send 2 emails + 1 notification as specified in the submission parameters
         verifySpecifiedTasksAdded(Const.TaskQueue.SEND_EMAIL_QUEUE_NAME, 3);
 
-        String courseName = logic.getCourse(publishedSession.getCourseId()).getName();
+        String courseName = coursesLogic.getCourse(publishedSession.getCourseId()).getName();
         List<TaskWrapper> tasksAdded = mockTaskQueuer.getTasksAdded();
         for (TaskWrapper task : tasksAdded) {
             SendEmailRequest requestBody = (SendEmailRequest) task.getRequestBody();

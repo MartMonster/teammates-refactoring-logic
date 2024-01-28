@@ -25,7 +25,7 @@ class CreateFeedbackQuestionAction extends Action {
     void checkSpecificAccessControl() throws UnauthorizedAccessException {
         String courseId = getNonNullRequestParamValue(Const.ParamsNames.COURSE_ID);
         String feedbackSessionName = getNonNullRequestParamValue(Const.ParamsNames.FEEDBACK_SESSION_NAME);
-        InstructorAttributes instructorDetailForCourse = logic.getInstructorForGoogleId(courseId, userInfo.getId());
+        InstructorAttributes instructorDetailForCourse = instructorsLogic.getInstructorForGoogleId(courseId, userInfo.getId());
 
         gateKeeper.verifyAccessible(instructorDetailForCourse,
                 getNonNullFeedbackSession(feedbackSessionName, courseId),
@@ -65,7 +65,7 @@ class CreateFeedbackQuestionAction extends Action {
         }
 
         try {
-            attributes = logic.createFeedbackQuestion(attributes);
+            attributes = feedbackQuestionsLogic.createFeedbackQuestion(attributes);
         } catch (InvalidParametersException e) {
             throw new InvalidHttpRequestBodyException(e);
         }

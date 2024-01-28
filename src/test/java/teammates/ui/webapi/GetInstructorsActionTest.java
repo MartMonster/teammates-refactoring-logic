@@ -7,6 +7,7 @@ import org.testng.annotations.Test;
 import teammates.common.datatransfer.attributes.InstructorAttributes;
 import teammates.common.datatransfer.attributes.StudentAttributes;
 import teammates.common.util.Const;
+import teammates.logic.api.InstructorsLogicAPI;
 import teammates.ui.output.InstructorData;
 import teammates.ui.output.InstructorPermissionRole;
 import teammates.ui.output.InstructorsData;
@@ -17,6 +18,7 @@ import teammates.ui.request.Intent;
  * SUT: {@link GetInstructorsAction}.
  */
 public class GetInstructorsActionTest extends BaseActionTest<GetInstructorsAction> {
+    private final InstructorsLogicAPI instructorsLogic = InstructorsLogicAPI.inst();
 
     @Override
     protected String getActionUri() {
@@ -63,7 +65,7 @@ public class GetInstructorsActionTest extends BaseActionTest<GetInstructorsActio
         List<InstructorData> instructors = output.getInstructors();
 
         // the #instructors is 5
-        assertEquals(5, logic.getInstructorsForCourse(studentAttributes.getCourse()).size());
+        assertEquals(5, instructorsLogic.getInstructorsForCourse(studentAttributes.getCourse()).size());
         // with information hiding, it is 4 instead
         assertEquals(4, instructors.size());
         InstructorData typicalInstructor = instructors.get(0);
@@ -94,7 +96,7 @@ public class GetInstructorsActionTest extends BaseActionTest<GetInstructorsActio
         List<InstructorData> instructors = output.getInstructors();
 
         // the #instructors is 5
-        assertEquals(5, logic.getInstructorsForCourse(instructor.getCourseId()).size());
+        assertEquals(5, instructorsLogic.getInstructorsForCourse(instructor.getCourseId()).size());
         // without information hiding, it is still 5
         assertEquals(5, instructors.size());
         InstructorData typicalInstructor = instructors.get(0);

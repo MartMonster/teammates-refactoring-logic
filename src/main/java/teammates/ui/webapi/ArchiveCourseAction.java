@@ -6,6 +6,7 @@ import teammates.common.exception.EntityDoesNotExistException;
 import teammates.common.exception.InvalidParametersException;
 import teammates.common.util.Const;
 import teammates.common.util.Logger;
+import teammates.logic.api.CoursesLogicAPI;
 import teammates.ui.output.CourseArchiveData;
 import teammates.ui.request.CourseArchiveRequest;
 import teammates.ui.request.InvalidHttpRequestBodyException;
@@ -25,8 +26,8 @@ class ArchiveCourseAction extends Action {
     @Override
     void checkSpecificAccessControl() throws UnauthorizedAccessException {
         String idOfCourseToArchive = getNonNullRequestParamValue(Const.ParamsNames.COURSE_ID);
-        gateKeeper.verifyAccessible(logic.getInstructorForGoogleId(idOfCourseToArchive, userInfo.id),
-                logic.getCourse(idOfCourseToArchive));
+        gateKeeper.verifyAccessible(instructorsLogic.getInstructorForGoogleId(idOfCourseToArchive, userInfo.id),
+                coursesLogic.getCourse(idOfCourseToArchive));
     }
 
     @Override
@@ -38,7 +39,7 @@ class ArchiveCourseAction extends Action {
         boolean isArchive = courseArchiveRequest.getArchiveStatus();
         try {
             // Set the archive status and status shown to user and admin
-            logic.setArchiveStatusOfInstructor(userInfo.id, idOfCourseToArchive, isArchive);
+            instructorsLogic.setArchiveStatusOfInstructor(userInfo.id, idOfCourseToArchive, isArchive);
         } catch (InvalidParametersException e) {
             // There should not be any invalid parameter here
             log.severe("Unexpected error", e);

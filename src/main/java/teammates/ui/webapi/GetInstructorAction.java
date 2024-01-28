@@ -2,6 +2,7 @@ package teammates.ui.webapi;
 
 import teammates.common.datatransfer.attributes.InstructorAttributes;
 import teammates.common.util.Const;
+import teammates.logic.api.CoursesLogicAPI;
 import teammates.ui.output.InstructorData;
 import teammates.ui.request.Intent;
 
@@ -56,7 +57,7 @@ class GetInstructorAction extends BasicFeedbackSubmissionAction {
             instructorAttributes = getInstructorOfCourseFromRequest(courseId);
             break;
         case FULL_DETAIL:
-            instructorAttributes = logic.getInstructorForGoogleId(courseId, userInfo.getId());
+            instructorAttributes = instructorsLogic.getInstructorForGoogleId(courseId, userInfo.getId());
             break;
         default:
             throw new InvalidHttpParameterException("Unknown intent " + intent);
@@ -67,7 +68,7 @@ class GetInstructorAction extends BasicFeedbackSubmissionAction {
         }
 
         InstructorData instructorData = new InstructorData(instructorAttributes);
-        instructorData.setInstitute(logic.getCourseInstitute(courseId));
+        instructorData.setInstitute(coursesLogic.getCourseInstitute(courseId));
         if (intent == Intent.FULL_DETAIL) {
             instructorData.setGoogleId(instructorAttributes.getGoogleId());
         }

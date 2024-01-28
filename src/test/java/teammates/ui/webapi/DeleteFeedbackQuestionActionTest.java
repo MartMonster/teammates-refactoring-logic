@@ -7,11 +7,13 @@ import teammates.common.datatransfer.attributes.FeedbackSessionAttributes;
 import teammates.common.datatransfer.attributes.InstructorAttributes;
 import teammates.common.datatransfer.questions.FeedbackQuestionType;
 import teammates.common.util.Const;
+import teammates.logic.api.FeedbackQuestionsLogicAPI;
 
 /**
  * SUT: {@link DeleteFeedbackQuestionAction}.
  */
 public class DeleteFeedbackQuestionActionTest extends BaseActionTest<DeleteFeedbackQuestionAction> {
+    private final FeedbackQuestionsLogicAPI feedbackQuestionsLogic = FeedbackQuestionsLogicAPI.inst();
 
     @Override
     protected String getActionUri() {
@@ -48,7 +50,7 @@ public class DeleteFeedbackQuestionActionTest extends BaseActionTest<DeleteFeedb
         getJsonResult(a);
 
         // question is deleted
-        assertNull(logic.getFeedbackQuestion(typicalQuestion.getFeedbackQuestionId()));
+        assertNull(feedbackQuestionsLogic.getFeedbackQuestion(typicalQuestion.getFeedbackQuestionId()));
     }
 
     @Override

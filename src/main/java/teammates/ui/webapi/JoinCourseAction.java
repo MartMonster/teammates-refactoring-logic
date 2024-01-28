@@ -11,6 +11,8 @@ import teammates.common.exception.InvalidParametersException;
 import teammates.common.util.Const;
 import teammates.common.util.EmailWrapper;
 import teammates.common.util.Logger;
+import teammates.logic.api.AccountsLogicAPI;
+import teammates.logic.api.CoursesLogicAPI;
 
 /**
  * Action: joins a course for a student/instructor.
@@ -47,7 +49,7 @@ class JoinCourseAction extends Action {
         StudentAttributes student;
 
         try {
-            student = logic.joinCourseForStudent(regkey, userInfo.id);
+            student = accountsLogic.joinCourseForStudent(regkey, userInfo.id);
         } catch (EntityDoesNotExistException ednee) {
             throw new EntityNotFoundException(ednee);
         } catch (EntityAlreadyExistsException eaee) {
@@ -67,7 +69,7 @@ class JoinCourseAction extends Action {
         InstructorAttributes instructor;
 
         try {
-            instructor = logic.joinCourseForInstructor(regkey, userInfo.id);
+            instructor = accountsLogic.joinCourseForInstructor(regkey, userInfo.id);
         } catch (EntityDoesNotExistException ednee) {
             throw new EntityNotFoundException(ednee);
         } catch (EntityAlreadyExistsException eaee) {
@@ -84,7 +86,7 @@ class JoinCourseAction extends Action {
     }
 
     private void sendJoinEmail(String courseId, String userName, String userEmail, boolean isInstructor) {
-        CourseAttributes course = logic.getCourse(courseId);
+        CourseAttributes course = coursesLogic.getCourse(courseId);
         EmailWrapper email = emailGenerator.generateUserCourseRegisteredEmail(
                 userName, userEmail, userInfo.id, isInstructor, course);
         emailSender.sendEmail(email);

@@ -7,12 +7,16 @@ import org.testng.annotations.Test;
 import teammates.common.datatransfer.attributes.CourseAttributes;
 import teammates.common.datatransfer.attributes.InstructorAttributes;
 import teammates.common.util.Const;
+import teammates.logic.api.CoursesLogicAPI;
+import teammates.logic.api.InstructorsLogicAPI;
 import teammates.ui.output.CourseData;
 
 /**
  * SUT: {@link BinCourseAction}.
  */
 public class BinCourseActionTest extends BaseActionTest<BinCourseAction> {
+    private final InstructorsLogicAPI instructorsLogic = InstructorsLogicAPI.inst();
+    private final CoursesLogicAPI logic = CoursesLogicAPI.inst();
 
     @Override
     protected String getActionUri() {
@@ -58,7 +62,7 @@ public class BinCourseActionTest extends BaseActionTest<BinCourseAction> {
         verifyCourseData(courseData, courseToBeDeleted.getId(), courseToBeDeleted.getName(),
                 courseToBeDeleted.getTimeZone());
 
-        List<InstructorAttributes> instructors = logic.getInstructorsForGoogleId(instructorId, false);
+        List<InstructorAttributes> instructors = instructorsLogic.getInstructorsForGoogleId(instructorId, false);
         List<CourseAttributes> courseList = logic.getCoursesForInstructor(instructors);
         assertEquals(1, courseList.size());
         assertEquals("icdct.tpa.id1", courseList.get(0).getId());

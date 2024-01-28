@@ -4,6 +4,8 @@ import teammates.common.datatransfer.attributes.InstructorAttributes;
 import teammates.common.datatransfer.attributes.StudentAttributes;
 import teammates.common.exception.EntityDoesNotExistException;
 import teammates.common.util.Const;
+import teammates.logic.api.AccountsLogicAPI;
+import teammates.logic.api.InstructorsLogicAPI;
 
 /**
  * Action: resets an account ID.
@@ -22,27 +24,27 @@ class ResetAccountAction extends AdminOnlyAction {
         String courseId = getNonNullRequestParamValue(Const.ParamsNames.COURSE_ID);
         String wrongGoogleId = null;
         if (studentEmail != null) {
-            StudentAttributes existingStudent = logic.getStudentForEmail(courseId, studentEmail);
+            StudentAttributes existingStudent = studentsLogic.getStudentForEmail(courseId, studentEmail);
             if (existingStudent == null) {
                 throw new EntityNotFoundException("Student does not exist.");
             }
             wrongGoogleId = existingStudent.getGoogleId();
 
             try {
-                logic.resetStudentGoogleId(studentEmail, courseId);
+                studentsLogic.resetStudentGoogleId(studentEmail, courseId);
                 taskQueuer.scheduleCourseRegistrationInviteToStudent(courseId, studentEmail, true);
             } catch (EntityDoesNotExistException e) {
                 throw new EntityNotFoundException(e);
             }
         } else if (instructorEmail != null) {
-            InstructorAttributes existingInstructor = logic.getInstructorForEmail(courseId, instructorEmail);
+            InstructorAttributes existingInstructor = instructorsLogic.getInstructorForEmail(courseId, instructorEmail);
             if (existingInstructor == null) {
                 throw new EntityNotFoundException("Instructor does not exist.");
             }
             wrongGoogleId = existingInstructor.getGoogleId();
 
             try {
-                logic.resetInstructorGoogleId(instructorEmail, courseId);
+                instructorsLogic.resetInstructorGoogleId(instructorEmail, courseId);
                 taskQueuer.scheduleCourseRegistrationInviteToInstructor(null, instructorEmail, courseId, true);
             } catch (EntityDoesNotExistException e) {
                 throw new EntityNotFoundException(e);
@@ -50,9 +52,9 @@ class ResetAccountAction extends AdminOnlyAction {
         }
 
         if (wrongGoogleId != null
-                && logic.getStudentsForGoogleId(wrongGoogleId).isEmpty()
-                && logic.getInstructorsForGoogleId(wrongGoogleId).isEmpty()) {
-            logic.deleteAccountCascade(wrongGoogleId);
+                && studentsLogic.getStudentsForGoogleId(wrongGoogleId).isEmpty()
+                && instructorsLogic.getInstructorsForGoogleId(wrongGoogleId).isEmpty()) {
+            accountsLogic.deleteAccountCascade(wrongGoogleId);
         }
 
         return new JsonResult("Account is successfully reset.");

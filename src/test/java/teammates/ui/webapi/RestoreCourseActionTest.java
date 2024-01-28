@@ -5,6 +5,7 @@ import org.testng.annotations.Test;
 import teammates.common.datatransfer.attributes.CourseAttributes;
 import teammates.common.datatransfer.attributes.InstructorAttributes;
 import teammates.common.util.Const;
+import teammates.logic.api.CoursesLogicAPI;
 import teammates.ui.output.MessageOutput;
 
 /**
@@ -12,6 +13,7 @@ import teammates.ui.output.MessageOutput;
  */
 public class RestoreCourseActionTest
         extends BaseActionTest<RestoreCourseAction> {
+    private final CoursesLogicAPI coursesLogic = CoursesLogicAPI.inst();
 
     @Override
     protected String getActionUri() {
@@ -43,7 +45,7 @@ public class RestoreCourseActionTest
         MessageOutput message = (MessageOutput) result.getOutput();
 
         assertEquals("The course " + courseId + " has been restored.", message.getMessage());
-        assertNull(logic.getCourse(instructor1OfCourse1.getCourseId()).getDeletedAt());
+        assertNull(coursesLogic.getCourse(instructor1OfCourse1.getCourseId()).getDeletedAt());
 
         ______TS("Typical case, restore a deleted course from Recycle Bin");
 
@@ -51,8 +53,8 @@ public class RestoreCourseActionTest
                 Const.ParamsNames.COURSE_ID, courseId,
         };
 
-        logic.moveCourseToRecycleBin(courseId);
-        CourseAttributes deletedCourse = logic.getCourse(courseId);
+        coursesLogic.moveCourseToRecycleBin(courseId);
+        CourseAttributes deletedCourse = coursesLogic.getCourse(courseId);
         assertNotNull(deletedCourse);
         assertTrue(deletedCourse.isCourseDeleted());
 
@@ -61,7 +63,7 @@ public class RestoreCourseActionTest
         message = (MessageOutput) result.getOutput();
 
         assertEquals("The course " + courseId + " has been restored.", message.getMessage());
-        assertNull(logic.getCourse(instructor1OfCourse1.getCourseId()).getDeletedAt());
+        assertNull(coursesLogic.getCourse(instructor1OfCourse1.getCourseId()).getDeletedAt());
 
         ______TS("Not enough parameters");
 

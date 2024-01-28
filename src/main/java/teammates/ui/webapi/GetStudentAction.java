@@ -4,6 +4,7 @@ import teammates.common.datatransfer.attributes.CourseAttributes;
 import teammates.common.datatransfer.attributes.InstructorAttributes;
 import teammates.common.datatransfer.attributes.StudentAttributes;
 import teammates.common.util.Const;
+import teammates.logic.api.CoursesLogicAPI;
 import teammates.ui.output.StudentData;
 
 /**
@@ -25,7 +26,7 @@ class GetStudentAction extends Action {
     @Override
     void checkSpecificAccessControl() throws UnauthorizedAccessException {
         String courseId = getNonNullRequestParamValue(Const.ParamsNames.COURSE_ID);
-        CourseAttributes course = logic.getCourse(courseId);
+        CourseAttributes course = coursesLogic.getCourse(courseId);
 
         StudentAttributes student;
 
@@ -33,13 +34,13 @@ class GetStudentAction extends Action {
         String regKey = getRequestParamValue(Const.ParamsNames.REGKEY);
 
         if (studentEmail != null) {
-            student = logic.getStudentForEmail(courseId, studentEmail);
+            student = studentsLogic.getStudentForEmail(courseId, studentEmail);
             if (student == null || userInfo == null || !userInfo.isInstructor) {
                 throw new UnauthorizedAccessException(UNAUTHORIZED_ACCESS);
             }
 
-            InstructorAttributes instructor = logic.getInstructorForGoogleId(courseId, userInfo.id);
-            gateKeeper.verifyAccessible(instructor, logic.getCourse(courseId), student.getSection(),
+            InstructorAttributes instructor = instructorsLogic.getInstructorForGoogleId(courseId, userInfo.id);
+            gateKeeper.verifyAccessible(instructor, coursesLogic.getCourse(courseId), student.getSection(),
                     Const.InstructorPermissions.CAN_VIEW_STUDENT_IN_SECTIONS);
         } else if (regKey != null) {
             getUnregisteredStudent().orElseThrow(() -> new UnauthorizedAccessException(UNAUTHORIZED_ACCESS));
@@ -48,7 +49,7 @@ class GetStudentAction extends Action {
                 throw new UnauthorizedAccessException(UNAUTHORIZED_ACCESS);
             }
 
-            student = logic.getStudentForGoogleId(courseId, userInfo.id);
+            student = studentsLogic.getStudentForGoogleId(courseId, userInfo.id);
             gateKeeper.verifyAccessible(student, course);
         }
     }
@@ -63,7 +64,7 @@ class GetStudentAction extends Action {
         if (studentEmail == null) {
             student = getPossiblyUnregisteredStudent(courseId);
         } else {
-            student = logic.getStudentForEmail(courseId, studentEmail);
+            student = studentsLogic.getStudentForEmail(courseId, studentEmail);
         }
 
         if (student == null) {
@@ -80,7 +81,7 @@ class GetStudentAction extends Action {
             // hide information if not an instructor
             studentData.hideInformationForStudent();
             // add student institute
-            studentData.setInstitute(logic.getCourseInstitute(courseId));
+            studentData.setInstitute(coursesLogic.getCourseInstitute(courseId));
         }
 
         return new JsonResult(studentData);

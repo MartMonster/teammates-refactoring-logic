@@ -19,7 +19,7 @@ class FeedbackSessionPublishedEmailWorkerAction extends AdminOnlyAction {
         String feedbackSessionName = getNonNullRequestParamValue(ParamsNames.FEEDBACK_SESSION_NAME);
         String courseId = getNonNullRequestParamValue(ParamsNames.COURSE_ID);
 
-        FeedbackSessionAttributes session = logic.getFeedbackSession(feedbackSessionName, courseId);
+        FeedbackSessionAttributes session = feedbackSessionsLogic.getFeedbackSession(feedbackSessionName, courseId);
         if (session == null) {
             log.severe("Feedback session object for feedback session name: " + feedbackSessionName
                        + " for course: " + courseId + " could not be fetched.");
@@ -28,7 +28,7 @@ class FeedbackSessionPublishedEmailWorkerAction extends AdminOnlyAction {
         List<EmailWrapper> emailsToBeSent = emailGenerator.generateFeedbackSessionPublishedEmails(session);
         try {
             taskQueuer.scheduleEmailsForSending(emailsToBeSent);
-            logic.updateFeedbackSession(
+            feedbackSessionsLogic.updateFeedbackSession(
                     FeedbackSessionAttributes
                             .updateOptionsBuilder(session.getFeedbackSessionName(), session.getCourseId())
                             .withSentPublishedEmail(true)

@@ -11,6 +11,9 @@ import teammates.common.util.EmailType;
 import teammates.common.util.EmailWrapper;
 import teammates.common.util.FieldValidator;
 import teammates.common.util.StringHelperExtension;
+import teammates.logic.api.AccountsLogicAPI;
+import teammates.logic.api.CoursesLogicAPI;
+import teammates.logic.api.StudentsLogicAPI;
 import teammates.ui.output.MessageOutput;
 import teammates.ui.request.InvalidHttpRequestBodyException;
 import teammates.ui.request.StudentUpdateRequest;
@@ -19,6 +22,9 @@ import teammates.ui.request.StudentUpdateRequest;
  * SUT: {@link UpdateStudentAction}.
  */
 public class UpdateStudentActionTest extends BaseActionTest<UpdateStudentAction> {
+    private final StudentsLogicAPI studentsLogic = StudentsLogicAPI.inst();
+    private final CoursesLogicAPI coursesLogic = CoursesLogicAPI.inst();
+    private final AccountsLogicAPI accountsLogic = AccountsLogicAPI.inst();
 
     @Override
     protected String getActionUri() {
@@ -77,7 +83,7 @@ public class UpdateStudentActionTest extends BaseActionTest<UpdateStudentAction>
         verifyNumberOfEmailsSent(1);
 
         EmailWrapper email = getEmailsSent().get(0);
-        String courseName = logic.getCourse(instructor1OfCourse1.getCourseId()).getName();
+        String courseName = coursesLogic.getCourse(instructor1OfCourse1.getCourseId()).getName();
         assertEquals(String.format(EmailType.STUDENT_EMAIL_CHANGED.getSubject(), courseName,
                 instructor1OfCourse1.getCourseId()), email.getSubject());
         assertEquals(newStudentEmail, email.getRecipient());
@@ -145,8 +151,8 @@ public class UpdateStudentActionTest extends BaseActionTest<UpdateStudentAction>
         verifyNoTasksAdded();
 
         // deleting edited student
-        logic.deleteAccountCascade(student2InCourse1.getGoogleId());
-        logic.deleteAccountCascade(student1InCourse1.getGoogleId());
+        accountsLogic.deleteAccountCascade(student2InCourse1.getGoogleId());
+        accountsLogic.deleteAccountCascade(student1InCourse1.getGoogleId());
 
         ______TS("Error case, student does not exist");
 
@@ -204,7 +210,7 @@ public class UpdateStudentActionTest extends BaseActionTest<UpdateStudentAction>
                 .withComment("cmt")
                 .build();
 
-        logic.createStudent(studentToJoinMaxSection);
+        studentsLogic.createStudent(studentToJoinMaxSection);
 
         for (int i = 0; i < Const.SECTION_SIZE_LIMIT; i++) {
             StudentAttributes addedStudent = StudentAttributes
@@ -215,10 +221,10 @@ public class UpdateStudentActionTest extends BaseActionTest<UpdateStudentAction>
                     .withComment("cmt" + i)
                     .build();
 
-            logic.createStudent(addedStudent);
+            studentsLogic.createStudent(addedStudent);
         }
 
-        List<StudentAttributes> studentList = logic.getStudentsForCourse(courseId);
+        List<StudentAttributes> studentList = studentsLogic.getStudentsForCourse(courseId);
 
         assertEquals(Const.SECTION_SIZE_LIMIT,
                 studentList.stream().filter(student -> student.getSection().equals(sectionInMaxCapacity)).count());
@@ -266,7 +272,7 @@ public class UpdateStudentActionTest extends BaseActionTest<UpdateStudentAction>
 
         // verify student in database
         StudentAttributes actualStudent =
-                logic.getStudentForEmail(student5InCourse1.getCourse(), student5InCourse1.getEmail());
+                studentsLogic.getStudentForEmail(student5InCourse1.getCourse(), student5InCourse1.getEmail());
         assertEquals(student5InCourse1.getCourse(), actualStudent.getCourse());
         assertEquals(student5InCourse1.getName(), actualStudent.getName());
         assertEquals(student5InCourse1.getEmail(), actualStudent.getEmail());

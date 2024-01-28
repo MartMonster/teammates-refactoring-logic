@@ -17,6 +17,10 @@ import teammates.common.datatransfer.attributes.InstructorAttributes;
 import teammates.common.datatransfer.attributes.StudentAttributes;
 import teammates.common.util.Const;
 import teammates.common.util.TimeHelper;
+import teammates.logic.api.FeedbackResponseCommentsLogicAPI;
+import teammates.logic.api.FeedbackResponsesLogicAPI;
+import teammates.logic.api.FeedbackSessionsLogicAPI;
+import teammates.logic.api.InstructorsLogicAPI;
 import teammates.ui.output.MessageOutput;
 import teammates.ui.request.Intent;
 
@@ -24,6 +28,9 @@ import teammates.ui.request.Intent;
  * SUT: {@link DeleteFeedbackResponseCommentAction}.
  */
 public class DeleteFeedbackResponseCommentActionTest extends BaseActionTest<DeleteFeedbackResponseCommentAction> {
+    private final FeedbackResponseCommentsLogicAPI feedbackResponseCommentsLogic = FeedbackResponseCommentsLogicAPI.inst();
+    private final FeedbackSessionsLogicAPI feedbackSessionsLogic = FeedbackSessionsLogicAPI.inst();
+    private final InstructorsLogicAPI instructorsLogic = InstructorsLogicAPI.inst();
 
     @Override
     protected String getActionUri() {
@@ -69,7 +76,7 @@ public class DeleteFeedbackResponseCommentActionTest extends BaseActionTest<Dele
         JsonResult result = getJsonResult(action);
         MessageOutput output = (MessageOutput) result.getOutput();
 
-        assertNull(logic.getFeedbackResponseComment(feedbackResponseComment.getId()));
+        assertNull(feedbackResponseCommentsLogic.getFeedbackResponseComment(feedbackResponseComment.getId()));
         assertEquals("Successfully deleted feedback response comment.", output.getMessage());
 
         ______TS("Non-existent feedback response comment, non-existent comment should fail silently");
@@ -84,7 +91,7 @@ public class DeleteFeedbackResponseCommentActionTest extends BaseActionTest<Dele
         result = getJsonResult(action);
         output = (MessageOutput) result.getOutput();
 
-        assertNull(logic.getFeedbackResponseComment(123123123123123L));
+        assertNull(feedbackResponseCommentsLogic.getFeedbackResponseComment(123123123123123L));
         assertEquals("Successfully deleted feedback response comment.", output.getMessage());
     }
 
@@ -123,7 +130,7 @@ public class DeleteFeedbackResponseCommentActionTest extends BaseActionTest<Dele
         InstructorAttributes instructor1 = typicalBundle.instructors.get("instructor1OfCourse1");
         InstructorPrivileges instructorPrivileges = new InstructorPrivileges();
 
-        logic.updateInstructor(InstructorAttributes.updateOptionsWithEmailBuilder(course.getId(), instructor1.getEmail())
+        instructorsLogic.updateInstructor(InstructorAttributes.updateOptionsWithEmailBuilder(course.getId(), instructor1.getEmail())
                 .withPrivileges(instructorPrivileges).build());
 
         loginAsInstructor(instructor1.getGoogleId());
@@ -367,7 +374,7 @@ public class DeleteFeedbackResponseCommentActionTest extends BaseActionTest<Dele
                 comment1FromInstructor1.getCommentGiver(), comment1FromInstructor1.getCreatedAt());
 
         Instant newEndTime = TimeHelper.getInstantDaysOffsetFromNow(-2);
-        logic.updateFeedbackSession(FeedbackSessionAttributes.updateOptionsBuilder(feedbackSessionName, courseId)
+        feedbackSessionsLogic.updateFeedbackSession(FeedbackSessionAttributes.updateOptionsBuilder(feedbackSessionName, courseId)
                 .withEndTime(newEndTime)
                 .build());
         loginAsInstructor(instructor1OfCourse1.getGoogleId());
@@ -384,7 +391,7 @@ public class DeleteFeedbackResponseCommentActionTest extends BaseActionTest<Dele
 
         Map<String, Instant> newInstructorDeadlines = Map.of(
                 instructor1OfCourse1.getEmail(), TimeHelper.getInstantDaysOffsetFromNow(-1));
-        logic.updateFeedbackSession(FeedbackSessionAttributes.updateOptionsBuilder(feedbackSessionName, courseId)
+        feedbackSessionsLogic.updateFeedbackSession(FeedbackSessionAttributes.updateOptionsBuilder(feedbackSessionName, courseId)
                 .withInstructorDeadlines(newInstructorDeadlines)
                 .build());
         verifyCannotAccess(submissionParams);
@@ -393,7 +400,7 @@ public class DeleteFeedbackResponseCommentActionTest extends BaseActionTest<Dele
 
         newInstructorDeadlines = Map.of(
                 instructor1OfCourse1.getEmail(), TimeHelper.getInstantDaysOffsetFromNow(1));
-        logic.updateFeedbackSession(FeedbackSessionAttributes.updateOptionsBuilder(feedbackSessionName, courseId)
+        feedbackSessionsLogic.updateFeedbackSession(FeedbackSessionAttributes.updateOptionsBuilder(feedbackSessionName, courseId)
                 .withInstructorDeadlines(newInstructorDeadlines)
                 .build());
         verifyCanAccess(submissionParams);
@@ -417,7 +424,7 @@ public class DeleteFeedbackResponseCommentActionTest extends BaseActionTest<Dele
                 comment1FromStudent1.getCommentGiver(), comment1FromStudent1.getCreatedAt());
 
         Instant newEndTime = TimeHelper.getInstantDaysOffsetFromNow(-2);
-        logic.updateFeedbackSession(FeedbackSessionAttributes.updateOptionsBuilder(feedbackSessionName, courseId)
+        feedbackSessionsLogic.updateFeedbackSession(FeedbackSessionAttributes.updateOptionsBuilder(feedbackSessionName, courseId)
                 .withEndTime(newEndTime)
                 .build());
         loginAsStudent(student1InCourse1.getGoogleId());
@@ -434,7 +441,7 @@ public class DeleteFeedbackResponseCommentActionTest extends BaseActionTest<Dele
 
         Map<String, Instant> newStudentDeadlines = Map.of(
                 student1InCourse1.getEmail(), TimeHelper.getInstantDaysOffsetFromNow(-1));
-        logic.updateFeedbackSession(FeedbackSessionAttributes.updateOptionsBuilder(feedbackSessionName, courseId)
+        feedbackSessionsLogic.updateFeedbackSession(FeedbackSessionAttributes.updateOptionsBuilder(feedbackSessionName, courseId)
                 .withStudentDeadlines(newStudentDeadlines)
                 .build());
         verifyCannotAccess(submissionParams);
@@ -443,7 +450,7 @@ public class DeleteFeedbackResponseCommentActionTest extends BaseActionTest<Dele
 
         newStudentDeadlines = Map.of(
                 student1InCourse1.getEmail(), TimeHelper.getInstantDaysOffsetFromNow(1));
-        logic.updateFeedbackSession(FeedbackSessionAttributes.updateOptionsBuilder(feedbackSessionName, courseId)
+        feedbackSessionsLogic.updateFeedbackSession(FeedbackSessionAttributes.updateOptionsBuilder(feedbackSessionName, courseId)
                 .withStudentDeadlines(newStudentDeadlines)
                 .build());
         verifyCanAccess(submissionParams);

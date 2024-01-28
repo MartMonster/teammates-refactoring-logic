@@ -8,6 +8,7 @@ import teammates.common.datatransfer.attributes.FeedbackSessionAttributes;
 import teammates.common.datatransfer.attributes.InstructorAttributes;
 import teammates.common.datatransfer.attributes.StudentAttributes;
 import teammates.common.util.Const;
+import teammates.logic.api.StudentsLogicAPI;
 import teammates.ui.output.FeedbackQuestionRecipientsData;
 import teammates.ui.request.Intent;
 
@@ -15,6 +16,7 @@ import teammates.ui.request.Intent;
  * SUT: {@link GetFeedbackQuestionRecipientsAction}.
  */
 public class GetFeedbackQuestionRecipientsActionTest extends BaseActionTest<GetFeedbackQuestionRecipientsAction> {
+    private final StudentsLogicAPI studentsLogic = StudentsLogicAPI.inst();
 
     private FeedbackSessionAttributes firstSessionInCourse1;
     private FeedbackSessionAttributes secondSessionInCourse1;
@@ -211,9 +213,9 @@ public class GetFeedbackQuestionRecipientsActionTest extends BaseActionTest<GetF
         verifyAccessibleForStudentsOfTheSameCourse(studentSubmissionParams);
 
         ______TS("Not logged in user access with correct unused regKey, should be accessible");
-        logic.resetStudentGoogleId(student3InCourse1.getEmail(), student3InCourse1.getCourse());
+        studentsLogic.resetStudentGoogleId(student3InCourse1.getEmail(), student3InCourse1.getCourse());
         StudentAttributes unregisteredStudent =
-                logic.getStudentForEmail(student3InCourse1.getCourse(), student3InCourse1.getEmail());
+                studentsLogic.getStudentForEmail(student3InCourse1.getCourse(), student3InCourse1.getEmail());
         String[] unregisteredStudentSubmissionParams =
                 generateParameters(firstSessionInCourse1, 2, Intent.STUDENT_SUBMISSION,
                         unregisteredStudent.getKey(), "", "");
@@ -221,7 +223,7 @@ public class GetFeedbackQuestionRecipientsActionTest extends BaseActionTest<GetF
 
         ______TS("Access with correct but used regKey, should not be accessible by anyone");
         StudentAttributes registeredStudent =
-                logic.getStudentForEmail(student1InCourse1.getCourse(), student1InCourse1.getEmail());
+                studentsLogic.getStudentForEmail(student1InCourse1.getCourse(), student1InCourse1.getEmail());
         String[] registeredStudentSubmissionParams =
                 generateParameters(firstSessionInCourse1, 2, Intent.STUDENT_SUBMISSION,
                         registeredStudent.getKey(), "", "");

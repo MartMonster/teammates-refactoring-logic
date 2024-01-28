@@ -5,6 +5,7 @@ import org.testng.annotations.Test;
 import teammates.common.datatransfer.attributes.InstructorAttributes;
 import teammates.common.datatransfer.attributes.StudentAttributes;
 import teammates.common.util.Const;
+import teammates.logic.api.StudentsLogicAPI;
 import teammates.ui.output.JoinState;
 import teammates.ui.output.StudentData;
 
@@ -12,6 +13,7 @@ import teammates.ui.output.StudentData;
  * SUT: {@link GetStudentAction}.
  */
 public class GetStudentActionTest extends BaseActionTest<GetStudentAction> {
+    private final StudentsLogicAPI studentsLogic = StudentsLogicAPI.inst();
 
     @Override
     protected String getActionUri() {
@@ -61,7 +63,7 @@ public class GetStudentActionTest extends BaseActionTest<GetStudentAction> {
         logoutUser();
 
         StudentAttributes unregStudent =
-                logic.getStudentForEmail("idOfTypicalCourse1", "student1InCourse1@gmail.tmt");
+                studentsLogic.getStudentForEmail("idOfTypicalCourse1", "student1InCourse1@gmail.tmt");
 
         String[] submissionParams = new String[] {
                 Const.ParamsNames.COURSE_ID, unregStudent.getCourse(),
@@ -237,7 +239,7 @@ public class GetStudentActionTest extends BaseActionTest<GetStudentAction> {
         ______TS("Unregistered Student - can access with key");
 
         StudentAttributes unregStudent =
-                logic.getStudentForEmail("idOfTypicalCourse1", "student1InCourse1@gmail.tmt");
+                studentsLogic.getStudentForEmail("idOfTypicalCourse1", "student1InCourse1@gmail.tmt");
 
         submissionParams = new String[] {
                 Const.ParamsNames.COURSE_ID, unregStudent.getCourse(),

@@ -6,6 +6,7 @@ import teammates.common.exception.EntityDoesNotExistException;
 import teammates.common.exception.InvalidParametersException;
 import teammates.common.util.Const;
 import teammates.common.util.FieldValidator;
+import teammates.logic.api.CoursesLogicAPI;
 import teammates.ui.output.CourseData;
 import teammates.ui.request.CourseUpdateRequest;
 import teammates.ui.request.InvalidHttpRequestBodyException;
@@ -27,8 +28,8 @@ class UpdateCourseAction extends Action {
         }
 
         String courseId = getNonNullRequestParamValue(Const.ParamsNames.COURSE_ID);
-        InstructorAttributes instructor = logic.getInstructorForGoogleId(courseId, userInfo.id);
-        CourseAttributes course = logic.getCourse(courseId);
+        InstructorAttributes instructor = instructorsLogic.getInstructorForGoogleId(courseId, userInfo.id);
+        CourseAttributes course = coursesLogic.getCourse(courseId);
         gateKeeper.verifyAccessible(instructor, course, Const.InstructorPermissions.CAN_MODIFY_COURSE);
     }
 
@@ -47,7 +48,7 @@ class UpdateCourseAction extends Action {
         CourseAttributes updatedCourse;
 
         try {
-            updatedCourse = logic.updateCourseCascade(
+            updatedCourse = coursesLogic.updateCourseCascade(
                     CourseAttributes.updateOptionsBuilder(courseId)
                             .withName(courseName)
                             .withTimezone(courseTimeZone)

@@ -12,6 +12,7 @@ import teammates.common.util.Const;
 import teammates.common.util.EmailSendingStatus;
 import teammates.common.util.EmailType;
 import teammates.common.util.EmailWrapper;
+import teammates.logic.api.CoursesLogicAPI;
 import teammates.ui.request.InvalidHttpRequestBodyException;
 import teammates.ui.request.StudentUpdateRequest;
 
@@ -38,9 +39,9 @@ class UpdateStudentAction extends Action {
         }
         String courseId = getNonNullRequestParamValue(Const.ParamsNames.COURSE_ID);
 
-        InstructorAttributes instructor = logic.getInstructorForGoogleId(courseId, userInfo.id);
+        InstructorAttributes instructor = instructorsLogic.getInstructorForGoogleId(courseId, userInfo.id);
         gateKeeper.verifyAccessible(
-                instructor, logic.getCourse(courseId), Const.InstructorPermissions.CAN_MODIFY_STUDENT);
+                instructor, coursesLogic.getCourse(courseId), Const.InstructorPermissions.CAN_MODIFY_STUDENT);
     }
 
     @Override
@@ -48,7 +49,7 @@ class UpdateStudentAction extends Action {
         String courseId = getNonNullRequestParamValue(Const.ParamsNames.COURSE_ID);
         String studentEmail = getNonNullRequestParamValue(Const.ParamsNames.STUDENT_EMAIL);
 
-        StudentAttributes student = logic.getStudentForEmail(courseId, studentEmail);
+        StudentAttributes student = studentsLogic.getStudentForEmail(courseId, studentEmail);
         if (student == null) {
             throw new EntityNotFoundException(STUDENT_NOT_FOUND_FOR_EDIT);
         }
@@ -66,10 +67,10 @@ class UpdateStudentAction extends Action {
             //TODO: this is duct tape at the moment, need to refactor how we do the validation
             String newEmail = studentToUpdate.getEmail();
             studentToUpdate.setEmail(student.getEmail());
-            logic.validateSectionsAndTeams(Arrays.asList(studentToUpdate), student.getCourse());
+            studentsLogic.validateSectionsAndTeams(Arrays.asList(studentToUpdate), student.getCourse());
             studentToUpdate.setEmail(newEmail);
 
-            StudentAttributes updatedStudent = logic.updateStudentCascade(
+            StudentAttributes updatedStudent = studentsLogic.updateStudentCascade(
                     StudentAttributes.updateOptionsBuilder(courseId, studentEmail)
                             .withName(updateRequest.getName())
                             .withNewEmail(updateRequest.getEmail())
@@ -80,7 +81,7 @@ class UpdateStudentAction extends Action {
             taskQueuer.scheduleStudentForSearchIndexing(updatedStudent.getCourse(), updatedStudent.getEmail());
 
             if (!student.getEmail().equals(updateRequest.getEmail())) {
-                logic.resetStudentGoogleId(updateRequest.getEmail(), courseId);
+                studentsLogic.resetStudentGoogleId(updateRequest.getEmail(), courseId);
 
                 if (updateRequest.getIsSessionSummarySendEmail()) {
                     boolean emailSent = sendEmail(courseId, updateRequest.getEmail());

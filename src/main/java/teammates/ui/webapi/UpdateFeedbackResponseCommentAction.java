@@ -32,19 +32,19 @@ class UpdateFeedbackResponseCommentAction extends BasicCommentSubmissionAction {
     void checkSpecificAccessControl() throws UnauthorizedAccessException {
         long feedbackResponseCommentId = getLongRequestParamValue(Const.ParamsNames.FEEDBACK_RESPONSE_COMMENT_ID);
 
-        FeedbackResponseCommentAttributes frc = logic.getFeedbackResponseComment(feedbackResponseCommentId);
+        FeedbackResponseCommentAttributes frc = feedbackResponseCommentsLogic.getFeedbackResponseComment(feedbackResponseCommentId);
         if (frc == null) {
             throw new EntityNotFoundException("Feedback response comment is not found");
         }
 
         String courseId = frc.getCourseId();
         String feedbackResponseId = frc.getFeedbackResponseId();
-        FeedbackResponseAttributes response = logic.getFeedbackResponse(feedbackResponseId);
+        FeedbackResponseAttributes response = feedbackResponsesLogic.getFeedbackResponse(feedbackResponseId);
         String feedbackSessionName = frc.getFeedbackSessionName();
         FeedbackSessionAttributes session = getNonNullFeedbackSession(feedbackSessionName, courseId);
         assert response != null;
         String questionId = response.getFeedbackQuestionId();
-        FeedbackQuestionAttributes question = logic.getFeedbackQuestion(questionId);
+        FeedbackQuestionAttributes question = feedbackQuestionsLogic.getFeedbackQuestion(questionId);
         Intent intent = Intent.valueOf(getNonNullRequestParamValue(Const.ParamsNames.INTENT));
 
         switch (intent) {
@@ -82,7 +82,7 @@ class UpdateFeedbackResponseCommentAction extends BasicCommentSubmissionAction {
             break;
         case INSTRUCTOR_RESULT:
             gateKeeper.verifyLoggedInUserPrivileges(userInfo);
-            InstructorAttributes instructor = logic.getInstructorForGoogleId(courseId, userInfo.getId());
+            InstructorAttributes instructor = instructorsLogic.getInstructorForGoogleId(courseId, userInfo.getId());
             if (instructor == null) {
                 throw new UnauthorizedAccessException("Trying to access system using a non-existent instructor entity");
             }
@@ -103,14 +103,14 @@ class UpdateFeedbackResponseCommentAction extends BasicCommentSubmissionAction {
     public JsonResult execute() throws InvalidHttpRequestBodyException {
         long feedbackResponseCommentId = getLongRequestParamValue(Const.ParamsNames.FEEDBACK_RESPONSE_COMMENT_ID);
 
-        FeedbackResponseCommentAttributes frc = logic.getFeedbackResponseComment(feedbackResponseCommentId);
+        FeedbackResponseCommentAttributes frc = feedbackResponseCommentsLogic.getFeedbackResponseComment(feedbackResponseCommentId);
         if (frc == null) {
             throw new EntityNotFoundException("Feedback response comment is not found");
         }
 
         String feedbackResponseId = frc.getFeedbackResponseId();
         String courseId = frc.getCourseId();
-        FeedbackResponseAttributes response = logic.getFeedbackResponse(feedbackResponseId);
+        FeedbackResponseAttributes response = feedbackResponsesLogic.getFeedbackResponse(feedbackResponseId);
         assert response != null;
 
         Intent intent = Intent.valueOf(getNonNullRequestParamValue(Const.ParamsNames.INTENT));
@@ -126,7 +126,7 @@ class UpdateFeedbackResponseCommentAction extends BasicCommentSubmissionAction {
             email = instructorAsFeedbackParticipant.getEmail();
             break;
         case INSTRUCTOR_RESULT:
-            InstructorAttributes instructor = logic.getInstructorForGoogleId(courseId, userInfo.id);
+            InstructorAttributes instructor = instructorsLogic.getInstructorForGoogleId(courseId, userInfo.id);
             email = instructor.getEmail();
             break;
         default:
@@ -154,7 +154,7 @@ class UpdateFeedbackResponseCommentAction extends BasicCommentSubmissionAction {
 
         FeedbackResponseCommentAttributes updatedComment;
         try {
-            updatedComment = logic.updateFeedbackResponseComment(commentUpdateOptions.build());
+            updatedComment = feedbackResponseCommentsLogic.updateFeedbackResponseComment(commentUpdateOptions.build());
         } catch (EntityDoesNotExistException e) {
             throw new EntityNotFoundException(e);
         } catch (InvalidParametersException e) {

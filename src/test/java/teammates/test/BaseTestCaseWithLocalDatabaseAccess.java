@@ -24,7 +24,7 @@ import teammates.common.datatransfer.attributes.FeedbackSessionAttributes;
 import teammates.common.datatransfer.attributes.InstructorAttributes;
 import teammates.common.datatransfer.attributes.NotificationAttributes;
 import teammates.common.datatransfer.attributes.StudentAttributes;
-import teammates.logic.api.LogicExtension;
+import teammates.logic.api.*;
 import teammates.logic.core.LogicStarter;
 import teammates.storage.api.OfyHelper;
 import teammates.storage.search.AccountRequestSearchManager;
@@ -40,12 +40,18 @@ import teammates.storage.search.StudentSearchManager;
  */
 @Test(singleThreaded = true)
 public abstract class BaseTestCaseWithLocalDatabaseAccess extends BaseTestCaseWithDatabaseAccess {
+    private final FeedbackSessionsLogicAPI feedbackSessionsLogic = FeedbackSessionsLogicAPI.inst();
+    private final StudentsLogicAPI studentsLogic = StudentsLogicAPI.inst();
+    private final InstructorsLogicAPI instructorsLogic = InstructorsLogicAPI.inst();
+    private final NotificationsLogicAPI notificationsLogic = NotificationsLogicAPI.inst();
+    private final CoursesLogicAPI coursesLogic = CoursesLogicAPI.inst();
     private static final LocalDatastoreHelper LOCAL_DATASTORE_HELPER = LocalDatastoreHelper.newBuilder()
             .setConsistency(1.0)
             .setPort(TestProperties.TEST_LOCALDATASTORE_PORT)
             .setStoreOnDisk(false)
             .build();
     private final LogicExtension logic = new LogicExtension();
+    private final AccountsLogicAPI accountsLogic = AccountsLogicAPI.inst();
     private Closeable closeable;
 
     @BeforeSuite
@@ -93,12 +99,12 @@ public abstract class BaseTestCaseWithLocalDatabaseAccess extends BaseTestCaseWi
 
     @Override
     protected AccountAttributes getAccount(AccountAttributes account) {
-        return logic.getAccount(account.getGoogleId());
+        return accountsLogic.getAccount(account.getGoogleId());
     }
 
     @Override
     protected CourseAttributes getCourse(CourseAttributes course) {
-        return logic.getCourse(course.getId());
+        return coursesLogic.getCourse(course.getId());
     }
 
     @Override
@@ -118,19 +124,19 @@ public abstract class BaseTestCaseWithLocalDatabaseAccess extends BaseTestCaseWi
 
     @Override
     protected FeedbackSessionAttributes getFeedbackSession(FeedbackSessionAttributes fs) {
-        return logic.getFeedbackSession(fs.getFeedbackSessionName(), fs.getCourseId());
+        return feedbackSessionsLogic.getFeedbackSession(fs.getFeedbackSessionName(), fs.getCourseId());
     }
 
     @Override
     protected InstructorAttributes getInstructor(InstructorAttributes instructor) {
         return instructor.getGoogleId() == null
-                ? logic.getInstructorForEmail(instructor.getCourseId(), instructor.getEmail())
-                : logic.getInstructorForGoogleId(instructor.getCourseId(), instructor.getGoogleId());
+                ? instructorsLogic.getInstructorForEmail(instructor.getCourseId(), instructor.getEmail())
+                : instructorsLogic.getInstructorForGoogleId(instructor.getCourseId(), instructor.getGoogleId());
     }
 
     @Override
     protected StudentAttributes getStudent(StudentAttributes student) {
-        return logic.getStudentForEmail(student.getCourse(), student.getEmail());
+        return studentsLogic.getStudentForEmail(student.getCourse(), student.getEmail());
     }
 
     @Override
@@ -147,7 +153,7 @@ public abstract class BaseTestCaseWithLocalDatabaseAccess extends BaseTestCaseWi
 
     @Override
     protected NotificationAttributes getNotification(NotificationAttributes notification) {
-        return logic.getNotification(notification.getNotificationId());
+        return notificationsLogic.getNotification(notification.getNotificationId());
     }
 
     protected void removeAndRestoreTypicalDataBundle() {

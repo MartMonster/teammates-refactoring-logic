@@ -26,7 +26,7 @@ class GetFeedbackQuestionRecipientsAction extends BasicFeedbackSubmissionAction 
     @Override
     void checkSpecificAccessControl() throws UnauthorizedAccessException {
         String feedbackQuestionId = getNonNullRequestParamValue(Const.ParamsNames.FEEDBACK_QUESTION_ID);
-        FeedbackQuestionAttributes feedbackQuestion = logic.getFeedbackQuestion(feedbackQuestionId);
+        FeedbackQuestionAttributes feedbackQuestion = feedbackQuestionsLogic.getFeedbackQuestion(feedbackQuestionId);
         if (feedbackQuestion == null) {
             throw new EntityNotFoundException("The feedback question does not exist.");
         }
@@ -56,19 +56,19 @@ class GetFeedbackQuestionRecipientsAction extends BasicFeedbackSubmissionAction 
     public JsonResult execute() {
         String feedbackQuestionId = getNonNullRequestParamValue(Const.ParamsNames.FEEDBACK_QUESTION_ID);
         Intent intent = Intent.valueOf(getNonNullRequestParamValue(Const.ParamsNames.INTENT));
-        FeedbackQuestionAttributes question = logic.getFeedbackQuestion(feedbackQuestionId);
+        FeedbackQuestionAttributes question = feedbackQuestionsLogic.getFeedbackQuestion(feedbackQuestionId);
 
         Map<String, FeedbackQuestionRecipient> recipient;
         switch (intent) {
         case STUDENT_SUBMISSION:
             StudentAttributes studentAttributes = getStudentOfCourseFromRequest(question.getCourseId());
 
-            recipient = logic.getRecipientsOfQuestion(question, null, studentAttributes);
+            recipient = feedbackQuestionsLogic.getRecipientsOfQuestion(question, null, studentAttributes);
             break;
         case INSTRUCTOR_SUBMISSION:
             InstructorAttributes instructorAttributes = getInstructorOfCourseFromRequest(question.getCourseId());
 
-            recipient = logic.getRecipientsOfQuestion(question, instructorAttributes, null);
+            recipient = feedbackQuestionsLogic.getRecipientsOfQuestion(question, instructorAttributes, null);
             break;
         default:
             throw new InvalidHttpParameterException("Unknown intent " + intent);

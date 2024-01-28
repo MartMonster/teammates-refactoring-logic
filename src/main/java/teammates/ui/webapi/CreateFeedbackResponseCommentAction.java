@@ -36,7 +36,7 @@ class CreateFeedbackResponseCommentAction extends BasicCommentSubmissionAction {
         } catch (InvalidParametersException ipe) {
             throw new InvalidHttpParameterException(ipe);
         }
-        FeedbackResponseAttributes response = logic.getFeedbackResponse(feedbackResponseId);
+        FeedbackResponseAttributes response = feedbackResponsesLogic.getFeedbackResponse(feedbackResponseId);
         if (response == null) {
             throw new EntityNotFoundException("The feedback response does not exist.");
         }
@@ -45,7 +45,7 @@ class CreateFeedbackResponseCommentAction extends BasicCommentSubmissionAction {
         String feedbackSessionName = response.getFeedbackSessionName();
         FeedbackSessionAttributes session = getNonNullFeedbackSession(feedbackSessionName, courseId);
         String questionId = response.getFeedbackQuestionId();
-        FeedbackQuestionAttributes question = logic.getFeedbackQuestion(questionId);
+        FeedbackQuestionAttributes question = feedbackQuestionsLogic.getFeedbackQuestion(questionId);
         Intent intent = Intent.valueOf(getNonNullRequestParamValue(Const.ParamsNames.INTENT));
 
         switch (intent) {
@@ -81,7 +81,7 @@ class CreateFeedbackResponseCommentAction extends BasicCommentSubmissionAction {
             break;
         case INSTRUCTOR_RESULT:
             gateKeeper.verifyLoggedInUserPrivileges(userInfo);
-            InstructorAttributes instructor = logic.getInstructorForGoogleId(courseId, userInfo.getId());
+            InstructorAttributes instructor = instructorsLogic.getInstructorForGoogleId(courseId, userInfo.getId());
             gateKeeper.verifyAccessible(instructor, session, response.getGiverSection(),
                     Const.InstructorPermissions.CAN_SUBMIT_SESSION_IN_SECTIONS);
             gateKeeper.verifyAccessible(instructor, session, response.getRecipientSection(),
@@ -105,7 +105,7 @@ class CreateFeedbackResponseCommentAction extends BasicCommentSubmissionAction {
             throw new InvalidHttpParameterException(ipe);
         }
 
-        FeedbackResponseAttributes response = logic.getFeedbackResponse(feedbackResponseId);
+        FeedbackResponseAttributes response = feedbackResponsesLogic.getFeedbackResponse(feedbackResponseId);
         if (response == null) {
             throw new EntityNotFoundException("The feedback response does not exist.");
         }
@@ -116,7 +116,7 @@ class CreateFeedbackResponseCommentAction extends BasicCommentSubmissionAction {
             throw new InvalidHttpRequestBodyException(FEEDBACK_RESPONSE_COMMENT_EMPTY);
         }
         String questionId = response.getFeedbackQuestionId();
-        FeedbackQuestionAttributes question = logic.getFeedbackQuestion(questionId);
+        FeedbackQuestionAttributes question = feedbackQuestionsLogic.getFeedbackQuestion(questionId);
         String courseId = response.getCourseId();
         String email;
 
@@ -144,7 +144,7 @@ class CreateFeedbackResponseCommentAction extends BasicCommentSubmissionAction {
             commentGiverType = FeedbackParticipantType.INSTRUCTORS;
             break;
         case INSTRUCTOR_RESULT:
-            InstructorAttributes instructor = logic.getInstructorForGoogleId(courseId, userInfo.getId());
+            InstructorAttributes instructor = instructorsLogic.getInstructorForGoogleId(courseId, userInfo.getId());
             email = instructor.getEmail();
             isFromParticipant = false;
             isFollowingQuestionVisibility = false;
@@ -176,7 +176,7 @@ class CreateFeedbackResponseCommentAction extends BasicCommentSubmissionAction {
 
         FeedbackResponseCommentAttributes createdComment;
         try {
-            createdComment = logic.createFeedbackResponseComment(feedbackResponseComment);
+            createdComment = feedbackResponseCommentsLogic.createFeedbackResponseComment(feedbackResponseComment);
         } catch (EntityDoesNotExistException e) {
             throw new EntityNotFoundException(e);
         } catch (EntityAlreadyExistsException e) {

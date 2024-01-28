@@ -16,14 +16,14 @@ class FeedbackSessionClosedRemindersAction extends AdminOnlyAction {
 
     @Override
     public JsonResult execute() {
-        List<FeedbackSessionAttributes> sessions = logic.getFeedbackSessionsClosedWithinThePastHour();
+        List<FeedbackSessionAttributes> sessions = feedbackSessionsLogic.getFeedbackSessionsClosedWithinThePastHour();
 
         for (FeedbackSessionAttributes session : sessions) {
             RequestTracer.checkRemainingTime();
             List<EmailWrapper> emailsToBeSent = emailGenerator.generateFeedbackSessionClosedEmails(session);
             try {
                 taskQueuer.scheduleEmailsForSending(emailsToBeSent);
-                logic.updateFeedbackSession(
+                feedbackSessionsLogic.updateFeedbackSession(
                         FeedbackSessionAttributes
                                 .updateOptionsBuilder(session.getFeedbackSessionName(), session.getCourseId())
                                 .withSentClosedEmail(true)

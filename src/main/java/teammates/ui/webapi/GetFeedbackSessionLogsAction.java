@@ -15,6 +15,7 @@ import teammates.common.datatransfer.attributes.StudentAttributes;
 import teammates.common.datatransfer.logs.FeedbackSessionLogType;
 import teammates.common.util.Const;
 import teammates.common.util.TimeHelper;
+import teammates.logic.api.CoursesLogicAPI;
 import teammates.ui.output.FeedbackSessionLogsData;
 
 /**
@@ -33,13 +34,13 @@ public class GetFeedbackSessionLogsAction extends Action {
         }
 
         String courseId = getNonNullRequestParamValue(Const.ParamsNames.COURSE_ID);
-        CourseAttributes courseAttributes = logic.getCourse(courseId);
+        CourseAttributes courseAttributes = coursesLogic.getCourse(courseId);
 
         if (courseAttributes == null) {
             throw new EntityNotFoundException("Course is not found");
         }
 
-        InstructorAttributes instructor = logic.getInstructorForGoogleId(courseId, userInfo.getId());
+        InstructorAttributes instructor = instructorsLogic.getInstructorForGoogleId(courseId, userInfo.getId());
         gateKeeper.verifyAccessible(instructor, courseAttributes, Const.InstructorPermissions.CAN_MODIFY_STUDENT);
         gateKeeper.verifyAccessible(instructor, courseAttributes, Const.InstructorPermissions.CAN_MODIFY_SESSION);
         gateKeeper.verifyAccessible(instructor, courseAttributes, Const.InstructorPermissions.CAN_MODIFY_INSTRUCTOR);
@@ -48,16 +49,16 @@ public class GetFeedbackSessionLogsAction extends Action {
     @Override
     public JsonResult execute() {
         String courseId = getNonNullRequestParamValue(Const.ParamsNames.COURSE_ID);
-        if (logic.getCourse(courseId) == null) {
+        if (coursesLogic.getCourse(courseId) == null) {
             throw new EntityNotFoundException("Course not found");
         }
         String email = getRequestParamValue(Const.ParamsNames.STUDENT_EMAIL);
-        if (email != null && logic.getStudentForEmail(courseId, email) == null) {
+        if (email != null && studentsLogic.getStudentForEmail(courseId, email) == null) {
             throw new EntityNotFoundException("Student not found");
         }
         String feedbackSessionName = getRequestParamValue(Const.ParamsNames.FEEDBACK_SESSION_NAME);
 
-        if (feedbackSessionName != null && logic.getFeedbackSession(feedbackSessionName, courseId) == null) {
+        if (feedbackSessionName != null && feedbackSessionsLogic.getFeedbackSession(feedbackSessionName, courseId) == null) {
             throw new EntityNotFoundException("Feedback session not found");
         }
         String fslTypes = getRequestParamValue(Const.ParamsNames.FEEDBACK_SESSION_LOG_TYPE);
@@ -103,7 +104,7 @@ public class GetFeedbackSessionLogsAction extends Action {
                 logsProcessor.getFeedbackSessionLogs(courseId, email, startTime, endTime, feedbackSessionName);
         Map<String, StudentAttributes> studentsMap = new HashMap<>();
         Map<String, FeedbackSessionAttributes> sessionsMap = new HashMap<>();
-        List<FeedbackSessionAttributes> feedbackSessions = logic.getFeedbackSessionsForCourse(courseId);
+        List<FeedbackSessionAttributes> feedbackSessions = feedbackSessionsLogic.getFeedbackSessionsForCourse(courseId);
         feedbackSessions.forEach(fs -> sessionsMap.put(fs.getFeedbackSessionName(), fs));
 
         fsLogEntries = fsLogEntries.stream().filter(logEntry -> {
@@ -116,7 +117,7 @@ public class GetFeedbackSessionLogsAction extends Action {
             }
 
             if (!studentsMap.containsKey(logEntry.getStudentEmail())) {
-                StudentAttributes student = logic.getStudentForEmail(courseId, logEntry.getStudentEmail());
+                StudentAttributes student = studentsLogic.getStudentForEmail(courseId, logEntry.getStudentEmail());
                 if (student == null) {
                     // If the student email retrieved from the log is invalid, ignore the log
                     return false;

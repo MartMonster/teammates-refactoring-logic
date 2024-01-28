@@ -17,9 +17,9 @@ class DeleteFeedbackSessionAction extends Action {
     void checkSpecificAccessControl() throws UnauthorizedAccessException {
         String courseId = getNonNullRequestParamValue(Const.ParamsNames.COURSE_ID);
         String feedbackSessionName = getNonNullRequestParamValue(Const.ParamsNames.FEEDBACK_SESSION_NAME);
-        FeedbackSessionAttributes feedbackSession = logic.getFeedbackSessionFromRecycleBin(feedbackSessionName, courseId);
+        FeedbackSessionAttributes feedbackSession = feedbackSessionsLogic.getFeedbackSessionFromRecycleBin(feedbackSessionName, courseId);
 
-        gateKeeper.verifyAccessible(logic.getInstructorForGoogleId(courseId, userInfo.getId()),
+        gateKeeper.verifyAccessible(instructorsLogic.getInstructorForGoogleId(courseId, userInfo.getId()),
                 feedbackSession,
                 Const.InstructorPermissions.CAN_MODIFY_SESSION);
     }
@@ -29,7 +29,7 @@ class DeleteFeedbackSessionAction extends Action {
         String courseId = getNonNullRequestParamValue(Const.ParamsNames.COURSE_ID);
         String feedbackSessionName = getNonNullRequestParamValue(Const.ParamsNames.FEEDBACK_SESSION_NAME);
 
-        logic.deleteFeedbackSessionCascade(feedbackSessionName, courseId);
+        feedbackSessionsLogic.deleteFeedbackSessionCascade(feedbackSessionName, courseId);
 
         return new JsonResult("The feedback session is deleted.");
     }

@@ -13,7 +13,7 @@ class FeedbackSessionPublishedRemindersAction extends AdminOnlyAction {
     @Override
     public JsonResult execute() {
         List<FeedbackSessionAttributes> sessions =
-                logic.getFeedbackSessionsWhichNeedAutomatedPublishedEmailsToBeSent();
+                feedbackSessionsLogic.getFeedbackSessionsWhichNeedAutomatedPublishedEmailsToBeSent();
         for (FeedbackSessionAttributes session : sessions) {
             RequestTracer.checkRemainingTime();
             taskQueuer.scheduleFeedbackSessionPublishedEmail(session.getCourseId(), session.getFeedbackSessionName());

@@ -5,6 +5,7 @@ import java.util.List;
 
 import teammates.common.exception.EntityDoesNotExistException;
 import teammates.common.exception.InvalidParametersException;
+import teammates.logic.api.AccountsLogicAPI;
 import teammates.ui.output.ReadNotificationsData;
 import teammates.ui.request.InvalidHttpRequestBodyException;
 import teammates.ui.request.MarkNotificationAsReadRequest;
@@ -33,7 +34,7 @@ public class MarkNotificationAsReadAction extends Action {
 
         try {
             List<String> readNotifications =
-                    logic.updateReadNotifications(userInfo.getId(), notificationId, endTime);
+                    accountsLogic.updateReadNotifications(userInfo.getId(), notificationId, endTime);
             ReadNotificationsData output = new ReadNotificationsData(readNotifications);
             return new JsonResult(output);
         } catch (EntityDoesNotExistException e) {

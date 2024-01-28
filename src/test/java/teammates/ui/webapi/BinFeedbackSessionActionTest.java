@@ -5,11 +5,13 @@ import org.testng.annotations.Test;
 import teammates.common.datatransfer.attributes.FeedbackSessionAttributes;
 import teammates.common.datatransfer.attributes.InstructorAttributes;
 import teammates.common.util.Const;
+import teammates.logic.api.FeedbackSessionsLogicAPI;
 
 /**
  * SUT: {@link BinFeedbackSessionAction}.
  */
 public class BinFeedbackSessionActionTest extends BaseActionTest<BinFeedbackSessionAction> {
+    private final FeedbackSessionsLogicAPI feedbackSessionsLogic = FeedbackSessionsLogicAPI.inst();
 
     @Override
     protected String getActionUri() {
@@ -38,7 +40,7 @@ public class BinFeedbackSessionActionTest extends BaseActionTest<BinFeedbackSess
 
         ______TS("typical success case");
 
-        assertNotNull(logic.getFeedbackSession(fs.getFeedbackSessionName(), fs.getCourseId()));
+        assertNotNull(feedbackSessionsLogic.getFeedbackSession(fs.getFeedbackSessionName(), fs.getCourseId()));
 
         String[] params = new String[] {
                 Const.ParamsNames.COURSE_ID, fs.getCourseId(),
@@ -47,8 +49,8 @@ public class BinFeedbackSessionActionTest extends BaseActionTest<BinFeedbackSess
         BinFeedbackSessionAction a = getAction(params);
         getJsonResult(a);
 
-        assertNull(logic.getFeedbackSession(fs.getFeedbackSessionName(), fs.getCourseId()));
-        assertNotNull(logic.getFeedbackSessionFromRecycleBin(fs.getFeedbackSessionName(), fs.getCourseId()));
+        assertNull(feedbackSessionsLogic.getFeedbackSession(fs.getFeedbackSessionName(), fs.getCourseId()));
+        assertNotNull(feedbackSessionsLogic.getFeedbackSessionFromRecycleBin(fs.getFeedbackSessionName(), fs.getCourseId()));
     }
 
     @Override

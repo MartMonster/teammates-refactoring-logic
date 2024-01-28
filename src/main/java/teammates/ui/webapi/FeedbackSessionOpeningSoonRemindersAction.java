@@ -15,14 +15,14 @@ class FeedbackSessionOpeningSoonRemindersAction extends AdminOnlyAction {
 
     @Override
     public JsonResult execute() {
-        List<FeedbackSessionAttributes> sessions = logic.getFeedbackSessionsOpeningWithinTimeLimit();
+        List<FeedbackSessionAttributes> sessions = feedbackSessionsLogic.getFeedbackSessionsOpeningWithinTimeLimit();
         for (FeedbackSessionAttributes session : sessions) {
             RequestTracer.checkRemainingTime();
             List<EmailWrapper> emailsToBeSent = emailGenerator.generateFeedbackSessionOpeningSoonEmails(session);
             try {
                 taskQueuer.scheduleEmailsForSending(emailsToBeSent);
 
-                logic.updateFeedbackSession(
+                feedbackSessionsLogic.updateFeedbackSession(
                         FeedbackSessionAttributes
                                 .updateOptionsBuilder(session.getFeedbackSessionName(), session.getCourseId())
                                 .withSentOpeningSoonEmail(true)

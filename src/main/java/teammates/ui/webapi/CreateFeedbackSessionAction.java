@@ -14,6 +14,7 @@ import teammates.common.util.FieldValidator;
 import teammates.common.util.Logger;
 import teammates.common.util.SanitizationHelper;
 import teammates.common.util.TimeHelper;
+import teammates.logic.api.CoursesLogicAPI;
 import teammates.ui.output.FeedbackSessionData;
 import teammates.ui.request.FeedbackSessionCreateRequest;
 import teammates.ui.request.InvalidHttpRequestBodyException;
@@ -34,8 +35,8 @@ class CreateFeedbackSessionAction extends Action {
     void checkSpecificAccessControl() throws UnauthorizedAccessException {
         String courseId = getNonNullRequestParamValue(Const.ParamsNames.COURSE_ID);
 
-        InstructorAttributes instructor = logic.getInstructorForGoogleId(courseId, userInfo.getId());
-        CourseAttributes course = logic.getCourse(courseId);
+        InstructorAttributes instructor = instructorsLogic.getInstructorForGoogleId(courseId, userInfo.getId());
+        CourseAttributes course = coursesLogic.getCourse(courseId);
 
         gateKeeper.verifyAccessible(instructor, course, Const.InstructorPermissions.CAN_MODIFY_SESSION);
     }
@@ -43,7 +44,7 @@ class CreateFeedbackSessionAction extends Action {
     @Override
     public JsonResult execute() throws InvalidHttpRequestBodyException, InvalidOperationException {
         String courseId = getNonNullRequestParamValue(Const.ParamsNames.COURSE_ID);
-        CourseAttributes course = logic.getCourse(courseId);
+        CourseAttributes course = coursesLogic.getCourse(courseId);
         FeedbackSessionCreateRequest createRequest =
                 getAndValidateRequestBody(FeedbackSessionCreateRequest.class);
 
@@ -71,7 +72,7 @@ class CreateFeedbackSessionAction extends Action {
         Instant resultsVisibleTime = TimeHelper.getMidnightAdjustedInstantBasedOnZone(
                 createRequest.getResultsVisibleFromTime(), timeZone, true);
 
-        InstructorAttributes instructor = logic.getInstructorForGoogleId(courseId, userInfo.getId());
+        InstructorAttributes instructor = instructorsLogic.getInstructorForGoogleId(courseId, userInfo.getId());
         String feedbackSessionName = SanitizationHelper.sanitizeTitle(createRequest.getFeedbackSessionName());
 
         FeedbackSessionAttributes fs =
@@ -90,7 +91,7 @@ class CreateFeedbackSessionAction extends Action {
                         .build();
 
         try {
-            logic.createFeedbackSession(fs);
+            feedbackSessionsLogic.createFeedbackSession(fs);
         } catch (EntityAlreadyExistsException e) {
             throw new InvalidOperationException("A session named " + feedbackSessionName
                      + " exists already in the course " + course.getName()
@@ -113,7 +114,7 @@ class CreateFeedbackSessionAction extends Action {
 
     private void createFeedbackQuestions(String copyCourseId, String newCourseId, String feedbackSessionName,
             String oldSessionName) {
-        logic.getFeedbackQuestionsForSession(oldSessionName, copyCourseId).forEach(question -> {
+        feedbackQuestionsLogic.getFeedbackQuestionsForSession(oldSessionName, copyCourseId).forEach(question -> {
             FeedbackQuestionAttributes attributes = FeedbackQuestionAttributes.builder()
                     .withCourseId(newCourseId)
                     .withFeedbackSessionName(feedbackSessionName)
@@ -129,7 +130,7 @@ class CreateFeedbackSessionAction extends Action {
                     .build();
 
             try {
-                logic.createFeedbackQuestion(attributes);
+                feedbackQuestionsLogic.createFeedbackQuestion(attributes);
             } catch (InvalidParametersException e) {
                 log.severe("Error when copying feedback question: " + e.getMessage());
             }

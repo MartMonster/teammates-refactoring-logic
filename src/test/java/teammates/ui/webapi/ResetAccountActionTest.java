@@ -5,12 +5,16 @@ import org.testng.annotations.Test;
 import teammates.common.datatransfer.attributes.InstructorAttributes;
 import teammates.common.datatransfer.attributes.StudentAttributes;
 import teammates.common.util.Const;
+import teammates.logic.api.InstructorsLogicAPI;
+import teammates.logic.api.StudentsLogicAPI;
 import teammates.ui.output.MessageOutput;
 
 /**
  * SUT: {@link ResetAccountAction}.
  */
 public class ResetAccountActionTest extends BaseActionTest<ResetAccountAction> {
+    private final StudentsLogicAPI studentsLogic = StudentsLogicAPI.inst();
+    private final InstructorsLogicAPI instructorsLogic = InstructorsLogicAPI.inst();
 
     @Override
     protected String getActionUri() {
@@ -81,13 +85,13 @@ public class ResetAccountActionTest extends BaseActionTest<ResetAccountAction> {
 
         MessageOutput response = (MessageOutput) r.getOutput();
 
-        InstructorAttributes instructor = logic.getInstructorForEmail(instructor1OfCourse1.getCourseId(),
+        InstructorAttributes instructor = instructorsLogic.getInstructorForEmail(instructor1OfCourse1.getCourseId(),
                 instructor1OfCourse1.getEmail());
 
         assertEquals(response.getMessage(), "Account is successfully reset.");
         assertNotNull(instructor);
         assertNull(instructor.getGoogleId());
-        assertNull(logic.getInstructorForGoogleId(instructor1OfCourse1.getCourseId(), instructor1OfCourse1.getGoogleId()));
+        assertNull(instructorsLogic.getInstructorForGoogleId(instructor1OfCourse1.getCourseId(), instructor1OfCourse1.getGoogleId()));
 
         ______TS("typical success case: reset student account");
 
@@ -102,10 +106,10 @@ public class ResetAccountActionTest extends BaseActionTest<ResetAccountAction> {
         response = (MessageOutput) r.getOutput();
 
         assertEquals(response.getMessage(), "Account is successfully reset.");
-        StudentAttributes student = logic.getStudentForEmail(student1OfCourse1.getCourse(), student1OfCourse1.getEmail());
+        StudentAttributes student = studentsLogic.getStudentForEmail(student1OfCourse1.getCourse(), student1OfCourse1.getEmail());
         assertNotNull(student);
         assertEquals("", student.getGoogleId());
-        assertNull(logic.getStudentForGoogleId(student1OfCourse1.getCourse(), student1OfCourse1.getGoogleId()));
+        assertNull(studentsLogic.getStudentForGoogleId(student1OfCourse1.getCourse(), student1OfCourse1.getGoogleId()));
 
         ______TS("typical success case: reset student account which has been already reset: failed silently");
 
@@ -115,10 +119,10 @@ public class ResetAccountActionTest extends BaseActionTest<ResetAccountAction> {
         response = (MessageOutput) r.getOutput();
 
         assertEquals(response.getMessage(), "Account is successfully reset.");
-        student = logic.getStudentForEmail(student1OfCourse1.getCourse(), student1OfCourse1.getEmail());
+        student = studentsLogic.getStudentForEmail(student1OfCourse1.getCourse(), student1OfCourse1.getEmail());
         assertNotNull(student);
         assertEquals("", student.getGoogleId());
-        assertNull(logic.getStudentForGoogleId(student1OfCourse1.getCourse(), student1OfCourse1.getGoogleId()));
+        assertNull(studentsLogic.getStudentForGoogleId(student1OfCourse1.getCourse(), student1OfCourse1.getGoogleId()));
     }
 
     @Override

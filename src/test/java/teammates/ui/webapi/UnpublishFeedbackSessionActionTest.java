@@ -6,11 +6,13 @@ import teammates.common.datatransfer.attributes.CourseAttributes;
 import teammates.common.datatransfer.attributes.FeedbackSessionAttributes;
 import teammates.common.datatransfer.attributes.InstructorAttributes;
 import teammates.common.util.Const;
+import teammates.logic.api.FeedbackSessionsLogicAPI;
 
 /**
  * SUT: {@link UnpublishFeedbackSessionAction}.
  */
 public class UnpublishFeedbackSessionActionTest extends BaseActionTest<UnpublishFeedbackSessionAction> {
+    private final FeedbackSessionsLogicAPI feedbackSessionsLogic = FeedbackSessionsLogicAPI.inst();
 
     @Override
     protected String getActionUri() {
@@ -51,7 +53,7 @@ public class UnpublishFeedbackSessionActionTest extends BaseActionTest<Unpublish
         getJsonResult(a);
 
         // session is unpublished
-        assertFalse(logic.getFeedbackSession(sessionPublishedInCourse1.getFeedbackSessionName(),
+        assertFalse(feedbackSessionsLogic.getFeedbackSession(sessionPublishedInCourse1.getFeedbackSessionName(),
                 typicalCourse1.getId()).isPublished());
 
         // sent unpublish email task is added
@@ -69,7 +71,7 @@ public class UnpublishFeedbackSessionActionTest extends BaseActionTest<Unpublish
         getJsonResult(a);
 
         // session is still unpublished
-        assertFalse(logic.getFeedbackSession(sessionPublishedInCourse1.getFeedbackSessionName(),
+        assertFalse(feedbackSessionsLogic.getFeedbackSession(sessionPublishedInCourse1.getFeedbackSessionName(),
                 typicalCourse1.getId()).isPublished());
 
         // sent unpublish email task should not be added

@@ -32,7 +32,7 @@ class GetSessionResultsAction extends BasicFeedbackSubmissionAction {
         switch (intent) {
         case FULL_DETAIL:
             gateKeeper.verifyLoggedInUserPrivileges(userInfo);
-            InstructorAttributes instructor = logic.getInstructorForGoogleId(courseId, userInfo.getId());
+            InstructorAttributes instructor = instructorsLogic.getInstructorForGoogleId(courseId, userInfo.getId());
             gateKeeper.verifyAccessible(instructor, fs);
             break;
         case INSTRUCTOR_RESULT:
@@ -77,16 +77,16 @@ class GetSessionResultsAction extends BasicFeedbackSubmissionAction {
         Intent intent = Intent.valueOf(getNonNullRequestParamValue(Const.ParamsNames.INTENT));
         switch (intent) {
         case FULL_DETAIL:
-            instructor = logic.getInstructorForGoogleId(courseId, userInfo.id);
+            instructor = instructorsLogic.getInstructorForGoogleId(courseId, userInfo.id);
 
-            bundle = logic.getSessionResultsForCourse(feedbackSessionName, courseId, instructor.getEmail(),
+            bundle = feedbackResponsesLogic.getSessionResultsForCourse(feedbackSessionName, courseId, instructor.getEmail(),
                     questionId, selectedSection, fetchType);
             return new JsonResult(SessionResultsData.initForInstructor(bundle));
         case INSTRUCTOR_RESULT:
             // Section name filter is not applicable here
             instructor = getInstructorOfCourseFromRequest(courseId);
 
-            bundle = logic.getSessionResultsForUser(feedbackSessionName, courseId, instructor.getEmail(),
+            bundle = feedbackResponsesLogic.getSessionResultsForUser(feedbackSessionName, courseId, instructor.getEmail(),
                     true, questionId, isPreviewResults);
 
             // Build a fake student object, as the results will be displayed as if they are displayed to a student
@@ -99,7 +99,7 @@ class GetSessionResultsAction extends BasicFeedbackSubmissionAction {
             // Section name filter is not applicable here
             student = getStudentOfCourseFromRequest(courseId);
 
-            bundle = logic.getSessionResultsForUser(feedbackSessionName, courseId, student.getEmail(),
+            bundle = feedbackResponsesLogic.getSessionResultsForUser(feedbackSessionName, courseId, student.getEmail(),
                     false, questionId, isPreviewResults);
 
             return new JsonResult(SessionResultsData.initForStudent(bundle, student));

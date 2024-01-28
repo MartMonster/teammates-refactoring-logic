@@ -21,6 +21,8 @@ import teammates.common.util.EmailWrapper;
 import teammates.common.util.FieldValidator;
 import teammates.common.util.Logger;
 import teammates.common.util.TimeHelper;
+import teammates.logic.api.CoursesLogicAPI;
+import teammates.logic.api.InstructorsLogicAPI;
 import teammates.ui.output.FeedbackSessionData;
 import teammates.ui.request.FeedbackSessionUpdateRequest;
 import teammates.ui.request.InvalidHttpRequestBodyException;
@@ -44,7 +46,7 @@ class UpdateFeedbackSessionAction extends Action {
         FeedbackSessionAttributes feedbackSession = getNonNullFeedbackSession(feedbackSessionName, courseId);
 
         gateKeeper.verifyAccessible(
-                logic.getInstructorForGoogleId(courseId, userInfo.getId()),
+                instructorsLogic.getInstructorForGoogleId(courseId, userInfo.getId()),
                 feedbackSession,
                 Const.InstructorPermissions.CAN_MODIFY_SESSION);
     }
@@ -70,10 +72,10 @@ class UpdateFeedbackSessionAction extends Action {
             boolean hasExtraInstructors = !oldInstructorDeadlines.keySet()
                     .containsAll(instructorDeadlines.keySet());
             if (hasExtraStudents) {
-                logic.verifyAllStudentsExistInCourse(courseId, studentDeadlines.keySet());
+                studentsLogic.verifyAllStudentsExistInCourse(courseId, studentDeadlines.keySet());
             }
             if (hasExtraInstructors) {
-                logic.verifyAllInstructorsExistInCourse(courseId, instructorDeadlines.keySet());
+                instructorsLogic.verifyAllInstructorsExistInCourse(courseId, instructorDeadlines.keySet());
             }
         } catch (EntityDoesNotExistException e) {
             throw new EntityNotFoundException(e);
@@ -117,7 +119,7 @@ class UpdateFeedbackSessionAction extends Action {
                 .collect(Collectors.toMap(Map.Entry::getKey, entry -> TimeHelper.getMidnightAdjustedInstantBasedOnZone(
                         entry.getValue(), timeZone, true)));
         try {
-            feedbackSession = logic.updateFeedbackSession(
+            feedbackSession = feedbackSessionsLogic.updateFeedbackSession(
                     FeedbackSessionAttributes.updateOptionsBuilder(feedbackSessionName, courseId)
                             .withInstructions(updateRequest.getInstructions())
                             .withStartTime(startTime)
@@ -207,7 +209,7 @@ class UpdateFeedbackSessionAction extends Action {
 
         List<EmailWrapper> emailsToSend = new ArrayList<>();
         if (notifyUsers) {
-            CourseAttributes course = logic.getCourse(courseId);
+            CourseAttributes course = coursesLogic.getCourse(courseId);
             emailsToSend.addAll(emailGenerator
                     .generateDeadlineRevokedEmails(course, session, deadlinesToRevoke, areInstructors));
             emailsToSend.addAll(emailGenerator

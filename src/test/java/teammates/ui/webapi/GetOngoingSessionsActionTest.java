@@ -8,12 +8,14 @@ import org.testng.annotations.Test;
 import teammates.common.datatransfer.attributes.FeedbackSessionAttributes;
 import teammates.common.datatransfer.attributes.InstructorAttributes;
 import teammates.common.util.Const;
+import teammates.logic.api.FeedbackSessionsLogicAPI;
 import teammates.ui.output.OngoingSessionsData;
 
 /**
  * SUT: {@link GetOngoingSessionsAction}.
  */
 public class GetOngoingSessionsActionTest extends BaseActionTest<GetOngoingSessionsAction> {
+    private final FeedbackSessionsLogicAPI feedbackSessionsLogic = FeedbackSessionsLogicAPI.inst();
 
     @Override
     protected String getActionUri() {
@@ -49,7 +51,7 @@ public class GetOngoingSessionsActionTest extends BaseActionTest<GetOngoingSessi
         Instant startTime = Instant.now();
         Instant endTime = Instant.now().plus(5, ChronoUnit.DAYS);
 
-        logic.createFeedbackSession(
+        feedbackSessionsLogic.createFeedbackSession(
                 FeedbackSessionAttributes.builder(feedbackSessionName, courseId)
                         .withCreatorEmail(instructor1OfCourse1.getEmail())
                         .withStartTime(startTime)

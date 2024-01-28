@@ -24,7 +24,7 @@ class GetSessionResponseStatsAction extends Action {
         String courseId = getNonNullRequestParamValue(Const.ParamsNames.COURSE_ID);
         String feedbackSessionName = getNonNullRequestParamValue(Const.ParamsNames.FEEDBACK_SESSION_NAME);
         FeedbackSessionAttributes fsa = getNonNullFeedbackSession(feedbackSessionName, courseId);
-        InstructorAttributes instructor = logic.getInstructorForGoogleId(courseId, userInfo.getId());
+        InstructorAttributes instructor = instructorsLogic.getInstructorForGoogleId(courseId, userInfo.getId());
         gateKeeper.verifyAccessible(instructor, fsa);
     }
 
@@ -34,8 +34,8 @@ class GetSessionResponseStatsAction extends Action {
         String feedbackSessionName = getNonNullRequestParamValue(Const.ParamsNames.FEEDBACK_SESSION_NAME);
 
         FeedbackSessionAttributes fsa = getNonNullFeedbackSession(feedbackSessionName, courseId);
-        int expectedTotal = logic.getExpectedTotalSubmission(fsa);
-        int actualTotal = logic.getActualTotalSubmission(fsa);
+        int expectedTotal = feedbackSessionsLogic.getExpectedTotalSubmission(fsa);
+        int actualTotal = feedbackSessionsLogic.getActualTotalSubmission(fsa);
         FeedbackSessionStatsData output = new FeedbackSessionStatsData(actualTotal, expectedTotal);
         return new JsonResult(output);
     }

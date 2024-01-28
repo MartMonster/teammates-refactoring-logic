@@ -24,18 +24,18 @@ class FeedbackSessionRemindEmailWorkerAction extends AdminOnlyAction {
         String instructorId = getNonNullRequestParamValue(ParamsNames.INSTRUCTOR_ID);
 
         try {
-            FeedbackSessionAttributes session = logic.getFeedbackSession(feedbackSessionName, courseId);
-            List<StudentAttributes> studentList = logic.getStudentsForCourse(courseId);
-            List<InstructorAttributes> instructorList = logic.getInstructorsForCourse(courseId);
+            FeedbackSessionAttributes session = feedbackSessionsLogic.getFeedbackSession(feedbackSessionName, courseId);
+            List<StudentAttributes> studentList = studentsLogic.getStudentsForCourse(courseId);
+            List<InstructorAttributes> instructorList = instructorsLogic.getInstructorsForCourse(courseId);
 
-            InstructorAttributes instructorToNotify = logic.getInstructorForGoogleId(courseId, instructorId);
+            InstructorAttributes instructorToNotify = instructorsLogic.getInstructorForGoogleId(courseId, instructorId);
 
             List<StudentAttributes> studentsToRemindList = studentList.stream().filter(student ->
-                    !logic.isFeedbackSessionAttemptedByStudent(session, student.getEmail(), student.getTeam())
+                    !feedbackSessionsLogic.isFeedbackSessionAttemptedByStudent(session, student.getEmail(), student.getTeam())
             ).collect(Collectors.toList());
 
             List<InstructorAttributes> instructorsToRemindList = instructorList.stream().filter(instructor ->
-                    !logic.isFeedbackSessionAttemptedByInstructor(session, instructor.getEmail())
+                    !feedbackSessionsLogic.isFeedbackSessionAttemptedByInstructor(session, instructor.getEmail())
             ).collect(Collectors.toList());
 
             List<EmailWrapper> emails = emailGenerator.generateFeedbackSessionReminderEmails(

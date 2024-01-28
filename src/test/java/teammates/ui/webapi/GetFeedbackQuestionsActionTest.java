@@ -14,6 +14,7 @@ import teammates.common.datatransfer.attributes.StudentAttributes;
 import teammates.common.datatransfer.questions.FeedbackMcqQuestionDetails;
 import teammates.common.util.Const;
 import teammates.common.util.JsonUtils;
+import teammates.logic.api.FeedbackQuestionsLogicAPI;
 import teammates.ui.output.FeedbackQuestionData;
 import teammates.ui.output.FeedbackQuestionsData;
 import teammates.ui.output.FeedbackVisibilityType;
@@ -24,6 +25,7 @@ import teammates.ui.request.Intent;
  * SUT: {@link GetFeedbackQuestionsAction}.
  */
 public class GetFeedbackQuestionsActionTest extends BaseActionTest<GetFeedbackQuestionsAction> {
+    private final FeedbackQuestionsLogicAPI feedbackQuestionsLogic = FeedbackQuestionsLogicAPI.inst();
 
     @Override
     protected String getActionUri() {
@@ -69,7 +71,7 @@ public class GetFeedbackQuestionsActionTest extends BaseActionTest<GetFeedbackQu
 
         FeedbackQuestionData typicalResponse = questions.get(0);
         FeedbackQuestionAttributes expected =
-                logic.getFeedbackQuestionsForSession(feedbackSessionAttributes.getFeedbackSessionName(),
+                feedbackQuestionsLogic.getFeedbackQuestionsForSession(feedbackSessionAttributes.getFeedbackSessionName(),
                         feedbackSessionAttributes.getCourseId()).get(0);
 
         assertNotNull(typicalResponse.getFeedbackQuestionId());
@@ -107,7 +109,7 @@ public class GetFeedbackQuestionsActionTest extends BaseActionTest<GetFeedbackQu
 
         FeedbackMcqQuestionDetails feedbackMcqQuestionDetails = new FeedbackMcqQuestionDetails();
         feedbackMcqQuestionDetails.setGenerateOptionsFor(FeedbackParticipantType.TEAMS);
-        logic.createFeedbackQuestion(FeedbackQuestionAttributes.builder()
+        feedbackQuestionsLogic.createFeedbackQuestion(FeedbackQuestionAttributes.builder()
                 .withCourseId(fsa.getCourseId())
                 .withFeedbackSessionName(fsa.getFeedbackSessionName())
                 .withNumberOfEntitiesToGiveFeedbackTo(2)
@@ -146,7 +148,7 @@ public class GetFeedbackQuestionsActionTest extends BaseActionTest<GetFeedbackQu
 
         FeedbackMcqQuestionDetails feedbackMcqQuestionDetails = new FeedbackMcqQuestionDetails();
         feedbackMcqQuestionDetails.setGenerateOptionsFor(FeedbackParticipantType.TEAMS);
-        logic.createFeedbackQuestion(FeedbackQuestionAttributes.builder()
+        feedbackQuestionsLogic.createFeedbackQuestion(FeedbackQuestionAttributes.builder()
                 .withCourseId(fsa.getCourseId())
                 .withFeedbackSessionName(fsa.getFeedbackSessionName())
                 .withNumberOfEntitiesToGiveFeedbackTo(2)

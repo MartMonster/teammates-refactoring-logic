@@ -38,7 +38,7 @@ class GetCourseJoinStatusAction extends Action {
     }
 
     private JsonResult getStudentJoinStatus(String regkey) {
-        StudentAttributes student = logic.getStudentForRegistrationKey(regkey);
+        StudentAttributes student = studentsLogic.getStudentForRegistrationKey(regkey);
         if (student == null) {
             throw new EntityNotFoundException("No student with given registration key: " + regkey);
         }
@@ -54,7 +54,7 @@ class GetCourseJoinStatusAction extends Action {
             return getJoinStatusResult(accountRequest.getRegisteredAt() != null);
         }
 
-        InstructorAttributes instructor = logic.getInstructorForRegistrationKey(regkey);
+        InstructorAttributes instructor = instructorsLogic.getInstructorForRegistrationKey(regkey);
 
         if (instructor == null) {
             throw new EntityNotFoundException("No instructor with given registration key: " + regkey);

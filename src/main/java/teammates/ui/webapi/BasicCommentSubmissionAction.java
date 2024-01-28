@@ -19,7 +19,7 @@ abstract class BasicCommentSubmissionAction extends BasicFeedbackSubmissionActio
      */
     void verifyCommentNotExist(String feedbackResponseId) throws InvalidOperationException {
         FeedbackResponseCommentAttributes comment =
-                logic.getFeedbackResponseCommentForResponseFromParticipant(feedbackResponseId);
+                feedbackResponseCommentsLogic.getFeedbackResponseCommentForResponseFromParticipant(feedbackResponseId);
 
         if (comment != null) {
             throw new InvalidOperationException("Comment has already been created for the response in submission");

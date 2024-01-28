@@ -7,6 +7,7 @@ import teammates.common.datatransfer.attributes.InstructorAttributes;
 import teammates.common.datatransfer.attributes.StudentAttributes;
 import teammates.common.util.Const;
 import teammates.common.util.StringHelper;
+import teammates.logic.api.InstructorsLogicAPI;
 
 /**
  * The basic action for feedback submission.
@@ -47,9 +48,9 @@ abstract class BasicFeedbackSubmissionAction extends Action {
         String previewAsPerson = getRequestParamValue(Const.ParamsNames.PREVIEWAS);
 
         if (!StringHelper.isEmpty(moderatedPerson)) {
-            return logic.getStudentForEmail(courseId, moderatedPerson);
+            return studentsLogic.getStudentForEmail(courseId, moderatedPerson);
         } else if (!StringHelper.isEmpty(previewAsPerson)) {
-            return logic.getStudentForEmail(courseId, previewAsPerson);
+            return studentsLogic.getStudentForEmail(courseId, previewAsPerson);
         } else {
             return getPossiblyUnregisteredStudent(courseId);
         }
@@ -70,7 +71,7 @@ abstract class BasicFeedbackSubmissionAction extends Action {
         if (!StringHelper.isEmpty(moderatedPerson)) {
             gateKeeper.verifyLoggedInUserPrivileges(userInfo);
             gateKeeper.verifyAccessible(
-                    logic.getInstructorForGoogleId(feedbackSession.getCourseId(), userInfo.getId()), feedbackSession,
+                    instructorsLogic.getInstructorForGoogleId(feedbackSession.getCourseId(), userInfo.getId()), feedbackSession,
                     student.getSection(),
                     Const.InstructorPermissions.CAN_MODIFY_SESSION_COMMENT_IN_SECTIONS);
         } else if (!StringHelper.isEmpty(previewAsPerson)) {
@@ -108,9 +109,9 @@ abstract class BasicFeedbackSubmissionAction extends Action {
         String previewAsPerson = getRequestParamValue(Const.ParamsNames.PREVIEWAS);
 
         if (!StringHelper.isEmpty(moderatedPerson)) {
-            return logic.getInstructorForEmail(courseId, moderatedPerson);
+            return instructorsLogic.getInstructorForEmail(courseId, moderatedPerson);
         } else if (!StringHelper.isEmpty(previewAsPerson)) {
-            return logic.getInstructorForEmail(courseId, previewAsPerson);
+            return instructorsLogic.getInstructorForEmail(courseId, previewAsPerson);
         } else {
             return getPossiblyUnregisteredInstructor(courseId);
         }
@@ -130,7 +131,7 @@ abstract class BasicFeedbackSubmissionAction extends Action {
 
         if (!StringHelper.isEmpty(moderatedPerson)) {
             gateKeeper.verifyLoggedInUserPrivileges(userInfo);
-            gateKeeper.verifyAccessible(logic.getInstructorForGoogleId(feedbackSession.getCourseId(), userInfo.getId()),
+            gateKeeper.verifyAccessible(instructorsLogic.getInstructorForGoogleId(feedbackSession.getCourseId(), userInfo.getId()),
                     feedbackSession, Const.InstructorPermissions.CAN_MODIFY_SESSION_COMMENT_IN_SECTIONS);
         } else if (!StringHelper.isEmpty(previewAsPerson)) {
             checkAccessControlForPreview(feedbackSession, true);
@@ -178,11 +179,11 @@ abstract class BasicFeedbackSubmissionAction extends Action {
         gateKeeper.verifyLoggedInUserPrivileges(userInfo);
         if (isInstructor) {
             gateKeeper.verifyAccessible(
-                    logic.getInstructorForGoogleId(feedbackSession.getCourseId(), userInfo.getId()), feedbackSession,
+                    instructorsLogic.getInstructorForGoogleId(feedbackSession.getCourseId(), userInfo.getId()), feedbackSession,
                     Const.InstructorPermissions.CAN_MODIFY_SESSION);
         } else {
             gateKeeper.verifyAccessible(
-                    logic.getInstructorForGoogleId(feedbackSession.getCourseId(), userInfo.getId()), feedbackSession,
+                    instructorsLogic.getInstructorForGoogleId(feedbackSession.getCourseId(), userInfo.getId()), feedbackSession,
                     Const.InstructorPermissions.CAN_MODIFY_SESSION);
         }
     }
@@ -225,10 +226,10 @@ abstract class BasicFeedbackSubmissionAction extends Action {
                 return Const.DEFAULT_SECTION;
             case TEAMS:
             case TEAMS_IN_SAME_SECTION:
-                return logic.getSectionForTeam(courseId, recipientIdentifier);
+                return studentsLogic.getSectionForTeam(courseId, recipientIdentifier);
             case STUDENTS:
             case STUDENTS_IN_SAME_SECTION:
-                StudentAttributes student = logic.getStudentForEmail(courseId, recipientIdentifier);
+                StudentAttributes student = studentsLogic.getStudentForEmail(courseId, recipientIdentifier);
                 return student == null ? Const.DEFAULT_SECTION : student.getSection();
             default:
                 assert false : "Invalid giver type " + giverType + " for recipient type " + recipientType;
@@ -241,13 +242,13 @@ abstract class BasicFeedbackSubmissionAction extends Action {
         case TEAMS_EXCLUDING_SELF:
         case TEAMS_IN_SAME_SECTION:
         case OWN_TEAM:
-            return logic.getSectionForTeam(courseId, recipientIdentifier);
+            return studentsLogic.getSectionForTeam(courseId, recipientIdentifier);
         case STUDENTS:
         case STUDENTS_EXCLUDING_SELF:
         case STUDENTS_IN_SAME_SECTION:
         case OWN_TEAM_MEMBERS:
         case OWN_TEAM_MEMBERS_INCLUDING_SELF:
-            StudentAttributes student = logic.getStudentForEmail(courseId, recipientIdentifier);
+            StudentAttributes student = studentsLogic.getStudentForEmail(courseId, recipientIdentifier);
             return student == null ? Const.DEFAULT_SECTION : student.getSection();
         default:
             assert false : "Unknown recipient type " + recipientType;

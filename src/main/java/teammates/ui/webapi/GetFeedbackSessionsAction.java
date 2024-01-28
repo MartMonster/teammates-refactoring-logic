@@ -13,6 +13,7 @@ import teammates.common.datatransfer.attributes.FeedbackSessionAttributes;
 import teammates.common.datatransfer.attributes.InstructorAttributes;
 import teammates.common.datatransfer.attributes.StudentAttributes;
 import teammates.common.util.Const;
+import teammates.logic.api.CoursesLogicAPI;
 import teammates.ui.output.FeedbackSessionData;
 import teammates.ui.output.FeedbackSessionsData;
 
@@ -47,8 +48,8 @@ class GetFeedbackSessionsAction extends Action {
             }
 
             if (courseId != null) {
-                CourseAttributes courseAttributes = logic.getCourse(courseId);
-                gateKeeper.verifyAccessible(logic.getStudentForGoogleId(courseId, userInfo.getId()), courseAttributes);
+                CourseAttributes courseAttributes = coursesLogic.getCourse(courseId);
+                gateKeeper.verifyAccessible(studentsLogic.getStudentForGoogleId(courseId, userInfo.getId()), courseAttributes);
             }
         } else {
             if (!userInfo.isInstructor) {
@@ -57,8 +58,8 @@ class GetFeedbackSessionsAction extends Action {
             }
 
             if (courseId != null) {
-                CourseAttributes courseAttributes = logic.getCourse(courseId);
-                gateKeeper.verifyAccessible(logic.getInstructorForGoogleId(courseId, userInfo.getId()), courseAttributes);
+                CourseAttributes courseAttributes = coursesLogic.getCourse(courseId);
+                gateKeeper.verifyAccessible(instructorsLogic.getInstructorForGoogleId(courseId, userInfo.getId()), courseAttributes);
             }
         }
     }
@@ -73,12 +74,12 @@ class GetFeedbackSessionsAction extends Action {
 
         if (courseId == null) {
             if (entityType.equals(Const.EntityType.STUDENT)) {
-                List<StudentAttributes> students = logic.getStudentsForGoogleId(userInfo.getId());
+                List<StudentAttributes> students = studentsLogic.getStudentsForGoogleId(userInfo.getId());
                 feedbackSessionAttributes = new ArrayList<>();
                 for (StudentAttributes student : students) {
                     String studentCourseId = student.getCourse();
                     String emailAddress = student.getEmail();
-                    List<FeedbackSessionAttributes> sessions = logic.getFeedbackSessionsForCourse(studentCourseId);
+                    List<FeedbackSessionAttributes> sessions = feedbackSessionsLogic.getFeedbackSessionsForCourse(studentCourseId);
 
                     sessions = sessions.stream()
                         .map(session -> session.getCopyForStudent(emailAddress))
@@ -89,27 +90,27 @@ class GetFeedbackSessionsAction extends Action {
             } else if (entityType.equals(Const.EntityType.INSTRUCTOR)) {
                 boolean isInRecycleBin = getBooleanRequestParamValue(Const.ParamsNames.IS_IN_RECYCLE_BIN);
 
-                instructors = logic.getInstructorsForGoogleId(userInfo.getId(), true);
+                instructors = instructorsLogic.getInstructorsForGoogleId(userInfo.getId(), true);
 
                 if (isInRecycleBin) {
-                    feedbackSessionAttributes = logic.getSoftDeletedFeedbackSessionsListForInstructors(instructors);
+                    feedbackSessionAttributes = feedbackSessionsLogic.getSoftDeletedFeedbackSessionsListForInstructors(instructors);
                 } else {
-                    feedbackSessionAttributes = logic.getFeedbackSessionsListForInstructor(instructors);
+                    feedbackSessionAttributes = feedbackSessionsLogic.getFeedbackSessionsListForInstructor(instructors);
                 }
             } else {
                 feedbackSessionAttributes = new ArrayList<>();
             }
         } else {
-            feedbackSessionAttributes = logic.getFeedbackSessionsForCourse(courseId);
+            feedbackSessionAttributes = feedbackSessionsLogic.getFeedbackSessionsForCourse(courseId);
             if (entityType.equals(Const.EntityType.STUDENT) && !feedbackSessionAttributes.isEmpty()) {
-                StudentAttributes student = logic.getStudentForGoogleId(courseId, userInfo.getId());
+                StudentAttributes student = studentsLogic.getStudentForGoogleId(courseId, userInfo.getId());
                 assert student != null;
                 String emailAddress = student.getEmail();
                 feedbackSessionAttributes = feedbackSessionAttributes.stream()
                         .map(instructorSession -> instructorSession.getCopyForStudent(emailAddress))
                         .collect(Collectors.toList());
             } else if (entityType.equals(Const.EntityType.INSTRUCTOR)) {
-                instructors = Collections.singletonList(logic.getInstructorForGoogleId(courseId, userInfo.getId()));
+                instructors = Collections.singletonList(instructorsLogic.getInstructorForGoogleId(courseId, userInfo.getId()));
             }
         }
 

@@ -7,6 +7,7 @@ import teammates.common.datatransfer.attributes.CourseAttributes;
 import teammates.common.datatransfer.attributes.InstructorAttributes;
 import teammates.common.datatransfer.attributes.StudentAttributes;
 import teammates.common.util.Const;
+import teammates.logic.api.CoursesLogicAPI;
 import teammates.ui.output.InstructorData;
 import teammates.ui.output.InstructorsData;
 import teammates.ui.request.Intent;
@@ -28,7 +29,7 @@ class GetInstructorsAction extends Action {
         }
 
         String courseId = getNonNullRequestParamValue(Const.ParamsNames.COURSE_ID);
-        CourseAttributes course = logic.getCourse(courseId);
+        CourseAttributes course = coursesLogic.getCourse(courseId);
         if (course == null) {
             throw new EntityNotFoundException("course not found");
         }
@@ -37,12 +38,12 @@ class GetInstructorsAction extends Action {
         if (intentStr == null) {
             // get partial details of instructors with information hiding
             // student should belong to the course
-            StudentAttributes student = logic.getStudentForGoogleId(courseId, userInfo.getId());
+            StudentAttributes student = studentsLogic.getStudentForGoogleId(courseId, userInfo.getId());
             gateKeeper.verifyAccessible(student, course);
         } else if (intentStr.equals(Intent.FULL_DETAIL.toString())) {
             // get all instructors of a course without information hiding
             // this need instructor privileges
-            InstructorAttributes instructor = logic.getInstructorForGoogleId(courseId, userInfo.getId());
+            InstructorAttributes instructor = instructorsLogic.getInstructorForGoogleId(courseId, userInfo.getId());
             gateKeeper.verifyAccessible(instructor, course);
         } else {
             throw new InvalidHttpParameterException("unknown intent");
@@ -53,7 +54,7 @@ class GetInstructorsAction extends Action {
     @Override
     public JsonResult execute() {
         String courseId = getNonNullRequestParamValue(Const.ParamsNames.COURSE_ID);
-        List<InstructorAttributes> instructorsOfCourse = logic.getInstructorsForCourse(courseId);
+        List<InstructorAttributes> instructorsOfCourse = instructorsLogic.getInstructorsForCourse(courseId);
 
         InstructorsData data;
 
@@ -75,7 +76,7 @@ class GetInstructorsAction extends Action {
         } else if (intentStr.equals(Intent.FULL_DETAIL.toString())) {
             // get all instructors of a course without information hiding
             // adds googleId if caller is admin or has the appropriate privilege to modify instructor
-            if (userInfo.isAdmin || logic.getInstructorForGoogleId(courseId, userInfo.getId()).getPrivileges()
+            if (userInfo.isAdmin || instructorsLogic.getInstructorForGoogleId(courseId, userInfo.getId()).getPrivileges()
                     .isAllowedForPrivilege(Const.InstructorPermissions.CAN_MODIFY_INSTRUCTOR)) {
                 data = new InstructorsData();
                 for (InstructorAttributes instructor : instructorsOfCourse) {

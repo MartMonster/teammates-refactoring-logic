@@ -9,13 +9,14 @@ import teammates.common.exception.EntityDoesNotExistException;
 import teammates.common.exception.InvalidParametersException;
 import teammates.common.util.Const;
 import teammates.common.util.FieldValidator;
+import teammates.logic.api.AccountsLogicAPI;
+import teammates.logic.api.NotificationsLogicAPI;
 import teammates.ui.output.NotificationsData;
 
 /**
  * Action: Gets a list of notifications.
  */
 public class GetNotificationsAction extends Action {
-
     private static final String INVALID_TARGET_USER = "Target user can only be STUDENT or INSTRUCTOR.";
     private static final String UNAUTHORIZED_ACCESS = "You are not allowed to view this resource!";
 
@@ -48,7 +49,7 @@ public class GetNotificationsAction extends Action {
 
         if (targetUserString == null && userInfo.isAdmin) {
             // if request is from admin and targetUser is not specified, retrieve all notifications
-            notificationAttributes = logic.getAllNotifications();
+            notificationAttributes = notificationsLogic.getAllNotifications();
             return new JsonResult(new NotificationsData(notificationAttributes));
         } else {
             // retrieve active notification for specified target user
@@ -61,7 +62,7 @@ public class GetNotificationsAction extends Action {
                 throw new InvalidHttpParameterException(INVALID_TARGET_USER);
             }
             notificationAttributes =
-                    logic.getActiveNotificationsByTargetUser(targetUser);
+                    notificationsLogic.getActiveNotificationsByTargetUser(targetUser);
         }
 
         boolean isFetchingAll = false;
@@ -74,7 +75,7 @@ public class GetNotificationsAction extends Action {
         }
 
         // Filter unread notifications
-        List<String> readNotifications = logic.getReadNotificationsId(userInfo.getId());
+        List<String> readNotifications = accountsLogic.getReadNotificationsId(userInfo.getId());
         notificationAttributes = notificationAttributes
                 .stream()
                 .filter(n -> !readNotifications.contains(n.getNotificationId()))
@@ -94,7 +95,7 @@ public class GetNotificationsAction extends Action {
                         NotificationAttributes.updateOptionsBuilder(n.getNotificationId())
                                 .withShown()
                                 .build();
-                logic.updateNotification(newNotification);
+                notificationsLogic.updateNotification(newNotification);
             } catch (InvalidParametersException e) {
                 throw new InvalidHttpParameterException(e);
             } catch (EntityDoesNotExistException ednee) {

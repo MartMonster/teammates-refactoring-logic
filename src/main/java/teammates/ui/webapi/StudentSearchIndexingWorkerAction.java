@@ -16,9 +16,9 @@ public class StudentSearchIndexingWorkerAction extends AdminOnlyAction {
         String courseId = getNonNullRequestParamValue(ParamsNames.COURSE_ID);
         String email = getNonNullRequestParamValue(ParamsNames.STUDENT_EMAIL);
 
-        StudentAttributes student = logic.getStudentForEmail(courseId, email);
+        StudentAttributes student = studentsLogic.getStudentForEmail(courseId, email);
         try {
-            logic.putStudentDocument(student);
+            studentsLogic.putStudentDocument(student);
         } catch (SearchServiceException e) {
             // Set an arbitrary retry code outside of the range 200-299 to trigger automatic retry
             return new JsonResult("Failure", HttpStatus.SC_BAD_GATEWAY);

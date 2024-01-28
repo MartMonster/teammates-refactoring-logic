@@ -12,6 +12,7 @@ import teammates.common.datatransfer.attributes.InstructorAttributes;
 import teammates.common.datatransfer.attributes.StudentAttributes;
 import teammates.common.util.Const;
 import teammates.common.util.StringHelper;
+import teammates.logic.api.FeedbackResponseCommentsLogicAPI;
 import teammates.ui.output.FeedbackResponseCommentData;
 import teammates.ui.request.Intent;
 
@@ -19,6 +20,7 @@ import teammates.ui.request.Intent;
  * SUT: {@link GetFeedbackResponseCommentAction}.
  */
 public class GetFeedbackResponseCommentActionTest extends BaseActionTest<GetFeedbackResponseCommentAction> {
+    private final FeedbackResponseCommentsLogicAPI feedbackResponseCommentsLogic = FeedbackResponseCommentsLogicAPI.inst();
 
     private InstructorAttributes instructor1OfCourse1;
     private InstructorAttributes instructor1OfCourse2;
@@ -119,7 +121,7 @@ public class GetFeedbackResponseCommentActionTest extends BaseActionTest<GetFeed
 
         FeedbackResponseCommentData actualComment = getFeedbackResponseComments(submissionParams);
         FeedbackResponseCommentAttributes expected =
-                logic.getFeedbackResponseCommentForResponseFromParticipant(response1ForQ3.getId());
+                feedbackResponseCommentsLogic.getFeedbackResponseCommentForResponseFromParticipant(response1ForQ3.getId());
         assertEquals(actualComment.getFeedbackCommentText(), expected.getCommentText());
         assertEquals(actualComment.getCommentGiver(), expected.getCommentGiver());
 
@@ -132,7 +134,7 @@ public class GetFeedbackResponseCommentActionTest extends BaseActionTest<GetFeed
                 Const.ParamsNames.FEEDBACK_RESPONSE_ID, StringHelper.encrypt(response1ForQ1.getId()),
         };
         actualComment = getFeedbackResponseComments(submissionParams);
-        expected = logic.getFeedbackResponseCommentForResponseFromParticipant(response1ForQ1.getId());
+        expected = feedbackResponseCommentsLogic.getFeedbackResponseCommentForResponseFromParticipant(response1ForQ1.getId());
         assertEquals(actualComment.getFeedbackCommentText(), expected.getCommentText());
         assertEquals(actualComment.getCommentGiver(), expected.getCommentGiver());
 

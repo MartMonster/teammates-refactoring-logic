@@ -7,12 +7,14 @@ import org.testng.annotations.Test;
 import teammates.common.datatransfer.attributes.StudentAttributes;
 import teammates.common.util.Const.ParamsNames;
 import teammates.common.util.Const.TaskQueue;
+import teammates.logic.api.StudentsLogicAPI;
 import teammates.test.TestProperties;
 
 /**
  * SUT: {@link StudentSearchIndexingWorkerAction}.
  */
 public class StudentSearchIndexingWorkerActionTest extends BaseActionTest<StudentSearchIndexingWorkerAction> {
+    private final StudentsLogicAPI studentsLogic = StudentsLogicAPI.inst();
 
     @Override
     protected String getActionUri() {
@@ -35,7 +37,7 @@ public class StudentSearchIndexingWorkerActionTest extends BaseActionTest<Studen
 
         ______TS("student not yet indexed should not be searchable");
 
-        List<StudentAttributes> studentList = logic.searchStudentsInWholeSystem(student1.getEmail());
+        List<StudentAttributes> studentList = studentsLogic.searchStudentsInWholeSystem(student1.getEmail());
         assertEquals(0, studentList.size());
 
         ______TS("student indexed should be searchable");
@@ -48,7 +50,7 @@ public class StudentSearchIndexingWorkerActionTest extends BaseActionTest<Studen
         StudentSearchIndexingWorkerAction action = getAction(submissionParams);
         getJsonResult(action);
 
-        studentList = logic.searchStudentsInWholeSystem(student1.getEmail());
+        studentList = studentsLogic.searchStudentsInWholeSystem(student1.getEmail());
         assertEquals(1, studentList.size());
         assertEquals(student1.getName(), studentList.get(0).getName());
     }

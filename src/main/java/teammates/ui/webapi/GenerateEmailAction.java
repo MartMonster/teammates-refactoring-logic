@@ -9,6 +9,7 @@ import teammates.common.datatransfer.attributes.StudentAttributes;
 import teammates.common.util.Const;
 import teammates.common.util.EmailType;
 import teammates.common.util.EmailWrapper;
+import teammates.logic.api.CoursesLogicAPI;
 import teammates.ui.output.EmailData;
 
 /**
@@ -19,13 +20,13 @@ class GenerateEmailAction extends AdminOnlyAction {
     @Override
     public JsonResult execute() {
         String courseId = getNonNullRequestParamValue(Const.ParamsNames.COURSE_ID);
-        CourseAttributes course = logic.getCourse(courseId);
+        CourseAttributes course = coursesLogic.getCourse(courseId);
         if (course == null) {
             throw new EntityNotFoundException("Course with ID " + courseId + " does not exist!");
         }
 
         String studentEmail = getNonNullRequestParamValue(Const.ParamsNames.STUDENT_EMAIL);
-        StudentAttributes student = logic.getStudentForEmail(courseId, studentEmail);
+        StudentAttributes student = studentsLogic.getStudentForEmail(courseId, studentEmail);
         if (student == null) {
             throw new EntityNotFoundException("Student does not exist.");
         }

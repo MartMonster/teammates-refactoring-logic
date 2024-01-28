@@ -9,6 +9,7 @@ import teammates.common.datatransfer.NotificationStyle;
 import teammates.common.datatransfer.NotificationTargetUser;
 import teammates.common.datatransfer.attributes.NotificationAttributes;
 import teammates.common.util.Const;
+import teammates.logic.api.NotificationsLogicAPI;
 import teammates.ui.output.NotificationData;
 import teammates.ui.request.InvalidHttpRequestBodyException;
 import teammates.ui.request.NotificationUpdateRequest;
@@ -17,6 +18,7 @@ import teammates.ui.request.NotificationUpdateRequest;
  * SUT: {@link UpdateNotificationAction}.
  */
 public class UpdateNotificationActionTest extends BaseActionTest<UpdateNotificationAction> {
+    private final NotificationsLogicAPI notificationsLogic = NotificationsLogicAPI.inst();
     @Override
     String getActionUri() {
         return Const.ResourceURIs.NOTIFICATION;
@@ -50,7 +52,7 @@ public class UpdateNotificationActionTest extends BaseActionTest<UpdateNotificat
         UpdateNotificationAction action = getAction(req, requestParams);
         NotificationData res = (NotificationData) action.execute().getOutput();
 
-        NotificationAttributes updatedNotification = logic.getNotification(res.getNotificationId());
+        NotificationAttributes updatedNotification = notificationsLogic.getNotification(res.getNotificationId());
 
         // Verify that correctly updated in the DB
         assertEquals(req.getStartTimestamp(), updatedNotification.getStartTime().toEpochMilli());

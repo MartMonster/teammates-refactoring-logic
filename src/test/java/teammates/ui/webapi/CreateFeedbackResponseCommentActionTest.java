@@ -20,6 +20,8 @@ import teammates.common.datatransfer.attributes.StudentAttributes;
 import teammates.common.util.Const;
 import teammates.common.util.StringHelper;
 import teammates.common.util.TimeHelper;
+import teammates.logic.api.FeedbackResponseCommentsLogicAPI;
+import teammates.logic.api.FeedbackSessionsLogicAPI;
 import teammates.ui.output.CommentVisibilityType;
 import teammates.ui.output.FeedbackResponseCommentData;
 import teammates.ui.request.FeedbackResponseCommentCreateRequest;
@@ -30,6 +32,8 @@ import teammates.ui.request.InvalidHttpRequestBodyException;
  * SUT: {@link CreateFeedbackResponseCommentAction}.
  */
 public class CreateFeedbackResponseCommentActionTest extends BaseActionTest<CreateFeedbackResponseCommentAction> {
+    private final FeedbackResponseCommentsLogicAPI feedbackResponseCommentsLogic = FeedbackResponseCommentsLogicAPI.inst();
+    private final FeedbackSessionsLogicAPI feedbackSessionsLogic = FeedbackSessionsLogicAPI.inst();
 
     private FeedbackSessionAttributes session1InCourse1;
     private InstructorAttributes instructor1OfCourse1;
@@ -229,7 +233,7 @@ public class CreateFeedbackResponseCommentActionTest extends BaseActionTest<Crea
     public void testExecute_publishedSessionForInstructorResult_shouldPass() throws Exception {
         loginAsInstructor(instructor1OfCourse1.getGoogleId());
 
-        logic.publishFeedbackSession(session1InCourse1.getFeedbackSessionName(),
+        feedbackSessionsLogic.publishFeedbackSession(session1InCourse1.getFeedbackSessionName(),
                 session1InCourse1.getCourseId());
         String[] submissionParams = new String[] {
                 Const.ParamsNames.INTENT, Intent.INSTRUCTOR_RESULT.toString(),
@@ -272,11 +276,11 @@ public class CreateFeedbackResponseCommentActionTest extends BaseActionTest<Crea
     protected void testExecute_typicalCaseForSubmission_shouldPass() {
         // clean any existing comments.
         logic.getFeedbackResponseCommentForResponse(response1ForQ3.getId())
-                .forEach(frc -> logic.deleteFeedbackResponseComment(frc.getId()));
-        assertNull(logic.getFeedbackResponseCommentForResponseFromParticipant(response1ForQ3.getId()));
+                .forEach(frc -> feedbackResponseCommentsLogic.deleteFeedbackResponseComment(frc.getId()));
+        assertNull(feedbackResponseCommentsLogic.getFeedbackResponseCommentForResponseFromParticipant(response1ForQ3.getId()));
         logic.getFeedbackResponseCommentForResponse(response1ForQ1.getId())
-                .forEach(frc -> logic.deleteFeedbackResponseComment(frc.getId()));
-        assertNull(logic.getFeedbackResponseCommentForResponseFromParticipant(response1ForQ1.getId()));
+                .forEach(frc -> feedbackResponseCommentsLogic.deleteFeedbackResponseComment(frc.getId()));
+        assertNull(feedbackResponseCommentsLogic.getFeedbackResponseCommentForResponseFromParticipant(response1ForQ1.getId()));
 
         ______TS("Successful case: student submission");
         loginAsStudent(student1InCourse1.getGoogleId());
@@ -291,7 +295,7 @@ public class CreateFeedbackResponseCommentActionTest extends BaseActionTest<Crea
         CreateFeedbackResponseCommentAction action = getAction(requestBody, submissionParams);
         getJsonResult(action);
 
-        FeedbackResponseCommentAttributes comment = logic
+        FeedbackResponseCommentAttributes comment = feedbackResponseCommentsLogic
                 .getFeedbackResponseCommentForResponseFromParticipant(response1ForQ3.getId());
         assertEquals(comment.getCommentText(), "Student submission comment");
         assertEquals(student1InCourse1.getEmail(), comment.getCommentGiver());
@@ -312,7 +316,7 @@ public class CreateFeedbackResponseCommentActionTest extends BaseActionTest<Crea
         action = getAction(requestBody, submissionParams);
         getJsonResult(action);
 
-        comment = logic.getFeedbackResponseCommentForResponseFromParticipant(response1ForQ1.getId());
+        comment = feedbackResponseCommentsLogic.getFeedbackResponseCommentForResponseFromParticipant(response1ForQ1.getId());
         assertEquals(comment.getCommentText(), "Instructor submission comment");
         assertEquals(instructor1OfCourse1.getEmail(), comment.getCommentGiver());
         assertTrue(comment.isCommentFromFeedbackParticipant());
@@ -377,7 +381,7 @@ public class CreateFeedbackResponseCommentActionTest extends BaseActionTest<Crea
     protected void testExecute_commentAlreadyExist_shouldNotCreateAgain() {
         ______TS("students give a comment already exists");
 
-        assertNotNull(logic.getFeedbackResponseCommentForResponseFromParticipant(response1ForQ3.getId()));
+        assertNotNull(feedbackResponseCommentsLogic.getFeedbackResponseCommentForResponseFromParticipant(response1ForQ3.getId()));
 
         loginAsStudent(student1InCourse1.getGoogleId());
         String[] submissionParamsStudent = new String[] {
@@ -392,7 +396,7 @@ public class CreateFeedbackResponseCommentActionTest extends BaseActionTest<Crea
 
         ______TS("instructors give a comment already exists");
 
-        assertNotNull(logic.getFeedbackResponseCommentForResponseFromParticipant(response1ForQ1.getId()));
+        assertNotNull(feedbackResponseCommentsLogic.getFeedbackResponseCommentForResponseFromParticipant(response1ForQ1.getId()));
 
         loginAsInstructor(instructor1OfCourse1.getGoogleId());
         String[] submissionParamsInstructor = new String[] {
@@ -566,7 +570,7 @@ public class CreateFeedbackResponseCommentActionTest extends BaseActionTest<Crea
         String feedbackSessionName = session1InCourse1.getFeedbackSessionName();
         String courseId = session1InCourse1.getCourseId();
         Instant newEndTime = TimeHelper.getInstantDaysOffsetFromNow(-2);
-        logic.updateFeedbackSession(
+        feedbackSessionsLogic.updateFeedbackSession(
                 FeedbackSessionAttributes.updateOptionsBuilder(feedbackSessionName, courseId)
                         .withEndTime(newEndTime)
                         .build());
@@ -584,7 +588,7 @@ public class CreateFeedbackResponseCommentActionTest extends BaseActionTest<Crea
 
         Map<String, Instant> newInstructorDeadlines = Map.of(
                 instructor1OfCourse1.getEmail(), TimeHelper.getInstantDaysOffsetFromNow(-1));
-        logic.updateFeedbackSession(
+        feedbackSessionsLogic.updateFeedbackSession(
                 FeedbackSessionAttributes.updateOptionsBuilder(feedbackSessionName, courseId)
                         .withInstructorDeadlines(newInstructorDeadlines)
                         .build());
@@ -594,7 +598,7 @@ public class CreateFeedbackResponseCommentActionTest extends BaseActionTest<Crea
 
         newInstructorDeadlines = Map.of(
                 instructor1OfCourse1.getEmail(), TimeHelper.getInstantDaysOffsetFromNow(1));
-        logic.updateFeedbackSession(
+        feedbackSessionsLogic.updateFeedbackSession(
                 FeedbackSessionAttributes.updateOptionsBuilder(feedbackSessionName, courseId)
                         .withInstructorDeadlines(newInstructorDeadlines)
                         .build());
@@ -606,7 +610,7 @@ public class CreateFeedbackResponseCommentActionTest extends BaseActionTest<Crea
         String feedbackSessionName = session1InCourse1.getFeedbackSessionName();
         String courseId = session1InCourse1.getCourseId();
         Instant newEndTime = TimeHelper.getInstantDaysOffsetFromNow(-2);
-        logic.updateFeedbackSession(
+        feedbackSessionsLogic.updateFeedbackSession(
                 FeedbackSessionAttributes.updateOptionsBuilder(feedbackSessionName, courseId)
                         .withEndTime(newEndTime)
                         .build());
@@ -624,7 +628,7 @@ public class CreateFeedbackResponseCommentActionTest extends BaseActionTest<Crea
 
         Map<String, Instant> newStudentDeadlines = Map.of(
                 student1InCourse1.getEmail(), TimeHelper.getInstantDaysOffsetFromNow(-1));
-        logic.updateFeedbackSession(
+        feedbackSessionsLogic.updateFeedbackSession(
                 FeedbackSessionAttributes.updateOptionsBuilder(feedbackSessionName, courseId)
                         .withStudentDeadlines(newStudentDeadlines)
                         .build());
@@ -634,7 +638,7 @@ public class CreateFeedbackResponseCommentActionTest extends BaseActionTest<Crea
 
         newStudentDeadlines = Map.of(
                 student1InCourse1.getEmail(), TimeHelper.getInstantDaysOffsetFromNow(1));
-        logic.updateFeedbackSession(
+        feedbackSessionsLogic.updateFeedbackSession(
                 FeedbackSessionAttributes.updateOptionsBuilder(feedbackSessionName, courseId)
                         .withStudentDeadlines(newStudentDeadlines)
                         .build());

@@ -7,12 +7,16 @@ import teammates.common.datatransfer.attributes.StudentAttributes;
 import teammates.common.util.Const;
 import teammates.common.util.EmailType;
 import teammates.common.util.EmailWrapper;
+import teammates.logic.api.CoursesLogicAPI;
+import teammates.logic.api.StudentsLogicAPI;
 import teammates.ui.output.RegenerateKeyData;
 
 /**
  * SUT: {@link RegenerateStudentKeyAction}.
  */
 public class RegenerateStudentKeyActionTest extends BaseActionTest<RegenerateStudentKeyAction> {
+    private final StudentsLogicAPI studentsLogic = StudentsLogicAPI.inst();
+    private final CoursesLogicAPI coursesLogic = CoursesLogicAPI.inst();
 
     @Override
     protected String getActionUri() {
@@ -62,7 +66,7 @@ public class RegenerateStudentKeyActionTest extends BaseActionTest<RegenerateStu
                 Const.ParamsNames.COURSE_ID, "non-existent-course",
         };
 
-        assertNull(logic.getCourse("non-existent-course"));
+        assertNull(coursesLogic.getCourse("non-existent-course"));
 
         verifyEntityNotFound(nonExistingParams);
     }
@@ -78,7 +82,7 @@ public class RegenerateStudentKeyActionTest extends BaseActionTest<RegenerateStu
                 Const.ParamsNames.COURSE_ID, student1InCourse1.getCourse(),
         };
 
-        assertNull(logic.getStudentForEmail(student1InCourse1.getCourse(), "non-existent-student@abc.com"));
+        assertNull(studentsLogic.getStudentForEmail(student1InCourse1.getCourse(), "non-existent-student@abc.com"));
 
         verifyEntityNotFound(nonExistingParams);
     }

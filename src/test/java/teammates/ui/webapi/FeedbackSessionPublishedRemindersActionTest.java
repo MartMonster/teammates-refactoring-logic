@@ -5,12 +5,14 @@ import org.testng.annotations.Test;
 import teammates.common.datatransfer.attributes.FeedbackSessionAttributes;
 import teammates.common.util.Const;
 import teammates.common.util.TimeHelper;
+import teammates.logic.api.FeedbackSessionsLogicAPI;
 
 /**
  * SUT: {@link FeedbackSessionPublishedRemindersAction}.
  */
 public class FeedbackSessionPublishedRemindersActionTest
         extends BaseActionTest<FeedbackSessionPublishedRemindersAction> {
+    private final FeedbackSessionsLogicAPI feedbackSessionsLogic = FeedbackSessionsLogicAPI.inst();
 
     @Override
     protected String getActionUri() {
@@ -47,7 +49,7 @@ public class FeedbackSessionPublishedRemindersActionTest
 
         FeedbackSessionAttributes session1 = typicalBundle.feedbackSessions.get("session1InCourse1");
         session1.setResultsVisibleFromTime(TimeHelper.getInstantDaysOffsetFromNow(-1));
-        logic.updateFeedbackSession(
+        feedbackSessionsLogic.updateFeedbackSession(
                 FeedbackSessionAttributes
                         .updateOptionsBuilder(session1.getFeedbackSessionName(), session1.getCourseId())
                         .withResultsVisibleFromTime(session1.getResultsVisibleFromTime())
@@ -59,7 +61,7 @@ public class FeedbackSessionPublishedRemindersActionTest
         FeedbackSessionAttributes session2 = typicalBundle.feedbackSessions.get("session2InCourse1");
         session2.setResultsVisibleFromTime(TimeHelper.getInstantDaysOffsetFromNow(-1));
         session2.setPublishedEmailEnabled(false);
-        logic.updateFeedbackSession(
+        feedbackSessionsLogic.updateFeedbackSession(
                 FeedbackSessionAttributes
                         .updateOptionsBuilder(session2.getFeedbackSessionName(), session2.getCourseId())
                         .withResultsVisibleFromTime(session2.getResultsVisibleFromTime())
@@ -70,14 +72,14 @@ public class FeedbackSessionPublishedRemindersActionTest
         // Do a manual publish
 
         FeedbackSessionAttributes session3 = typicalBundle.feedbackSessions.get("gracePeriodSession");
-        logic.updateFeedbackSession(
+        feedbackSessionsLogic.updateFeedbackSession(
                 FeedbackSessionAttributes
                         .updateOptionsBuilder(session3.getFeedbackSessionName(), session3.getCourseId())
                         .withResultsVisibleFromTime(Const.TIME_REPRESENTS_LATER)
                         .build());
-        logic.publishFeedbackSession(session3.getFeedbackSessionName(), session3.getCourseId());
+        feedbackSessionsLogic.publishFeedbackSession(session3.getFeedbackSessionName(), session3.getCourseId());
         session3.setResultsVisibleFromTime(
-                logic.getFeedbackSession(session3.getFeedbackSessionName(), session3.getCourseId())
+                feedbackSessionsLogic.getFeedbackSession(session3.getFeedbackSessionName(), session3.getCourseId())
                         .getResultsVisibleFromTime());
         verifyPresentInDatabase(session3);
 
@@ -88,7 +90,7 @@ public class FeedbackSessionPublishedRemindersActionTest
 
         ______TS("1 session unpublished manually");
 
-        logic.unpublishFeedbackSession(session3.getFeedbackSessionName(), session3.getCourseId());
+        feedbackSessionsLogic.unpublishFeedbackSession(session3.getFeedbackSessionName(), session3.getCourseId());
 
         action = getAction();
         action.execute();
@@ -98,7 +100,7 @@ public class FeedbackSessionPublishedRemindersActionTest
         ______TS("1 session published with emails sent");
 
         session1.setSentPublishedEmail(true);
-        logic.updateFeedbackSession(
+        feedbackSessionsLogic.updateFeedbackSession(
                 FeedbackSessionAttributes
                         .updateOptionsBuilder(session1.getFeedbackSessionName(), session1.getCourseId())
                         .withSentPublishedEmail(session1.isSentPublishedEmail())

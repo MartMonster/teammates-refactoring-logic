@@ -9,12 +9,14 @@ import teammates.common.datatransfer.attributes.InstructorAttributes;
 import teammates.common.datatransfer.attributes.StudentAttributes;
 import teammates.common.util.Const;
 import teammates.common.util.TaskWrapper;
+import teammates.logic.api.StudentsLogicAPI;
 import teammates.ui.output.MessageOutput;
 
 /**
  * SUT: {@link SendJoinReminderEmailActionTest}.
  */
 public class SendJoinReminderEmailActionTest extends BaseActionTest<SendJoinReminderEmailAction> {
+    private final StudentsLogicAPI studentsLogic = StudentsLogicAPI.inst();
 
     @Override
     protected String getActionUri() {
@@ -98,12 +100,12 @@ public class SendJoinReminderEmailActionTest extends BaseActionTest<SendJoinRemi
                 .withTeamName("Team Unregistered")
                 .withComment("")
                 .build();
-        logic.createStudent(unregisteredStudent1);
-        logic.createStudent(unregisteredStudent2);
+        studentsLogic.createStudent(unregisteredStudent1);
+        studentsLogic.createStudent(unregisteredStudent2);
 
         // Reassign the attributes to retrieve their keys
-        unregisteredStudent1 = logic.getStudentForEmail(courseId, unregisteredStudent1.getEmail());
-        unregisteredStudent2 = logic.getStudentForEmail(courseId, unregisteredStudent2.getEmail());
+        unregisteredStudent1 = studentsLogic.getStudentForEmail(courseId, unregisteredStudent1.getEmail());
+        unregisteredStudent2 = studentsLogic.getStudentForEmail(courseId, unregisteredStudent2.getEmail());
 
         submissionParams = new String[] {
                 Const.ParamsNames.COURSE_ID, courseId,
@@ -123,8 +125,8 @@ public class SendJoinReminderEmailActionTest extends BaseActionTest<SendJoinRemi
             assertEquals(courseId, paramMap.get(Const.ParamsNames.COURSE_ID));
         }
 
-        logic.deleteStudentCascade(courseId, unregisteredStudent1.getEmail());
-        logic.deleteStudentCascade(courseId, unregisteredStudent2.getEmail());
+        studentsLogic.deleteStudentCascade(courseId, unregisteredStudent1.getEmail());
+        studentsLogic.deleteStudentCascade(courseId, unregisteredStudent2.getEmail());
 
         ______TS("Typical case: no unregistered students in course");
 

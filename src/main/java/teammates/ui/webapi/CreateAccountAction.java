@@ -23,6 +23,8 @@ import teammates.common.util.Logger;
 import teammates.common.util.StringHelper;
 import teammates.common.util.Templates;
 import teammates.common.util.TimeHelper;
+import teammates.logic.api.AccountsLogicAPI;
+import teammates.logic.api.CoursesLogicAPI;
 import teammates.ui.request.InvalidHttpRequestBodyException;
 
 /**
@@ -77,12 +79,12 @@ class CreateAccountAction extends Action {
             return new JsonResult(ipe.getMessage(), HttpStatus.SC_INTERNAL_SERVER_ERROR);
         }
 
-        List<InstructorAttributes> instructorList = logic.getInstructorsForCourse(courseId);
+        List<InstructorAttributes> instructorList = instructorsLogic.getInstructorsForCourse(courseId);
 
         assert !instructorList.isEmpty();
 
         try {
-            logic.joinCourseForInstructor(instructorList.get(0).getKey(), userInfo.id);
+            accountsLogic.joinCourseForInstructor(instructorList.get(0).getKey(), userInfo.id);
         } catch (EntityDoesNotExistException | EntityAlreadyExistsException | InvalidParametersException e) {
             // EntityDoesNotExistException should not be thrown as all entities should exist in demo course.
             // EntityAlreadyExistsException should not be thrown as updated entities should not have
@@ -159,8 +161,8 @@ class CreateAccountAction extends Action {
 
         logic.persistDataBundle(data);
 
-        List<StudentAttributes> students = logic.getStudentsForCourse(courseId);
-        List<InstructorAttributes> instructors = logic.getInstructorsForCourse(courseId);
+        List<StudentAttributes> students = studentsLogic.getStudentsForCourse(courseId);
+        List<InstructorAttributes> instructors = instructorsLogic.getInstructorsForCourse(courseId);
 
         for (StudentAttributes student : students) {
             taskQueuer.scheduleStudentForSearchIndexing(student.getCourse(), student.getEmail());
@@ -201,7 +203,7 @@ class CreateAccountAction extends Action {
      */
     private String generateDemoCourseId(String instructorEmail) {
         String proposedCourseId = generateNextDemoCourseId(instructorEmail, FieldValidator.COURSE_ID_MAX_LENGTH);
-        while (logic.getCourse(proposedCourseId) != null) {
+        while (coursesLogic.getCourse(proposedCourseId) != null) {
             proposedCourseId = generateNextDemoCourseId(proposedCourseId, FieldValidator.COURSE_ID_MAX_LENGTH);
         }
         return proposedCourseId;

@@ -36,7 +36,7 @@ class GetFeedbackQuestionsAction extends BasicFeedbackSubmissionAction {
             break;
         case FULL_DETAIL:
             gateKeeper.verifyLoggedInUserPrivileges(userInfo);
-            gateKeeper.verifyAccessible(logic.getInstructorForGoogleId(courseId, userInfo.getId()), feedbackSession);
+            gateKeeper.verifyAccessible(instructorsLogic.getInstructorForGoogleId(courseId, userInfo.getId()), feedbackSession);
             break;
         case INSTRUCTOR_SUBMISSION:
             InstructorAttributes instructorAttributes = getInstructorOfCourseFromRequest(courseId);
@@ -64,23 +64,23 @@ class GetFeedbackQuestionsAction extends BasicFeedbackSubmissionAction {
         List<FeedbackQuestionAttributes> questions;
         switch (intent) {
         case STUDENT_SUBMISSION:
-            questions = logic.getFeedbackQuestionsForStudents(feedbackSessionName, courseId);
+            questions = feedbackQuestionsLogic.getFeedbackQuestionsForStudents(feedbackSessionName, courseId);
             StudentAttributes studentAttributes = getStudentOfCourseFromRequest(courseId);
             questions.forEach(question ->
-                    logic.populateFieldsToGenerateInQuestion(question,
+                    feedbackQuestionsLogic.populateFieldsToGenerateInQuestion(question,
                             studentAttributes.getEmail(), studentAttributes.getTeam()));
             break;
         case INSTRUCTOR_SUBMISSION:
             InstructorAttributes instructor = getInstructorOfCourseFromRequest(courseId);
-            questions = logic.getFeedbackQuestionsForInstructors(feedbackSessionName, courseId, instructor.getEmail());
+            questions = feedbackQuestionsLogic.getFeedbackQuestionsForInstructors(feedbackSessionName, courseId, instructor.getEmail());
             questions.forEach(question ->
-                    logic.populateFieldsToGenerateInQuestion(question,
+                    feedbackQuestionsLogic.populateFieldsToGenerateInQuestion(question,
                             instructor.getEmail(), null));
             break;
         case FULL_DETAIL:
         case INSTRUCTOR_RESULT:
         case STUDENT_RESULT:
-            questions = logic.getFeedbackQuestionsForSession(feedbackSessionName, courseId);
+            questions = feedbackQuestionsLogic.getFeedbackQuestionsForSession(feedbackSessionName, courseId);
             break;
         default:
             throw new InvalidHttpParameterException("Unknown intent " + intent);

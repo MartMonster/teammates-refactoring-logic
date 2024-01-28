@@ -23,14 +23,14 @@ class FeedbackSessionClosingRemindersAction extends AdminOnlyAction {
 
     @Override
     public JsonResult execute() {
-        List<FeedbackSessionAttributes> sessions = logic.getFeedbackSessionsClosingWithinTimeLimit();
+        List<FeedbackSessionAttributes> sessions = feedbackSessionsLogic.getFeedbackSessionsClosingWithinTimeLimit();
 
         for (FeedbackSessionAttributes session : sessions) {
             RequestTracer.checkRemainingTime();
             List<EmailWrapper> emailsToBeSent = emailGenerator.generateFeedbackSessionClosingEmails(session);
             try {
                 taskQueuer.scheduleEmailsForSending(emailsToBeSent);
-                logic.updateFeedbackSession(
+                feedbackSessionsLogic.updateFeedbackSession(
                         FeedbackSessionAttributes
                                 .updateOptionsBuilder(session.getFeedbackSessionName(), session.getCourseId())
                                 .withSentClosingEmail(true)
@@ -51,7 +51,7 @@ class FeedbackSessionClosingRemindersAction extends AdminOnlyAction {
             RequestTracer.checkRemainingTime();
             String feedbackSessionName = deadlineExtensions.get(0).getFeedbackSessionName();
             String courseId = deadlineExtensions.get(0).getCourseId();
-            FeedbackSessionAttributes feedbackSession = logic.getFeedbackSession(feedbackSessionName, courseId);
+            FeedbackSessionAttributes feedbackSession = feedbackSessionsLogic.getFeedbackSession(feedbackSessionName, courseId);
             if (feedbackSession == null || !feedbackSession.isClosingEmailEnabled()) {
                 continue;
             }

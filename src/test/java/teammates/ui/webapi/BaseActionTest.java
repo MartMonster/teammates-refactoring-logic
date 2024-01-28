@@ -24,13 +24,7 @@ import teammates.common.util.Config;
 import teammates.common.util.Const;
 import teammates.common.util.EmailWrapper;
 import teammates.common.util.JsonUtils;
-import teammates.logic.api.LogicExtension;
-import teammates.logic.api.MockAuthProxy;
-import teammates.logic.api.MockEmailSender;
-import teammates.logic.api.MockLogsProcessor;
-import teammates.logic.api.MockRecaptchaVerifier;
-import teammates.logic.api.MockTaskQueuer;
-import teammates.logic.api.MockUserProvision;
+import teammates.logic.api.*;
 import teammates.test.BaseTestCaseWithLocalDatabaseAccess;
 import teammates.test.MockHttpServletRequest;
 import teammates.ui.request.BasicRequest;
@@ -44,6 +38,7 @@ import teammates.ui.request.InvalidHttpRequestBodyException;
  * @param <T> The action class being tested.
  */
 public abstract class BaseActionTest<T extends Action> extends BaseTestCaseWithLocalDatabaseAccess {
+    private final InstructorsLogicAPI instructorsLogic = InstructorsLogicAPI.inst();
 
     static final String GET = HttpGet.METHOD_NAME;
     static final String POST = HttpPost.METHOD_NAME;
@@ -236,7 +231,7 @@ public abstract class BaseActionTest<T extends Action> extends BaseTestCaseWithL
             instructorPrivileges.updatePrivilege(section, privilege, true);
         }
 
-        logic.updateInstructor(InstructorAttributes
+        instructorsLogic.updateInstructor(InstructorAttributes
                 .updateOptionsWithEmailBuilder(instructor.getCourseId(), instructor.getEmail())
                 .withPrivileges(instructorPrivileges)
                 .build());
@@ -428,7 +423,7 @@ public abstract class BaseActionTest<T extends Action> extends BaseTestCaseWithL
         InstructorPrivileges instructorPrivileges = new InstructorPrivileges();
 
         instructorPrivileges.updatePrivilege(privilege, true);
-        logic.updateInstructor(InstructorAttributes
+        instructorsLogic.updateInstructor(InstructorAttributes
                 .updateOptionsWithEmailBuilder(course.getId(), helperOfCourse1.getEmail())
                 .withPrivileges(instructorPrivileges)
                 .build());
@@ -436,7 +431,7 @@ public abstract class BaseActionTest<T extends Action> extends BaseTestCaseWithL
         verifyCanAccess(submissionParams);
         verifyAccessibleForAdminToMasqueradeAsInstructor(helperOfCourse1, submissionParams);
 
-        logic.updateInstructor(InstructorAttributes
+        instructorsLogic.updateInstructor(InstructorAttributes
                 .updateOptionsWithEmailBuilder(course.getId(), helperOfCourse1.getEmail())
                 .withPrivileges(new InstructorPrivileges())
                 .build());

@@ -9,6 +9,7 @@ import teammates.common.datatransfer.attributes.NotificationAttributes;
 import teammates.common.exception.EntityAlreadyExistsException;
 import teammates.common.exception.InvalidParametersException;
 import teammates.common.util.Logger;
+import teammates.logic.api.NotificationsLogicAPI;
 import teammates.ui.output.NotificationData;
 import teammates.ui.request.InvalidHttpRequestBodyException;
 import teammates.ui.request.NotificationCreateRequest;
@@ -36,7 +37,7 @@ public class CreateNotificationAction extends AdminOnlyAction {
                 .build();
 
         try {
-            return new JsonResult(new NotificationData(logic.createNotification(newNotification)));
+            return new JsonResult(new NotificationData(notificationsLogic.createNotification(newNotification)));
         } catch (InvalidParametersException e) {
             throw new InvalidHttpRequestBodyException(e);
         } catch (EntityAlreadyExistsException e) {

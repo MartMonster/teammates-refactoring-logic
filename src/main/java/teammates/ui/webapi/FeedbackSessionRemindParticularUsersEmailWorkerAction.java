@@ -8,6 +8,7 @@ import teammates.common.datatransfer.attributes.InstructorAttributes;
 import teammates.common.datatransfer.attributes.StudentAttributes;
 import teammates.common.util.EmailWrapper;
 import teammates.common.util.Logger;
+import teammates.logic.api.InstructorsLogicAPI;
 import teammates.ui.request.FeedbackSessionRemindRequest;
 import teammates.ui.request.InvalidHttpRequestBodyException;
 
@@ -31,20 +32,20 @@ class FeedbackSessionRemindParticularUsersEmailWorkerAction extends AdminOnlyAct
         boolean isSendingCopyToInstructor = remindRequest.getIsSendingCopyToInstructor();
 
         try {
-            FeedbackSessionAttributes session = logic.getFeedbackSession(feedbackSessionName, courseId);
+            FeedbackSessionAttributes session = feedbackSessionsLogic.getFeedbackSession(feedbackSessionName, courseId);
             List<StudentAttributes> studentsToRemindList = new ArrayList<>();
             List<InstructorAttributes> instructorsToRemindList = new ArrayList<>();
             InstructorAttributes instructorToNotify = isSendingCopyToInstructor
-                    ? logic.getInstructorForGoogleId(courseId, googleIdOfInstructorToNotify)
+                    ? instructorsLogic.getInstructorForGoogleId(courseId, googleIdOfInstructorToNotify)
                     : null;
 
             for (String userEmail : usersToRemind) {
-                StudentAttributes student = logic.getStudentForEmail(courseId, userEmail);
+                StudentAttributes student = studentsLogic.getStudentForEmail(courseId, userEmail);
                 if (student != null) {
                     studentsToRemindList.add(student);
                 }
 
-                InstructorAttributes instructor = logic.getInstructorForEmail(courseId, userEmail);
+                InstructorAttributes instructor = instructorsLogic.getInstructorForEmail(courseId, userEmail);
                 if (instructor != null) {
                     instructorsToRemindList.add(instructor);
                 }

@@ -38,7 +38,7 @@ class RegenerateStudentKeyAction extends AdminOnlyAction {
 
         StudentAttributes updatedStudent;
         try {
-            updatedStudent = logic.regenerateStudentRegistrationKey(courseId, studentEmailAddress);
+            updatedStudent = studentsLogic.regenerateStudentRegistrationKey(courseId, studentEmailAddress);
         } catch (EntityDoesNotExistException ex) {
             throw new EntityNotFoundException(ex);
         } catch (EntityAlreadyExistsException ex) {

@@ -7,12 +7,14 @@ import org.testng.annotations.Test;
 import teammates.common.datatransfer.attributes.InstructorAttributes;
 import teammates.common.util.Const.ParamsNames;
 import teammates.common.util.Const.TaskQueue;
+import teammates.logic.api.InstructorsLogicAPI;
 import teammates.test.TestProperties;
 
 /**
  * SUT: {@link InstructorSearchIndexingWorkerAction}.
  */
 public class InstructorSearchIndexingWorkerActionTest extends BaseActionTest<InstructorSearchIndexingWorkerAction> {
+    private final InstructorsLogicAPI logic = InstructorsLogicAPI.inst();
 
     @Override
     protected String getActionUri() {

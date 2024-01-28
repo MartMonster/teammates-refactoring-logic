@@ -9,6 +9,8 @@ import teammates.common.exception.InstructorUpdateException;
 import teammates.common.exception.InvalidParametersException;
 import teammates.common.util.Const;
 import teammates.common.util.Logger;
+import teammates.logic.api.CoursesLogicAPI;
+import teammates.logic.api.InstructorsLogicAPI;
 import teammates.ui.output.InstructorPrivilegeData;
 import teammates.ui.request.InstructorPrivilegeUpdateRequest;
 import teammates.ui.request.InvalidHttpRequestBodyException;
@@ -28,10 +30,10 @@ class UpdateInstructorPrivilegeAction extends Action {
     @Override
     void checkSpecificAccessControl() throws UnauthorizedAccessException {
         String courseId = getNonNullRequestParamValue(Const.ParamsNames.COURSE_ID);
-        InstructorAttributes instructor = logic.getInstructorForGoogleId(courseId, userInfo.getId());
+        InstructorAttributes instructor = instructorsLogic.getInstructorForGoogleId(courseId, userInfo.getId());
 
         gateKeeper.verifyAccessible(
-                instructor, logic.getCourse(courseId), Const.InstructorPermissions.CAN_MODIFY_INSTRUCTOR);
+                instructor, coursesLogic.getCourse(courseId), Const.InstructorPermissions.CAN_MODIFY_INSTRUCTOR);
     }
 
     @Override
@@ -39,7 +41,7 @@ class UpdateInstructorPrivilegeAction extends Action {
         String courseId = getNonNullRequestParamValue(Const.ParamsNames.COURSE_ID);
 
         String emailOfInstructorToUpdate = getNonNullRequestParamValue(Const.ParamsNames.INSTRUCTOR_EMAIL);
-        InstructorAttributes instructorToUpdate = logic.getInstructorForEmail(courseId, emailOfInstructorToUpdate);
+        InstructorAttributes instructorToUpdate = instructorsLogic.getInstructorForEmail(courseId, emailOfInstructorToUpdate);
 
         if (instructorToUpdate == null) {
             throw new EntityNotFoundException("Instructor does not exist.");
@@ -50,10 +52,10 @@ class UpdateInstructorPrivilegeAction extends Action {
         newPrivileges.validatePrivileges();
 
         instructorToUpdate.setPrivileges(newPrivileges);
-        logic.updateToEnsureValidityOfInstructorsForTheCourse(courseId, instructorToUpdate);
+        instructorsLogic.updateToEnsureValidityOfInstructorsForTheCourse(courseId, instructorToUpdate);
 
         try {
-            instructorToUpdate = logic.updateInstructor(
+            instructorToUpdate = instructorsLogic.updateInstructor(
                     InstructorAttributes
                             .updateOptionsWithEmailBuilder(instructorToUpdate.getCourseId(), instructorToUpdate.getEmail())
                             .withPrivileges(instructorToUpdate.getPrivileges())

@@ -6,6 +6,7 @@ import teammates.common.datatransfer.NotificationStyle;
 import teammates.common.datatransfer.NotificationTargetUser;
 import teammates.common.datatransfer.attributes.NotificationAttributes;
 import teammates.common.util.Const;
+import teammates.logic.api.NotificationsLogicAPI;
 import teammates.ui.output.NotificationData;
 import teammates.ui.request.InvalidHttpRequestBodyException;
 import teammates.ui.request.NotificationCreateRequest;
@@ -14,6 +15,7 @@ import teammates.ui.request.NotificationCreateRequest;
  * SUT: {@link CreateNotificationAction}.
  */
 public class CreateNotificationActionTest extends BaseActionTest<CreateNotificationAction> {
+    private final NotificationsLogicAPI notificationsLogic = NotificationsLogicAPI.inst();
     private static final String TEST_NOTIFICATION = "notification1";
     private final NotificationAttributes testNotificationAttribute = typicalBundle.notifications.get(TEST_NOTIFICATION);
 
@@ -44,7 +46,7 @@ public class CreateNotificationActionTest extends BaseActionTest<CreateNotificat
         CreateNotificationAction action = getAction(req);
         NotificationData res = (NotificationData) action.execute().getOutput();
 
-        NotificationAttributes createdNotification = logic.getNotification(res.getNotificationId());
+        NotificationAttributes createdNotification = notificationsLogic.getNotification(res.getNotificationId());
 
         // check that notification returned has same properties as notification created
         assertEquals(createdNotification.getStartTime().toEpochMilli(), res.getStartTimestamp());

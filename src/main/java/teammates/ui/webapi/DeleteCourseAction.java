@@ -1,6 +1,7 @@
 package teammates.ui.webapi;
 
 import teammates.common.util.Const;
+import teammates.logic.api.CoursesLogicAPI;
 import teammates.ui.output.MessageOutput;
 
 /**
@@ -19,8 +20,8 @@ class DeleteCourseAction extends Action {
             throw new UnauthorizedAccessException("Instructor privilege is required to access this resource.");
         }
         String idOfCourseToDelete = getNonNullRequestParamValue(Const.ParamsNames.COURSE_ID);
-        gateKeeper.verifyAccessible(logic.getInstructorForGoogleId(idOfCourseToDelete, userInfo.id),
-                logic.getCourse(idOfCourseToDelete),
+        gateKeeper.verifyAccessible(instructorsLogic.getInstructorForGoogleId(idOfCourseToDelete, userInfo.id),
+                coursesLogic.getCourse(idOfCourseToDelete),
                 Const.InstructorPermissions.CAN_MODIFY_COURSE);
     }
 
@@ -28,7 +29,7 @@ class DeleteCourseAction extends Action {
     public JsonResult execute() {
         String idOfCourseToDelete = getNonNullRequestParamValue(Const.ParamsNames.COURSE_ID);
 
-        logic.deleteCourseCascade(idOfCourseToDelete);
+        coursesLogic.deleteCourseCascade(idOfCourseToDelete);
 
         return new JsonResult(new MessageOutput("OK"));
     }

@@ -13,6 +13,8 @@ import teammates.common.datatransfer.attributes.InstructorAttributes;
 import teammates.common.datatransfer.attributes.StudentAttributes;
 import teammates.common.util.Const;
 import teammates.common.util.JsonUtils;
+import teammates.logic.api.FeedbackResponsesLogicAPI;
+import teammates.logic.api.FeedbackSessionsLogicAPI;
 import teammates.ui.output.SessionResultsData;
 import teammates.ui.request.Intent;
 
@@ -20,6 +22,8 @@ import teammates.ui.request.Intent;
  * SUT: {@link GetSessionResultsAction}.
  */
 public class GetSessionResultsActionTest extends BaseActionTest<GetSessionResultsAction> {
+    private final FeedbackResponsesLogicAPI feedbackResponsesLogic = FeedbackResponsesLogicAPI.inst();
+    private final FeedbackSessionsLogicAPI feedbackSessionsLogic = FeedbackSessionsLogicAPI.inst();
 
     @Override
     protected String getActionUri() {
@@ -52,7 +56,7 @@ public class GetSessionResultsActionTest extends BaseActionTest<GetSessionResult
         SessionResultsData output = (SessionResultsData) r.getOutput();
 
         SessionResultsData expectedResults = SessionResultsData.initForInstructor(
-                logic.getSessionResultsForCourse(accessibleFeedbackSession.getFeedbackSessionName(),
+                feedbackResponsesLogic.getSessionResultsForCourse(accessibleFeedbackSession.getFeedbackSessionName(),
                         accessibleFeedbackSession.getCourseId(),
                         instructorAttributes.getEmail(),
                         null, null, FeedbackResultFetchType.BOTH));
@@ -83,7 +87,7 @@ public class GetSessionResultsActionTest extends BaseActionTest<GetSessionResult
                 output = (SessionResultsData) r.getOutput();
 
                 expectedResults = SessionResultsData.initForInstructor(
-                        logic.getSessionResultsForCourse(accessibleFeedbackSession.getFeedbackSessionName(),
+                        feedbackResponsesLogic.getSessionResultsForCourse(accessibleFeedbackSession.getFeedbackSessionName(),
                                 accessibleFeedbackSession.getCourseId(),
                                 instructorAttributes.getEmail(),
                                 null, section, fetchType));
@@ -108,7 +112,7 @@ public class GetSessionResultsActionTest extends BaseActionTest<GetSessionResult
 
         output = (SessionResultsData) r.getOutput();
         expectedResults = SessionResultsData.initForStudent(
-                logic.getSessionResultsForUser(accessibleFeedbackSession.getFeedbackSessionName(),
+                feedbackResponsesLogic.getSessionResultsForUser(accessibleFeedbackSession.getFeedbackSessionName(),
                         accessibleFeedbackSession.getCourseId(),
                         studentAttributes.getEmail(),
                         false, null, true),
@@ -132,7 +136,7 @@ public class GetSessionResultsActionTest extends BaseActionTest<GetSessionResult
 
         output = (SessionResultsData) r.getOutput();
         expectedResults = SessionResultsData.initForStudent(
-                logic.getSessionResultsForUser(accessibleFeedbackSession.getFeedbackSessionName(),
+                feedbackResponsesLogic.getSessionResultsForUser(accessibleFeedbackSession.getFeedbackSessionName(),
                         accessibleFeedbackSession.getCourseId(),
                         studentAttributes.getEmail(),
                         false, null, false),
@@ -260,7 +264,7 @@ public class GetSessionResultsActionTest extends BaseActionTest<GetSessionResult
                 Const.ParamsNames.INTENT, Intent.STUDENT_RESULT.toString(),
         };
 
-        logic.publishFeedbackSession(feedbackSessionAttributes.getFeedbackSessionName(), typicalCourse1.getId());
+        feedbackSessionsLogic.publishFeedbackSession(feedbackSessionAttributes.getFeedbackSessionName(), typicalCourse1.getId());
         verifyInaccessibleForUnregisteredUsers(submissionParams);
     }
 
@@ -276,7 +280,7 @@ public class GetSessionResultsActionTest extends BaseActionTest<GetSessionResult
                 Const.ParamsNames.INTENT, Intent.STUDENT_RESULT.toString(),
         };
 
-        logic.publishFeedbackSession(feedbackSessionAttributes.getFeedbackSessionName(), typicalCourse1.getId());
+        feedbackSessionsLogic.publishFeedbackSession(feedbackSessionAttributes.getFeedbackSessionName(), typicalCourse1.getId());
         loginAsStudent(student1InCourse1.getGoogleId());
         verifyCanAccess(submissionParams);
     }
@@ -307,7 +311,7 @@ public class GetSessionResultsActionTest extends BaseActionTest<GetSessionResult
                 Const.ParamsNames.INTENT, Intent.STUDENT_RESULT.toString(),
         };
 
-        logic.publishFeedbackSession(feedbackSessionAttributes.getFeedbackSessionName(), typicalCourse1.getId());
+        feedbackSessionsLogic.publishFeedbackSession(feedbackSessionAttributes.getFeedbackSessionName(), typicalCourse1.getId());
         loginAsAdmin();
         verifyCanMasquerade(student1InCourse1.getGoogleId(), submissionParams);
     }

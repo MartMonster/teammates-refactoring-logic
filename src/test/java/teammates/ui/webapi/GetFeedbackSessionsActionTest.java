@@ -14,6 +14,7 @@ import teammates.common.datatransfer.attributes.InstructorAttributes;
 import teammates.common.datatransfer.attributes.StudentAttributes;
 import teammates.common.util.Const;
 import teammates.common.util.TimeHelper;
+import teammates.logic.api.FeedbackSessionsLogicAPI;
 import teammates.ui.output.FeedbackSessionData;
 import teammates.ui.output.FeedbackSessionPublishStatus;
 import teammates.ui.output.FeedbackSessionSubmissionStatus;
@@ -25,6 +26,7 @@ import teammates.ui.output.SessionVisibleSetting;
  * SUT: {@link GetFeedbackSessionsAction}.
  */
 public class GetFeedbackSessionsActionTest extends BaseActionTest<GetFeedbackSessionsAction> {
+    private final FeedbackSessionsLogicAPI feedbackSessionsLogic = FeedbackSessionsLogicAPI.inst();
 
     private List<FeedbackSessionAttributes> sessionsInCourse1;
     private List<FeedbackSessionAttributes> sessionsInCourse2;
@@ -214,7 +216,7 @@ public class GetFeedbackSessionsActionTest extends BaseActionTest<GetFeedbackSes
         loginAsStudent(student4InCourse1.getGoogleId());
 
         Instant newEndTime = Instant.now().plus(Duration.ofHours(-1));
-        logic.updateFeedbackSession(FeedbackSessionAttributes.updateOptionsBuilder(
+        feedbackSessionsLogic.updateFeedbackSession(FeedbackSessionAttributes.updateOptionsBuilder(
                 session2InCourse1.getFeedbackSessionName(), session2InCourse1.getCourseId())
                 .withEndTime(newEndTime)
                 .build());
@@ -240,7 +242,7 @@ public class GetFeedbackSessionsActionTest extends BaseActionTest<GetFeedbackSes
 
         Map<String, Instant> studentDeadlines = expectedSession2InCourse1.getStudentDeadlines();
         studentDeadlines.put(emailAddress, Instant.now().plusSeconds(-1));
-        logic.updateFeedbackSession(FeedbackSessionAttributes.updateOptionsBuilder(
+        feedbackSessionsLogic.updateFeedbackSession(FeedbackSessionAttributes.updateOptionsBuilder(
                 expectedSession2InCourse1.getFeedbackSessionName(), expectedSession2InCourse1.getCourseId())
                 .withStudentDeadlines(studentDeadlines)
                 .build());
@@ -253,7 +255,7 @@ public class GetFeedbackSessionsActionTest extends BaseActionTest<GetFeedbackSes
         ______TS("After deadline and beyond grace period; should indicate closed.");
 
         studentDeadlines.put(emailAddress, Instant.now().plus(Duration.ofHours(-1)));
-        logic.updateFeedbackSession(FeedbackSessionAttributes.updateOptionsBuilder(
+        feedbackSessionsLogic.updateFeedbackSession(FeedbackSessionAttributes.updateOptionsBuilder(
                 expectedSession2InCourse1.getFeedbackSessionName(), expectedSession2InCourse1.getCourseId())
                 .withStudentDeadlines(studentDeadlines)
                 .build());
@@ -271,7 +273,7 @@ public class GetFeedbackSessionsActionTest extends BaseActionTest<GetFeedbackSes
         };
 
         studentDeadlines.put(emailAddress, Instant.now().plus(Duration.ofHours(1)));
-        logic.updateFeedbackSession(FeedbackSessionAttributes.updateOptionsBuilder(
+        feedbackSessionsLogic.updateFeedbackSession(FeedbackSessionAttributes.updateOptionsBuilder(
                 expectedSession2InCourse1.getFeedbackSessionName(), expectedSession2InCourse1.getCourseId())
                 .withStudentDeadlines(studentDeadlines)
                 .build());
@@ -284,7 +286,7 @@ public class GetFeedbackSessionsActionTest extends BaseActionTest<GetFeedbackSes
         ______TS("After deadline but within grace period with course ID; should indicate in grace period.");
 
         studentDeadlines.put(emailAddress, Instant.now().plusSeconds(-1));
-        logic.updateFeedbackSession(FeedbackSessionAttributes.updateOptionsBuilder(
+        feedbackSessionsLogic.updateFeedbackSession(FeedbackSessionAttributes.updateOptionsBuilder(
                 expectedSession2InCourse1.getFeedbackSessionName(), expectedSession2InCourse1.getCourseId())
                 .withStudentDeadlines(studentDeadlines)
                 .build());
@@ -297,7 +299,7 @@ public class GetFeedbackSessionsActionTest extends BaseActionTest<GetFeedbackSes
         ______TS("After deadline and beyond grace period with course ID; should indicate closed.");
 
         studentDeadlines.put(emailAddress, Instant.now().plus(Duration.ofHours(-1)));
-        logic.updateFeedbackSession(FeedbackSessionAttributes.updateOptionsBuilder(
+        feedbackSessionsLogic.updateFeedbackSession(FeedbackSessionAttributes.updateOptionsBuilder(
                 expectedSession2InCourse1.getFeedbackSessionName(), expectedSession2InCourse1.getCourseId())
                 .withStudentDeadlines(studentDeadlines)
                 .build());

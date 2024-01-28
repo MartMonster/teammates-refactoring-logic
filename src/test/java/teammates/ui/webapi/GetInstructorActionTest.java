@@ -5,6 +5,7 @@ import org.testng.annotations.Test;
 import teammates.common.datatransfer.attributes.FeedbackSessionAttributes;
 import teammates.common.datatransfer.attributes.InstructorAttributes;
 import teammates.common.util.Const;
+import teammates.logic.api.InstructorsLogicAPI;
 import teammates.ui.output.InstructorData;
 import teammates.ui.request.Intent;
 
@@ -12,6 +13,7 @@ import teammates.ui.request.Intent;
  * SUT: {@link GetInstructorAction}.
  */
 public class GetInstructorActionTest extends BaseActionTest<GetInstructorAction> {
+    private final InstructorsLogicAPI instructorsLogic = InstructorsLogicAPI.inst();
 
     @Override
     protected String getActionUri() {
@@ -112,7 +114,7 @@ public class GetInstructorActionTest extends BaseActionTest<GetInstructorAction>
     @Override
     protected void testAccessControl() throws Exception {
         InstructorAttributes instructor1OfCourse1 =
-                logic.getInstructorForEmail("idOfTypicalCourse1", "instructor1@course1.tmt");
+                instructorsLogic.getInstructorForEmail("idOfTypicalCourse1", "instructor1@course1.tmt");
         FeedbackSessionAttributes fs = typicalBundle.feedbackSessions.get("session1InCourse1");
 
         loginAsInstructor(instructor1OfCourse1.getGoogleId());

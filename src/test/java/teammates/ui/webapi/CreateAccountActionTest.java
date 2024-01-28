@@ -14,11 +14,19 @@ import teammates.common.datatransfer.attributes.StudentAttributes;
 import teammates.common.util.Const;
 import teammates.common.util.FieldValidator;
 import teammates.common.util.StringHelperExtension;
+import teammates.logic.api.CoursesLogicAPI;
+import teammates.logic.api.FeedbackSessionsLogicAPI;
+import teammates.logic.api.InstructorsLogicAPI;
+import teammates.logic.api.StudentsLogicAPI;
 
 /**
  * SUT: {@link CreateAccountAction}.
  */
 public class CreateAccountActionTest extends BaseActionTest<CreateAccountAction> {
+    private final FeedbackSessionsLogicAPI feedbackSessionsLogic = FeedbackSessionsLogicAPI.inst();
+    private final StudentsLogicAPI studentsLogic = StudentsLogicAPI.inst();
+    private final InstructorsLogicAPI instructorsLogic = InstructorsLogicAPI.inst();
+    private final CoursesLogicAPI coursesLogic = CoursesLogicAPI.inst();
 
     @Override
     protected String getActionUri() {
@@ -62,14 +70,14 @@ public class CreateAccountActionTest extends BaseActionTest<CreateAccountAction>
 
         String courseId = generateNextDemoCourseId(email, FieldValidator.COURSE_ID_MAX_LENGTH);
 
-        CourseAttributes course = logic.getCourse(courseId);
+        CourseAttributes course = coursesLogic.getCourse(courseId);
         assertNotNull(course);
         assertEquals("Sample Course 101", course.getName());
         assertEquals(institute, course.getInstitute());
         assertEquals(timezone, course.getTimeZone());
 
         ZoneId zoneId = ZoneId.of(timezone);
-        List<FeedbackSessionAttributes> feedbackSessionsList = logic.getFeedbackSessionsForCourse(courseId);
+        List<FeedbackSessionAttributes> feedbackSessionsList = feedbackSessionsLogic.getFeedbackSessionsForCourse(courseId);
         for (FeedbackSessionAttributes feedbackSession : feedbackSessionsList) {
             LocalTime actualStartTime = LocalTime.ofInstant(feedbackSession.getStartTime(), zoneId);
             LocalTime actualEndTime = LocalTime.ofInstant(feedbackSession.getEndTime(), zoneId);
@@ -79,12 +87,12 @@ public class CreateAccountActionTest extends BaseActionTest<CreateAccountAction>
             assertEquals(LocalTime.MIDNIGHT, actualEndTime);
         }
 
-        InstructorAttributes instructor = logic.getInstructorForEmail(courseId, email);
+        InstructorAttributes instructor = instructorsLogic.getInstructorForEmail(courseId, email);
         assertEquals(email, instructor.getEmail());
         assertEquals(name, instructor.getName());
 
-        List<StudentAttributes> studentList = logic.getStudentsForCourse(courseId);
-        List<InstructorAttributes> instructorList = logic.getInstructorsForCourse(courseId);
+        List<StudentAttributes> studentList = studentsLogic.getStudentsForCourse(courseId);
+        List<InstructorAttributes> instructorList = instructorsLogic.getInstructorsForCourse(courseId);
         verifySpecifiedTasksAdded(Const.TaskQueue.SEARCH_INDEXING_QUEUE_NAME,
                 studentList.size() + instructorList.size());
 
@@ -106,10 +114,10 @@ public class CreateAccountActionTest extends BaseActionTest<CreateAccountAction>
         getJsonResult(a);
 
         courseId = generateNextDemoCourseId(email, FieldValidator.COURSE_ID_MAX_LENGTH);
-        course = logic.getCourse(courseId);
+        course = coursesLogic.getCourse(courseId);
         assertEquals(Const.DEFAULT_TIME_ZONE, course.getTimeZone());
 
-        feedbackSessionsList = logic.getFeedbackSessionsForCourse(courseId);
+        feedbackSessionsList = feedbackSessionsLogic.getFeedbackSessionsForCourse(courseId);
         zoneId = ZoneId.of(Const.DEFAULT_TIME_ZONE);
         for (FeedbackSessionAttributes feedbackSession : feedbackSessionsList) {
             LocalTime actualStartTime = LocalTime.ofInstant(feedbackSession.getStartTime(), zoneId);

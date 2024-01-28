@@ -5,6 +5,7 @@ import org.testng.annotations.Test;
 import teammates.common.datatransfer.attributes.CourseAttributes;
 import teammates.common.datatransfer.attributes.FeedbackSessionAttributes;
 import teammates.common.util.Const;
+import teammates.logic.api.FeedbackSessionsLogicAPI;
 import teammates.ui.output.FeedbackSessionData;
 import teammates.ui.output.FeedbackSessionPublishStatus;
 
@@ -12,6 +13,7 @@ import teammates.ui.output.FeedbackSessionPublishStatus;
  * SUT: {@link PublishFeedbackSessionAction}.
  */
 public class PublishFeedbackSessionActionTest extends BaseActionTest<PublishFeedbackSessionAction> {
+    private final FeedbackSessionsLogicAPI feedbackSessionsLogic = FeedbackSessionsLogicAPI.inst();
 
     @Override
     protected String getActionUri() {
@@ -43,7 +45,7 @@ public class PublishFeedbackSessionActionTest extends BaseActionTest<PublishFeed
 
         assertEquals(feedbackSessionData.getFeedbackSessionName(), session.getFeedbackSessionName());
         assertEquals(FeedbackSessionPublishStatus.PUBLISHED, feedbackSessionData.getPublishStatus());
-        assertTrue(logic.getFeedbackSession(session.getFeedbackSessionName(), course.getId()).isPublished());
+        assertTrue(feedbackSessionsLogic.getFeedbackSession(session.getFeedbackSessionName(), course.getId()).isPublished());
 
         ______TS("Typical case: Session is already published");
         // Attempt to publish the same session again.
@@ -53,7 +55,7 @@ public class PublishFeedbackSessionActionTest extends BaseActionTest<PublishFeed
 
         assertEquals(feedbackSessionData.getFeedbackSessionName(), session.getFeedbackSessionName());
         assertEquals(FeedbackSessionPublishStatus.PUBLISHED, feedbackSessionData.getPublishStatus());
-        assertTrue(logic.getFeedbackSession(session.getFeedbackSessionName(), course.getId()).isPublished());
+        assertTrue(feedbackSessionsLogic.getFeedbackSession(session.getFeedbackSessionName(), course.getId()).isPublished());
     }
 
     @Test
@@ -64,14 +66,14 @@ public class PublishFeedbackSessionActionTest extends BaseActionTest<PublishFeed
         FeedbackSessionAttributes session = typicalBundle.feedbackSessions.get("session1InCourse1");
         String randomSessionName = "randomName";
 
-        assertNotNull(logic.getFeedbackSession(session.getFeedbackSessionName(), course.getId()));
+        assertNotNull(feedbackSessionsLogic.getFeedbackSession(session.getFeedbackSessionName(), course.getId()));
 
         String[] params = {
                 Const.ParamsNames.COURSE_ID, course.getId(),
                 Const.ParamsNames.FEEDBACK_SESSION_NAME, randomSessionName,
         };
 
-        assertNull(logic.getFeedbackSession(randomSessionName, course.getId()));
+        assertNull(feedbackSessionsLogic.getFeedbackSession(randomSessionName, course.getId()));
 
         EntityNotFoundException enfe = verifyEntityNotFound(params);
         assertEquals("Feedback session not found", enfe.getMessage());
@@ -84,7 +86,7 @@ public class PublishFeedbackSessionActionTest extends BaseActionTest<PublishFeed
                 Const.ParamsNames.COURSE_ID, randomCourseId,
                 Const.ParamsNames.FEEDBACK_SESSION_NAME, session.getFeedbackSessionName(),
         };
-        assertNull(logic.getFeedbackSession(session.getFeedbackSessionName(), randomCourseId));
+        assertNull(feedbackSessionsLogic.getFeedbackSession(session.getFeedbackSessionName(), randomCourseId));
 
         enfe = verifyEntityNotFound(params);
         assertEquals("Feedback session not found", enfe.getMessage());

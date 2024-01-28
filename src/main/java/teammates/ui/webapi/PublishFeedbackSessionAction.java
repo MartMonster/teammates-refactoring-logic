@@ -27,7 +27,7 @@ class PublishFeedbackSessionAction extends Action {
         String courseId = getNonNullRequestParamValue(Const.ParamsNames.COURSE_ID);
         String feedbackSessionName = getNonNullRequestParamValue(Const.ParamsNames.FEEDBACK_SESSION_NAME);
 
-        InstructorAttributes instructor = logic.getInstructorForGoogleId(courseId, userInfo.getId());
+        InstructorAttributes instructor = instructorsLogic.getInstructorForGoogleId(courseId, userInfo.getId());
         FeedbackSessionAttributes feedbackSession = getNonNullFeedbackSession(feedbackSessionName, courseId);
 
         gateKeeper.verifyAccessible(instructor, feedbackSession,
@@ -45,7 +45,7 @@ class PublishFeedbackSessionAction extends Action {
         }
 
         try {
-            FeedbackSessionAttributes publishFeedbackSession = logic.publishFeedbackSession(feedbackSessionName, courseId);
+            FeedbackSessionAttributes publishFeedbackSession = feedbackSessionsLogic.publishFeedbackSession(feedbackSessionName, courseId);
 
             if (publishFeedbackSession.isPublishedEmailEnabled()) {
                 taskQueuer.scheduleFeedbackSessionPublishedEmail(publishFeedbackSession.getCourseId(),

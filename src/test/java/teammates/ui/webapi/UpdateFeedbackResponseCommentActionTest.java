@@ -19,6 +19,9 @@ import teammates.common.datatransfer.attributes.InstructorAttributes;
 import teammates.common.datatransfer.attributes.StudentAttributes;
 import teammates.common.util.Const;
 import teammates.common.util.TimeHelper;
+import teammates.logic.api.FeedbackResponseCommentsLogicAPI;
+import teammates.logic.api.FeedbackSessionsLogicAPI;
+import teammates.logic.api.InstructorsLogicAPI;
 import teammates.ui.output.CommentVisibilityType;
 import teammates.ui.request.FeedbackResponseCommentUpdateRequest;
 import teammates.ui.request.Intent;
@@ -28,6 +31,9 @@ import teammates.ui.request.InvalidHttpRequestBodyException;
  * SUT: {@link UpdateFeedbackResponseCommentAction}.
  */
 public class UpdateFeedbackResponseCommentActionTest extends BaseActionTest<UpdateFeedbackResponseCommentAction> {
+    private final FeedbackResponseCommentsLogicAPI feedbackResponseCommentsLogic = FeedbackResponseCommentsLogicAPI.inst();
+    private final FeedbackSessionsLogicAPI feedbackSessionsLogic = FeedbackSessionsLogicAPI.inst();
+    private final InstructorsLogicAPI instructorsLogic = InstructorsLogicAPI.inst();
 
     private CourseAttributes course;
     private FeedbackSessionAttributes session1InCourse1;
@@ -83,10 +89,10 @@ public class UpdateFeedbackResponseCommentActionTest extends BaseActionTest<Upda
                 student1InCourse1.getTeam(), student3InCourse1.getTeam());
         FeedbackResponseAttributes response1ForQn6 = logic.getFeedbackResponse(qn6InSession1InCourse1.getId(),
                 student1InCourse1.getEmail(), student3InCourse1.getEmail());
-        comment1FromInstructor1 = logic.getFeedbackResponseCommentForResponseFromParticipant(response1ForQn1.getId());
-        comment1FromStudent1 = logic.getFeedbackResponseCommentForResponseFromParticipant(response1ForQn3.getId());
-        comment2FromStudent1 = logic.getFeedbackResponseCommentForResponseFromParticipant(response1ForQn6.getId());
-        comment1FromTeam1 = logic.getFeedbackResponseCommentForResponseFromParticipant(response1ForQ4.getId());
+        comment1FromInstructor1 = feedbackResponseCommentsLogic.getFeedbackResponseCommentForResponseFromParticipant(response1ForQn1.getId());
+        comment1FromStudent1 = feedbackResponseCommentsLogic.getFeedbackResponseCommentForResponseFromParticipant(response1ForQn3.getId());
+        comment2FromStudent1 = feedbackResponseCommentsLogic.getFeedbackResponseCommentForResponseFromParticipant(response1ForQn6.getId());
+        comment1FromTeam1 = feedbackResponseCommentsLogic.getFeedbackResponseCommentForResponseFromParticipant(response1ForQ4.getId());
 
         comment1FromInstructor1Q2 = dataBundle.feedbackResponseComments.get("comment1FromInstructor1Q2");
         comment1FromInstructor1Q2 = logic.getFeedbackResponseComment(response1ForQn1.getId(),
@@ -129,7 +135,7 @@ public class UpdateFeedbackResponseCommentActionTest extends BaseActionTest<Upda
         getJsonResult(action);
 
         FeedbackResponseCommentAttributes frc =
-                logic.getFeedbackResponseComment(comment1FromInstructor1.getId());
+                feedbackResponseCommentsLogic.getFeedbackResponseComment(comment1FromInstructor1.getId());
         assertEquals(comment1FromInstructor1.getCommentText() + " (Edited)", frc.getCommentText());
         assertEquals(FeedbackParticipantType.INSTRUCTORS, frc.getCommentGiverType());
         assertEquals(instructor1OfCourse1.getEmail(), frc.getCommentGiver());
@@ -148,7 +154,7 @@ public class UpdateFeedbackResponseCommentActionTest extends BaseActionTest<Upda
         action = getAction(requestBody, submissionParams);
         getJsonResult(action);
 
-        frc = logic.getFeedbackResponseComment(comment1FromStudent1.getId());
+        frc = feedbackResponseCommentsLogic.getFeedbackResponseComment(comment1FromStudent1.getId());
         assertEquals(comment1FromStudent1.getCommentText() + " (Edited)", frc.getCommentText());
         assertEquals(FeedbackParticipantType.STUDENTS, frc.getCommentGiverType());
         assertEquals(student1InCourse1.getEmail(), frc.getCommentGiver());
@@ -166,7 +172,7 @@ public class UpdateFeedbackResponseCommentActionTest extends BaseActionTest<Upda
         action = getAction(requestBody, submissionParams);
         getJsonResult(action);
 
-        frc = logic.getFeedbackResponseComment(comment1FromInstructor1.getId());
+        frc = feedbackResponseCommentsLogic.getFeedbackResponseComment(comment1FromInstructor1.getId());
         assertEquals(comment1FromInstructor1.getCommentText() + " (Edited)", frc.getCommentText());
         assertEquals(FeedbackParticipantType.INSTRUCTORS, frc.getCommentGiverType());
         assertEquals(instructor1OfCourse1.getEmail(), frc.getCommentGiver());
@@ -303,7 +309,7 @@ public class UpdateFeedbackResponseCommentActionTest extends BaseActionTest<Upda
         UpdateFeedbackResponseCommentAction action = getAction(requestBody, submissionParams);
         getJsonResult(action);
 
-        FeedbackResponseCommentAttributes frc = logic.getFeedbackResponseComment(comment1FromInstructor1Q2.getId());
+        FeedbackResponseCommentAttributes frc = feedbackResponseCommentsLogic.getFeedbackResponseComment(comment1FromInstructor1Q2.getId());
         assertEquals(comment1FromInstructor1Q2.getCommentText() + " (Edited)", frc.getCommentText());
         assertEquals(FeedbackParticipantType.INSTRUCTORS, frc.getCommentGiverType());
         assertEquals(instructor1OfCourse1.getEmail(), frc.getCommentGiver());
@@ -323,7 +329,7 @@ public class UpdateFeedbackResponseCommentActionTest extends BaseActionTest<Upda
 
         loginAsInstructor(instructor1OfCourse1.getGoogleId());
 
-        logic.publishFeedbackSession(
+        feedbackSessionsLogic.publishFeedbackSession(
                 comment1FromInstructor1Q2.getFeedbackSessionName(), comment1FromInstructor1Q2.getCourseId());
 
         String[] submissionParams = new String[] {
@@ -337,7 +343,7 @@ public class UpdateFeedbackResponseCommentActionTest extends BaseActionTest<Upda
         UpdateFeedbackResponseCommentAction action = getAction(requestBody, submissionParams);
         getJsonResult(action);
 
-        FeedbackResponseCommentAttributes frc = logic.getFeedbackResponseComment(comment1FromInstructor1Q2.getId());
+        FeedbackResponseCommentAttributes frc = feedbackResponseCommentsLogic.getFeedbackResponseComment(comment1FromInstructor1Q2.getId());
         assertEquals(comment1FromInstructor1Q2.getCommentText() + " (Edited for published session)",
                 frc.getCommentText());
         assertEquals(FeedbackParticipantType.INSTRUCTORS, frc.getCommentGiverType());
@@ -510,7 +516,7 @@ public class UpdateFeedbackResponseCommentActionTest extends BaseActionTest<Upda
         instructorPrivileges.updatePrivilege("Section B",
                 Const.InstructorPermissions.CAN_MODIFY_SESSION_COMMENT_IN_SECTIONS, true);
 
-        logic.updateInstructor(InstructorAttributes.updateOptionsWithEmailBuilder(course.getId(), instructor.getEmail())
+        instructorsLogic.updateInstructor(InstructorAttributes.updateOptionsWithEmailBuilder(course.getId(), instructor.getEmail())
                 .withPrivileges(instructorPrivileges).build());
 
         loginAsInstructor(instructor.getGoogleId());
@@ -527,7 +533,7 @@ public class UpdateFeedbackResponseCommentActionTest extends BaseActionTest<Upda
         instructorPrivileges.updatePrivilege("Section A",
                 Const.InstructorPermissions.CAN_MODIFY_SESSION_COMMENT_IN_SECTIONS, true);
 
-        logic.updateInstructor(InstructorAttributes.updateOptionsWithEmailBuilder(course.getId(), instructor.getEmail())
+        instructorsLogic.updateInstructor(InstructorAttributes.updateOptionsWithEmailBuilder(course.getId(), instructor.getEmail())
                 .withPrivileges(instructorPrivileges).build());
 
         loginAsInstructor(instructor.getGoogleId());
@@ -537,7 +543,7 @@ public class UpdateFeedbackResponseCommentActionTest extends BaseActionTest<Upda
                 Const.InstructorPermissions.CAN_MODIFY_SESSION_COMMENT_IN_SECTIONS, false);
         instructorPrivileges.updatePrivilege("Section B",
                 Const.InstructorPermissions.CAN_MODIFY_SESSION_COMMENT_IN_SECTIONS, true);
-        logic.updateInstructor(InstructorAttributes.updateOptionsWithEmailBuilder(course.getId(), instructor.getEmail())
+        instructorsLogic.updateInstructor(InstructorAttributes.updateOptionsWithEmailBuilder(course.getId(), instructor.getEmail())
                 .withPrivileges(instructorPrivileges).build());
 
         verifyCannotAccess(submissionParams);
@@ -549,7 +555,7 @@ public class UpdateFeedbackResponseCommentActionTest extends BaseActionTest<Upda
         String courseId = session1InCourse1.getCourseId();
 
         Instant newEndTime = TimeHelper.getInstantDaysOffsetFromNow(-2);
-        logic.updateFeedbackSession(FeedbackSessionAttributes.updateOptionsBuilder(feedbackSessionName, courseId)
+        feedbackSessionsLogic.updateFeedbackSession(FeedbackSessionAttributes.updateOptionsBuilder(feedbackSessionName, courseId)
                 .withEndTime(newEndTime)
                 .build());
         loginAsInstructor(instructor1OfCourse1.getGoogleId());
@@ -566,7 +572,7 @@ public class UpdateFeedbackResponseCommentActionTest extends BaseActionTest<Upda
 
         Map<String, Instant> newInstructorDeadlines = Map.of(
                 instructor1OfCourse1.getEmail(), TimeHelper.getInstantDaysOffsetFromNow(-1));
-        logic.updateFeedbackSession(FeedbackSessionAttributes.updateOptionsBuilder(feedbackSessionName, courseId)
+        feedbackSessionsLogic.updateFeedbackSession(FeedbackSessionAttributes.updateOptionsBuilder(feedbackSessionName, courseId)
                 .withInstructorDeadlines(newInstructorDeadlines)
                 .build());
         verifyCannotAccess(submissionParams);
@@ -575,7 +581,7 @@ public class UpdateFeedbackResponseCommentActionTest extends BaseActionTest<Upda
 
         newInstructorDeadlines = Map.of(
                 instructor1OfCourse1.getEmail(), TimeHelper.getInstantDaysOffsetFromNow(1));
-        logic.updateFeedbackSession(FeedbackSessionAttributes.updateOptionsBuilder(feedbackSessionName, courseId)
+        feedbackSessionsLogic.updateFeedbackSession(FeedbackSessionAttributes.updateOptionsBuilder(feedbackSessionName, courseId)
                 .withInstructorDeadlines(newInstructorDeadlines)
                 .build());
         verifyCanAccess(submissionParams);
@@ -587,7 +593,7 @@ public class UpdateFeedbackResponseCommentActionTest extends BaseActionTest<Upda
         String courseId = session1InCourse1.getCourseId();
 
         Instant newEndTime = TimeHelper.getInstantDaysOffsetFromNow(-2);
-        logic.updateFeedbackSession(FeedbackSessionAttributes.updateOptionsBuilder(feedbackSessionName, courseId)
+        feedbackSessionsLogic.updateFeedbackSession(FeedbackSessionAttributes.updateOptionsBuilder(feedbackSessionName, courseId)
                 .withEndTime(newEndTime)
                 .build());
         loginAsStudent(student1InCourse1.getGoogleId());
@@ -604,7 +610,7 @@ public class UpdateFeedbackResponseCommentActionTest extends BaseActionTest<Upda
 
         Map<String, Instant> newStudentDeadlines = Map.of(
                 student1InCourse1.getEmail(), TimeHelper.getInstantDaysOffsetFromNow(-1));
-        logic.updateFeedbackSession(FeedbackSessionAttributes.updateOptionsBuilder(feedbackSessionName, courseId)
+        feedbackSessionsLogic.updateFeedbackSession(FeedbackSessionAttributes.updateOptionsBuilder(feedbackSessionName, courseId)
                 .withStudentDeadlines(newStudentDeadlines)
                 .build());
         verifyCannotAccess(submissionParams);
@@ -613,7 +619,7 @@ public class UpdateFeedbackResponseCommentActionTest extends BaseActionTest<Upda
 
         newStudentDeadlines = Map.of(
                 student1InCourse1.getEmail(), TimeHelper.getInstantDaysOffsetFromNow(1));
-        logic.updateFeedbackSession(FeedbackSessionAttributes.updateOptionsBuilder(feedbackSessionName, courseId)
+        feedbackSessionsLogic.updateFeedbackSession(FeedbackSessionAttributes.updateOptionsBuilder(feedbackSessionName, courseId)
                 .withStudentDeadlines(newStudentDeadlines)
                 .build());
         verifyCanAccess(submissionParams);

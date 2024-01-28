@@ -14,6 +14,10 @@ import teammates.common.util.Const.ParamsNames;
 import teammates.common.util.EmailType;
 import teammates.common.util.EmailWrapper;
 import teammates.common.util.TaskWrapper;
+import teammates.logic.api.CoursesLogicAPI;
+import teammates.logic.api.FeedbackResponsesLogicAPI;
+import teammates.logic.api.InstructorsLogicAPI;
+import teammates.logic.api.StudentsLogicAPI;
 import teammates.ui.request.SendEmailRequest;
 
 /**
@@ -21,6 +25,10 @@ import teammates.ui.request.SendEmailRequest;
  */
 public class FeedbackSessionRemindEmailWorkerActionTest
         extends BaseActionTest<FeedbackSessionRemindEmailWorkerAction> {
+    private final FeedbackResponsesLogicAPI feedbackResponsesLogic = FeedbackResponsesLogicAPI.inst();
+    private final StudentsLogicAPI studentsLogic = StudentsLogicAPI.inst();
+    private final InstructorsLogicAPI instructorsLogic = InstructorsLogicAPI.inst();
+    private final CoursesLogicAPI coursesLogic = CoursesLogicAPI.inst();
 
     @Override
     protected String getActionUri() {
@@ -60,10 +68,10 @@ public class FeedbackSessionRemindEmailWorkerActionTest
         verifySpecifiedTasksAdded(Const.TaskQueue.SEND_EMAIL_QUEUE_NAME, 6);
 
         Set<String> giverSet =
-                logic.getGiverSetThatAnswerFeedbackSession(session1.getCourseId(), session1.getFeedbackSessionName());
+                feedbackResponsesLogic.getGiverSetThatAnswerFeedbackSession(session1.getCourseId(), session1.getFeedbackSessionName());
 
         List<String> studentRecipientList = new ArrayList<>();
-        for (StudentAttributes student : logic.getStudentsForCourse(session1.getCourseId())) {
+        for (StudentAttributes student : studentsLogic.getStudentsForCourse(session1.getCourseId())) {
             if (!giverSet.contains(student.getEmail())) {
                 studentRecipientList.add(student.getEmail());
             }
@@ -71,15 +79,15 @@ public class FeedbackSessionRemindEmailWorkerActionTest
 
         List<String> instructorRecipientList = new ArrayList<>();
         List<String> instructorNotifiedList = new ArrayList<>();
-        for (InstructorAttributes instructor : logic.getInstructorsForCourse(session1.getCourseId())) {
+        for (InstructorAttributes instructor : instructorsLogic.getInstructorsForCourse(session1.getCourseId())) {
             if (!giverSet.contains(instructor.getEmail())) {
                 instructorRecipientList.add(instructor.getEmail());
             }
         }
-        instructorNotifiedList.add(logic.getInstructorForGoogleId(session1.getCourseId(),
+        instructorNotifiedList.add(instructorsLogic.getInstructorForGoogleId(session1.getCourseId(),
                 instructor1.getGoogleId()).getEmail());
 
-        String courseName = logic.getCourse(session1.getCourseId()).getName();
+        String courseName = coursesLogic.getCourse(session1.getCourseId()).getName();
         List<TaskWrapper> tasksAdded = mockTaskQueuer.getTasksAdded();
         for (TaskWrapper task : tasksAdded) {
             SendEmailRequest requestBody = (SendEmailRequest) task.getRequestBody();

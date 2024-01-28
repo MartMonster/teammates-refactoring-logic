@@ -17,6 +17,8 @@ import teammates.common.util.EmailWrapper;
 import teammates.common.util.TaskWrapper;
 import teammates.common.util.TimeHelper;
 import teammates.common.util.TimeHelperExtension;
+import teammates.logic.api.CoursesLogicAPI;
+import teammates.logic.api.FeedbackSessionsLogicAPI;
 import teammates.ui.output.FeedbackSessionData;
 import teammates.ui.output.ResponseVisibleSetting;
 import teammates.ui.output.SessionVisibleSetting;
@@ -28,6 +30,8 @@ import teammates.ui.request.SendEmailRequest;
  * SUT: {@link UpdateFeedbackSessionAction}.
  */
 public class UpdateFeedbackSessionActionTest extends BaseActionTest<UpdateFeedbackSessionAction> {
+    private final FeedbackSessionsLogicAPI feedbackSessionsLogic = FeedbackSessionsLogicAPI.inst();
+    private final CoursesLogicAPI coursesLogic = CoursesLogicAPI.inst();
 
     @Override
     protected String getActionUri() {
@@ -85,7 +89,7 @@ public class UpdateFeedbackSessionActionTest extends BaseActionTest<UpdateFeedba
 
         FeedbackSessionData response = (FeedbackSessionData) r.getOutput();
 
-        session = logic.getFeedbackSession(session.getFeedbackSessionName(), session.getCourseId());
+        session = feedbackSessionsLogic.getFeedbackSession(session.getFeedbackSessionName(), session.getCourseId());
         assertEquals(session.getCourseId(), response.getCourseId());
         assertEquals(session.getTimeZone(), response.getTimeZone());
         assertEquals(session.getFeedbackSessionName(), response.getFeedbackSessionName());
@@ -263,7 +267,7 @@ public class UpdateFeedbackSessionActionTest extends BaseActionTest<UpdateFeedba
         verifySpecifiedTasksAdded(Const.TaskQueue.SEND_EMAIL_QUEUE_NAME, 3);
         List<TaskWrapper> tasksAdded = mockTaskQueuer.getTasksAdded();
 
-        CourseAttributes course = logic.getCourse(session.getCourseId());
+        CourseAttributes course = coursesLogic.getCourse(session.getCourseId());
         for (var task : tasksAdded) {
             SendEmailRequest requestBody = (SendEmailRequest) task.getRequestBody();
             EmailWrapper email = requestBody.getEmail();
@@ -473,7 +477,7 @@ public class UpdateFeedbackSessionActionTest extends BaseActionTest<UpdateFeedba
         verifySpecifiedTasksAdded(Const.TaskQueue.SEND_EMAIL_QUEUE_NAME, 3);
         List<TaskWrapper> tasksAdded = mockTaskQueuer.getTasksAdded();
 
-        CourseAttributes course = logic.getCourse(session.getCourseId());
+        CourseAttributes course = coursesLogic.getCourse(session.getCourseId());
         for (var task : tasksAdded) {
             SendEmailRequest requestBody = (SendEmailRequest) task.getRequestBody();
             EmailWrapper email = requestBody.getEmail();
@@ -592,7 +596,7 @@ public class UpdateFeedbackSessionActionTest extends BaseActionTest<UpdateFeedba
 
         ______TS("success: Custom time zone, At open show session, 'later' show results");
 
-        logic.updateCourseCascade(
+        coursesLogic.updateCourseCascade(
                 CourseAttributes.updateOptionsBuilder(course.getId())
                         .withTimezone("Asia/Kathmandu")
                         .build());
@@ -609,13 +613,13 @@ public class UpdateFeedbackSessionActionTest extends BaseActionTest<UpdateFeedba
         UpdateFeedbackSessionAction a = getAction(updateRequest, param);
         getJsonResult(a);
 
-        session = logic.getFeedbackSession(session.getFeedbackSessionName(), session.getCourseId());
+        session = feedbackSessionsLogic.getFeedbackSession(session.getFeedbackSessionName(), session.getCourseId());
         assertEquals(Const.TIME_REPRESENTS_FOLLOW_OPENING, session.getSessionVisibleFromTime());
         assertEquals(Const.TIME_REPRESENTS_LATER, session.getResultsVisibleFromTime());
 
         ______TS("success: At open session visible time, custom results visible time, UTC");
 
-        logic.updateCourseCascade(
+        coursesLogic.updateCourseCascade(
                 CourseAttributes.updateOptionsBuilder(course.getId())
                         .withTimezone("UTC")
                         .build());
@@ -631,7 +635,7 @@ public class UpdateFeedbackSessionActionTest extends BaseActionTest<UpdateFeedba
         a = getAction(updateRequest, param);
         getJsonResult(a);
 
-        session = logic.getFeedbackSession(session.getFeedbackSessionName(), session.getCourseId());
+        session = feedbackSessionsLogic.getFeedbackSession(session.getFeedbackSessionName(), session.getCourseId());
         assertEquals(Const.TIME_REPRESENTS_FOLLOW_OPENING, session.getSessionVisibleFromTime());
         assertEquals(TimeHelperExtension.getTimezoneInstantTruncatedDaysOffsetFromNow(
                 7, "UTC").toEpochMilli(), session.getResultsVisibleFromTime().toEpochMilli());

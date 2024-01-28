@@ -5,6 +5,9 @@ import teammates.common.datatransfer.attributes.CourseAttributes;
 import teammates.common.datatransfer.attributes.InstructorAttributes;
 import teammates.common.util.Const.ParamsNames;
 import teammates.common.util.EmailWrapper;
+import teammates.logic.api.AccountsLogicAPI;
+import teammates.logic.api.CoursesLogicAPI;
+import teammates.logic.api.InstructorsLogicAPI;
 
 /**
  * Task queue worker action: sends registration email for an instructor of a course.
@@ -14,7 +17,7 @@ class InstructorCourseJoinEmailWorkerAction extends AdminOnlyAction {
     @Override
     public JsonResult execute() {
         String courseId = getNonNullRequestParamValue(ParamsNames.COURSE_ID);
-        CourseAttributes course = logic.getCourse(courseId);
+        CourseAttributes course = coursesLogic.getCourse(courseId);
         if (course == null) {
             throw new EntityNotFoundException("Course with ID " + courseId + " does not exist!");
         }
@@ -26,7 +29,7 @@ class InstructorCourseJoinEmailWorkerAction extends AdminOnlyAction {
         // saving the new instructor takes more time in database.
         // The instructor `id` can be constructed back using (instructorEmail%courseId)
         // because instructors' email cannot be changed before joining the course.
-        InstructorAttributes instructor = logic.getInstructorById(courseId, instructorEmail);
+        InstructorAttributes instructor = instructorsLogic.getInstructorById(courseId, instructorEmail);
         if (instructor == null) {
             throw new EntityNotFoundException("Instructor does not exist.");
         }
@@ -38,7 +41,7 @@ class InstructorCourseJoinEmailWorkerAction extends AdminOnlyAction {
             email = emailGenerator.generateInstructorCourseRejoinEmailAfterGoogleIdReset(instructor, course);
         } else {
             String inviterId = getNonNullRequestParamValue(ParamsNames.INVITER_ID);
-            AccountAttributes inviter = logic.getAccount(inviterId);
+            AccountAttributes inviter = accountsLogic.getAccount(inviterId);
             if (inviter == null) {
                 throw new EntityNotFoundException("Inviter account does not exist.");
             }

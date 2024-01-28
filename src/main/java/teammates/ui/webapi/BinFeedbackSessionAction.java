@@ -22,7 +22,7 @@ class BinFeedbackSessionAction extends Action {
         FeedbackSessionAttributes feedbackSession = getNonNullFeedbackSession(feedbackSessionName, courseId);
 
         gateKeeper.verifyAccessible(
-                logic.getInstructorForGoogleId(courseId, userInfo.getId()),
+                instructorsLogic.getInstructorForGoogleId(courseId, userInfo.getId()),
                 feedbackSession,
                 Const.InstructorPermissions.CAN_MODIFY_SESSION);
     }
@@ -33,12 +33,12 @@ class BinFeedbackSessionAction extends Action {
         String feedbackSessionName = getNonNullRequestParamValue(Const.ParamsNames.FEEDBACK_SESSION_NAME);
 
         try {
-            logic.moveFeedbackSessionToRecycleBin(feedbackSessionName, courseId);
+            feedbackSessionsLogic.moveFeedbackSessionToRecycleBin(feedbackSessionName, courseId);
         } catch (EntityDoesNotExistException e) {
             throw new EntityNotFoundException(e);
         }
 
-        FeedbackSessionAttributes recycleBinFs = logic.getFeedbackSessionFromRecycleBin(feedbackSessionName, courseId);
+        FeedbackSessionAttributes recycleBinFs = feedbackSessionsLogic.getFeedbackSessionFromRecycleBin(feedbackSessionName, courseId);
         return new JsonResult(new FeedbackSessionData(recycleBinFs));
     }
 

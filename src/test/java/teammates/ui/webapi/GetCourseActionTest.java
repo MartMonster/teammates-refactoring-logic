@@ -6,12 +6,16 @@ import teammates.common.datatransfer.attributes.CourseAttributes;
 import teammates.common.datatransfer.attributes.InstructorAttributes;
 import teammates.common.datatransfer.attributes.StudentAttributes;
 import teammates.common.util.Const;
+import teammates.logic.api.CoursesLogicAPI;
+import teammates.logic.api.StudentsLogicAPI;
 import teammates.ui.output.CourseData;
 
 /**
  * SUT: {@link GetCourseAction}.
  */
 public class GetCourseActionTest extends BaseActionTest<GetCourseAction> {
+    private final StudentsLogicAPI studentsLogic = StudentsLogicAPI.inst();
+    private final CoursesLogicAPI coursesLogic = CoursesLogicAPI.inst();
 
     @Override
     protected String getActionUri() {
@@ -32,7 +36,7 @@ public class GetCourseActionTest extends BaseActionTest<GetCourseAction> {
     @Test
     protected void testExecute_typicalUsage_shouldPass() {
         InstructorAttributes instructor1OfCourse1 = typicalBundle.instructors.get("instructor1OfCourse1");
-        CourseAttributes expectedCourse = logic.getCourse(instructor1OfCourse1.getCourseId());
+        CourseAttributes expectedCourse = coursesLogic.getCourse(instructor1OfCourse1.getCourseId());
 
         loginAsInstructor(instructor1OfCourse1.getGoogleId());
 
@@ -52,7 +56,7 @@ public class GetCourseActionTest extends BaseActionTest<GetCourseAction> {
         assertEquals(expectedCourse.getTimeZone(), courseData.getTimeZone());
 
         StudentAttributes student1OfCourse1 = typicalBundle.students.get("student1InCourse1");
-        expectedCourse = logic.getCourse(student1OfCourse1.getCourse());
+        expectedCourse = coursesLogic.getCourse(student1OfCourse1.getCourse());
         loginAsStudent(student1OfCourse1.getGoogleId());
 
         ______TS("typical success case for student");
@@ -104,7 +108,7 @@ public class GetCourseActionTest extends BaseActionTest<GetCourseAction> {
                 Const.ParamsNames.COURSE_ID, "fake-course",
         };
 
-        assertNull(logic.getCourse("fake-course"));
+        assertNull(coursesLogic.getCourse("fake-course"));
 
         EntityNotFoundException enfe = verifyEntityNotFound(params);
         assertEquals("No course with id: fake-course", enfe.getMessage());
@@ -128,7 +132,7 @@ public class GetCourseActionTest extends BaseActionTest<GetCourseAction> {
                 Const.ParamsNames.ENTITY_TYPE, Const.EntityType.INSTRUCTOR,
         };
 
-        assertNull(logic.getCourse("not-exist"));
+        assertNull(coursesLogic.getCourse("not-exist"));
 
         verifyCannotAccess(submissionParams);
 
@@ -176,7 +180,7 @@ public class GetCourseActionTest extends BaseActionTest<GetCourseAction> {
         CourseAttributes typicalCourse2 = typicalBundle.courses.get("typicalCourse2");
 
         StudentAttributes student1InCourse2 = typicalBundle.students.get("student1InCourse2");
-        logic.updateStudentCascade(
+        studentsLogic.updateStudentCascade(
                 StudentAttributes.updateOptionsBuilder(student1InCourse2.getCourse(), student1InCourse2.getEmail())
                         .withGoogleId(instructor1OfCourse1.getGoogleId())
                         .build());

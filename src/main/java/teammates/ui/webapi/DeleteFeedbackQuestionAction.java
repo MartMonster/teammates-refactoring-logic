@@ -16,13 +16,13 @@ class DeleteFeedbackQuestionAction extends Action {
     @Override
     void checkSpecificAccessControl() throws UnauthorizedAccessException {
         String feedbackQuestionId = getNonNullRequestParamValue(Const.ParamsNames.FEEDBACK_QUESTION_ID);
-        FeedbackQuestionAttributes questionAttributes = logic.getFeedbackQuestion(feedbackQuestionId);
+        FeedbackQuestionAttributes questionAttributes = feedbackQuestionsLogic.getFeedbackQuestion(feedbackQuestionId);
 
         if (questionAttributes == null) {
             throw new UnauthorizedAccessException("Unknown question ID");
         }
 
-        gateKeeper.verifyAccessible(logic.getInstructorForGoogleId(questionAttributes.getCourseId(), userInfo.getId()),
+        gateKeeper.verifyAccessible(instructorsLogic.getInstructorForGoogleId(questionAttributes.getCourseId(), userInfo.getId()),
                 getNonNullFeedbackSession(questionAttributes.getFeedbackSessionName(), questionAttributes.getCourseId()),
                 Const.InstructorPermissions.CAN_MODIFY_SESSION);
 
@@ -32,7 +32,7 @@ class DeleteFeedbackQuestionAction extends Action {
     public JsonResult execute() {
         String feedbackQuestionId = getNonNullRequestParamValue(Const.ParamsNames.FEEDBACK_QUESTION_ID);
 
-        logic.deleteFeedbackQuestionCascade(feedbackQuestionId);
+        feedbackQuestionsLogic.deleteFeedbackQuestionCascade(feedbackQuestionId);
 
         return new JsonResult("Feedback question deleted!");
     }

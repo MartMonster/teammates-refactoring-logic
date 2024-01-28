@@ -9,12 +9,15 @@ import teammates.common.util.Const;
 import teammates.common.util.Const.ParamsNames;
 import teammates.common.util.EmailType;
 import teammates.common.util.EmailWrapper;
+import teammates.logic.api.AccountsLogicAPI;
 
 /**
  * SUT: {@link InstructorCourseJoinEmailWorkerAction}.
  */
 public class InstructorCourseJoinEmailWorkerActionTest
         extends BaseActionTest<InstructorCourseJoinEmailWorkerAction> {
+
+    private final AccountsLogicAPI accountsLogic = AccountsLogicAPI.inst();
 
     @Override
     protected String getActionUri() {
@@ -38,7 +41,7 @@ public class InstructorCourseJoinEmailWorkerActionTest
 
         CourseAttributes course1 = typicalBundle.courses.get("typicalCourse1");
         InstructorAttributes instr1InCourse1 = typicalBundle.instructors.get("instructor1OfCourse1");
-        AccountAttributes inviter = logic.getAccount("idOfInstructor2OfCourse1");
+        AccountAttributes inviter = accountsLogic.getAccount("idOfInstructor2OfCourse1");
 
         ______TS("typical case: new instructor joining");
 

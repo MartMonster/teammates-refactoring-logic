@@ -7,6 +7,7 @@ import teammates.common.datatransfer.attributes.InstructorAttributes;
 import teammates.common.datatransfer.attributes.StudentAttributes;
 import teammates.common.exception.SearchServiceException;
 import teammates.common.util.Const;
+import teammates.logic.api.CoursesLogicAPI;
 import teammates.ui.output.StudentData;
 import teammates.ui.output.StudentsData;
 
@@ -36,10 +37,10 @@ class SearchStudentsAction extends Action {
 
         try {
             if (userInfo.isInstructor && entity.equals(Const.EntityType.INSTRUCTOR)) {
-                List<InstructorAttributes> instructors = logic.getInstructorsForGoogleId(userInfo.id);
-                students = logic.searchStudents(searchKey, instructors);
+                List<InstructorAttributes> instructors = instructorsLogic.getInstructorsForGoogleId(userInfo.id);
+                students = studentsLogic.searchStudents(searchKey, instructors);
             } else if (userInfo.isAdmin && entity.equals(Const.EntityType.ADMIN)) {
-                students = logic.searchStudentsInWholeSystem(searchKey);
+                students = studentsLogic.searchStudentsInWholeSystem(searchKey);
             } else {
                 throw new InvalidHttpParameterException("Invalid entity type for search");
             }
@@ -54,7 +55,7 @@ class SearchStudentsAction extends Action {
             if (userInfo.isAdmin && entity.equals(Const.EntityType.ADMIN)) {
                 studentData.addAdditionalInformationForAdminSearch(
                         s.getKey(),
-                        logic.getCourseInstitute(s.getCourse()),
+                        coursesLogic.getCourseInstitute(s.getCourse()),
                         s.getGoogleId()
                 );
             }

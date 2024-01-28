@@ -5,6 +5,7 @@ import org.testng.annotations.Test;
 import teammates.common.datatransfer.attributes.CourseAttributes;
 import teammates.common.datatransfer.attributes.InstructorAttributes;
 import teammates.common.util.Const;
+import teammates.logic.api.CoursesLogicAPI;
 import teammates.ui.output.MessageOutput;
 
 /**
@@ -12,6 +13,7 @@ import teammates.ui.output.MessageOutput;
  */
 public class DeleteCourseActionTest
         extends BaseActionTest<DeleteCourseAction> {
+    private final CoursesLogicAPI coursesLogic = CoursesLogicAPI.inst();
 
     @Override
     protected String getActionUri() {
@@ -41,10 +43,10 @@ public class DeleteCourseActionTest
                 Const.ParamsNames.COURSE_ID, courseId,
         };
 
-        CourseAttributes courseToBeDeleted = logic.getCourse(courseId);
+        CourseAttributes courseToBeDeleted = coursesLogic.getCourse(courseId);
         loginAsInstructor(instructorId);
-        logic.moveCourseToRecycleBin(courseToBeDeleted.getId());
-        CourseAttributes deletedCourse = logic.getCourse(courseId);
+        coursesLogic.moveCourseToRecycleBin(courseToBeDeleted.getId());
+        CourseAttributes deletedCourse = coursesLogic.getCourse(courseId);
         assertNotNull(deletedCourse);
         assertTrue(deletedCourse.isCourseDeleted());
 
@@ -53,7 +55,7 @@ public class DeleteCourseActionTest
         MessageOutput messageOutput = (MessageOutput) result.getOutput();
 
         assertEquals("OK", messageOutput.getMessage());
-        assertNull(logic.getCourse(instructor1OfCourse1.getCourseId()));
+        assertNull(coursesLogic.getCourse(instructor1OfCourse1.getCourseId()));
     }
 
     @Test
@@ -68,7 +70,7 @@ public class DeleteCourseActionTest
                 Const.ParamsNames.COURSE_ID, courseId,
         };
 
-        CourseAttributes courseToBeDeleted = logic.getCourse(instructor1OfCourse1.getCourseId());
+        CourseAttributes courseToBeDeleted = coursesLogic.getCourse(instructor1OfCourse1.getCourseId());
         assertNull(courseToBeDeleted.getDeletedAt());
         loginAsInstructor(instructorId);
 
@@ -77,7 +79,7 @@ public class DeleteCourseActionTest
         MessageOutput messageOutput = (MessageOutput) result.getOutput();
 
         assertEquals("OK", messageOutput.getMessage());
-        assertNull(logic.getCourse(instructor1OfCourse1.getCourseId()));
+        assertNull(coursesLogic.getCourse(instructor1OfCourse1.getCourseId()));
     }
 
     @Override

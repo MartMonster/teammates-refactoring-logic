@@ -13,6 +13,8 @@ import teammates.common.datatransfer.attributes.AccountAttributes;
 import teammates.common.datatransfer.attributes.FeedbackSessionAttributes;
 import teammates.common.datatransfer.attributes.InstructorAttributes;
 import teammates.common.util.Const;
+import teammates.logic.api.AccountsLogicAPI;
+import teammates.logic.api.CoursesLogicAPI;
 import teammates.ui.output.OngoingSession;
 import teammates.ui.output.OngoingSessionsData;
 
@@ -56,7 +58,7 @@ class GetOngoingSessionsAction extends AdminOnlyAction {
         }
 
         List<FeedbackSessionAttributes> allOngoingSessions =
-                logic.getAllOngoingSessions(Instant.ofEpochMilli(startTime), Instant.ofEpochMilli(endTime));
+                feedbackSessionsLogic.getAllOngoingSessions(Instant.ofEpochMilli(startTime), Instant.ofEpochMilli(endTime));
 
         int totalOngoingSessions = allOngoingSessions.size();
         int totalOpenSessions = 0;
@@ -83,10 +85,10 @@ class GetOngoingSessionsAction extends AdminOnlyAction {
 
         Map<String, List<OngoingSession>> instituteToFeedbackSessionsMap = new HashMap<>();
         for (String courseId : courseIds) {
-            List<InstructorAttributes> instructors = logic.getInstructorsForCourse(courseId);
+            List<InstructorAttributes> instructors = instructorsLogic.getInstructorsForCourse(courseId);
             AccountAttributes account = getRegisteredInstructorAccountFromInstructors(instructors);
 
-            String institute = logic.getCourseInstitute(courseId);
+            String institute = coursesLogic.getCourseInstitute(courseId);
             List<OngoingSession> sessions = courseIdToFeedbackSessionsMap.get(courseId).stream()
                     .map(session -> new OngoingSession(session, account))
                     .collect(Collectors.toList());
@@ -112,7 +114,7 @@ class GetOngoingSessionsAction extends AdminOnlyAction {
     private AccountAttributes getRegisteredInstructorAccountFromInstructors(List<InstructorAttributes> instructors) {
         for (InstructorAttributes instructor : instructors) {
             if (instructor.isRegistered()) {
-                return logic.getAccount(instructor.getGoogleId());
+                return accountsLogic.getAccount(instructor.getGoogleId());
             }
         }
         return null;

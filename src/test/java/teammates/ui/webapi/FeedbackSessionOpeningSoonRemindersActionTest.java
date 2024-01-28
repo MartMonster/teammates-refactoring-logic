@@ -11,6 +11,8 @@ import teammates.common.util.EmailWrapper;
 import teammates.common.util.TaskWrapper;
 import teammates.common.util.TimeHelper;
 import teammates.common.util.TimeHelperExtension;
+import teammates.logic.api.CoursesLogicAPI;
+import teammates.logic.api.FeedbackSessionsLogicAPI;
 import teammates.test.ThreadHelper;
 import teammates.ui.request.SendEmailRequest;
 
@@ -19,6 +21,8 @@ import teammates.ui.request.SendEmailRequest;
  */
 public class FeedbackSessionOpeningSoonRemindersActionTest
         extends BaseActionTest<FeedbackSessionOpeningSoonRemindersAction> {
+    private final FeedbackSessionsLogicAPI feedbackSessionsLogic = FeedbackSessionsLogicAPI.inst();
+    private final CoursesLogicAPI coursesLogic = CoursesLogicAPI.inst();
 
     @Override
     protected String getActionUri() {
@@ -52,14 +56,14 @@ public class FeedbackSessionOpeningSoonRemindersActionTest
         FeedbackSessionAttributes session1 = typicalBundle.feedbackSessions.get("session1InCourse1");
         session1.setStartTime(TimeHelper.getInstantDaysOffsetFromNow(2));
         session1.setEndTime(TimeHelper.getInstantDaysOffsetFromNow(3));
-        logic.updateFeedbackSession(
+        feedbackSessionsLogic.updateFeedbackSession(
                 FeedbackSessionAttributes
                         .updateOptionsBuilder(session1.getFeedbackSessionName(), session1.getCourseId())
                         .withStartTime(session1.getStartTime())
                         .withEndTime(session1.getEndTime())
                         .build());
         session1.setStartTime(TimeHelperExtension.getInstantHoursOffsetFromNow(24));
-        logic.updateFeedbackSession(
+        feedbackSessionsLogic.updateFeedbackSession(
                 FeedbackSessionAttributes
                         .updateOptionsBuilder(session1.getFeedbackSessionName(), session1.getCourseId())
                         .withStartTime(session1.getStartTime())
@@ -69,14 +73,14 @@ public class FeedbackSessionOpeningSoonRemindersActionTest
         session2.setStartTime(TimeHelper.getInstantDaysOffsetFromNow(2));
         session2.setEndTime(TimeHelper.getInstantDaysOffsetFromNow(3));
         session2.setOpeningEmailEnabled(false);
-        logic.updateFeedbackSession(
+        feedbackSessionsLogic.updateFeedbackSession(
                 FeedbackSessionAttributes
                         .updateOptionsBuilder(session2.getFeedbackSessionName(), session2.getCourseId())
                         .withStartTime(session2.getStartTime())
                         .withEndTime(session2.getEndTime())
                         .build());
         session2.setStartTime(TimeHelperExtension.getInstantHoursOffsetFromNow(24));
-        logic.updateFeedbackSession(
+        feedbackSessionsLogic.updateFeedbackSession(
                 FeedbackSessionAttributes
                         .updateOptionsBuilder(session2.getFeedbackSessionName(), session2.getCourseId())
                         .withStartTime(session2.getStartTime())
@@ -89,7 +93,7 @@ public class FeedbackSessionOpeningSoonRemindersActionTest
         verifySpecifiedTasksAdded(Const.TaskQueue.SEND_EMAIL_QUEUE_NAME, 6);
 
         // check that the subject matches either session 1 or session 2's details
-        String courseName = logic.getCourse(session1.getCourseId()).getName();
+        String courseName = coursesLogic.getCourse(session1.getCourseId()).getName();
         List<TaskWrapper> tasksAdded = mockTaskQueuer.getTasksAdded();
         for (TaskWrapper task : tasksAdded) {
             SendEmailRequest requestBody = (SendEmailRequest) task.getRequestBody();
@@ -108,13 +112,13 @@ public class FeedbackSessionOpeningSoonRemindersActionTest
         ______TS("session opening soon with emails already sent should not send more emails");
 
         session1.setSentOpeningSoonEmail(true);
-        logic.updateFeedbackSession(
+        feedbackSessionsLogic.updateFeedbackSession(
                 FeedbackSessionAttributes
                         .updateOptionsBuilder(session1.getFeedbackSessionName(), session1.getCourseId())
                         .withSentOpeningSoonEmail(session1.isSentOpeningSoonEmail())
                         .build());
         session2.setSentOpeningSoonEmail(true);
-        logic.updateFeedbackSession(
+        feedbackSessionsLogic.updateFeedbackSession(
                 FeedbackSessionAttributes
                         .updateOptionsBuilder(session2.getFeedbackSessionName(), session2.getCourseId())
                         .withSentOpeningSoonEmail(session2.isSentOpeningSoonEmail())
@@ -131,7 +135,7 @@ public class FeedbackSessionOpeningSoonRemindersActionTest
         // close session
         session1.setStartTime(TimeHelper.getInstantDaysOffsetFromNow(2));
         session1.setEndTime(TimeHelper.getInstantDaysOffsetFromNow(3));
-        logic.updateFeedbackSession(
+        feedbackSessionsLogic.updateFeedbackSession(
                 FeedbackSessionAttributes
                         .updateOptionsBuilder(session1.getFeedbackSessionName(), session1.getCourseId())
                         .withStartTime(session1.getStartTime())
@@ -140,7 +144,7 @@ public class FeedbackSessionOpeningSoonRemindersActionTest
 
         // reopen session to miss the opening soon email time limit
         session1.setStartTime(TimeHelperExtension.getInstantHoursOffsetFromNow(12));
-        logic.updateFeedbackSession(
+        feedbackSessionsLogic.updateFeedbackSession(
                 FeedbackSessionAttributes
                         .updateOptionsBuilder(session1.getFeedbackSessionName(), session1.getCourseId())
                         .withStartTime(session1.getStartTime())
@@ -156,7 +160,7 @@ public class FeedbackSessionOpeningSoonRemindersActionTest
 
         session1.setStartTime(TimeHelper.getInstantDaysOffsetFromNow(-2));
         session1.setEndTime(TimeHelper.getInstantDaysOffsetFromNow(3));
-        logic.updateFeedbackSession(
+        feedbackSessionsLogic.updateFeedbackSession(
                 FeedbackSessionAttributes
                         .updateOptionsBuilder(session1.getFeedbackSessionName(), session1.getCourseId())
                         .withSentOpeningSoonEmail(true)
@@ -168,14 +172,14 @@ public class FeedbackSessionOpeningSoonRemindersActionTest
         // allow session to be off the time limit to ensure that sentOpeningEmail is marked false
         session1.setStartTime(TimeHelperExtension.getInstantHoursOffsetFromNow(24).plusSeconds(10));
         session1.setEndTime(TimeHelper.getInstantDaysOffsetFromNow(3)); // random date in future
-        logic.updateFeedbackSession(
+        feedbackSessionsLogic.updateFeedbackSession(
                 FeedbackSessionAttributes
                         .updateOptionsBuilder(session1.getFeedbackSessionName(), session1.getCourseId())
                         .withStartTime(session1.getStartTime())
                         .withEndTime(session1.getEndTime())
                         .build());
 
-        assertFalse(logic.getFeedbackSession(session1.getFeedbackSessionName(),
+        assertFalse(feedbackSessionsLogic.getFeedbackSession(session1.getFeedbackSessionName(),
                 session1.getCourseId()).isSentOpeningSoonEmail());
 
         ThreadHelper.waitFor(10000); // wait for the session to be inside time limit so email is sent
@@ -202,7 +206,7 @@ public class FeedbackSessionOpeningSoonRemindersActionTest
 
         session1.setStartTime(TimeHelper.getInstantDaysOffsetFromNow(-2));
         session1.setEndTime(TimeHelper.getInstantDaysOffsetFromNow(-1));
-        logic.updateFeedbackSession(
+        feedbackSessionsLogic.updateFeedbackSession(
                 FeedbackSessionAttributes
                         .updateOptionsBuilder(session1.getFeedbackSessionName(), session1.getCourseId())
                         .withSentOpeningSoonEmail(true)
@@ -213,7 +217,7 @@ public class FeedbackSessionOpeningSoonRemindersActionTest
 
         session1.setStartTime(TimeHelperExtension.getInstantHoursOffsetFromNow(24).plusSeconds(10));
         session1.setEndTime(TimeHelper.getInstantDaysOffsetFromNow(3)); // random date in future
-        logic.updateFeedbackSession(
+        feedbackSessionsLogic.updateFeedbackSession(
                 FeedbackSessionAttributes
                         .updateOptionsBuilder(session1.getFeedbackSessionName(), session1.getCourseId())
                         .withStartTime(session1.getStartTime())
@@ -244,7 +248,7 @@ public class FeedbackSessionOpeningSoonRemindersActionTest
         session1.setStartTime(TimeHelper.getInstantDaysOffsetFromNow(-2));
         session1.setEndTime(TimeHelper.getInstantDaysOffsetFromNow(-1));
 
-        logic.updateFeedbackSession(
+        feedbackSessionsLogic.updateFeedbackSession(
                 FeedbackSessionAttributes
                         .updateOptionsBuilder(session1.getFeedbackSessionName(), session1.getCourseId())
                         .withSentOpeningSoonEmail(true)
@@ -254,7 +258,7 @@ public class FeedbackSessionOpeningSoonRemindersActionTest
 
         session1.setStartTime(TimeHelperExtension.getInstantHoursOffsetFromNow(23));
         session1.setEndTime(TimeHelper.getInstantDaysOffsetFromNow(3));
-        logic.updateFeedbackSession(
+        feedbackSessionsLogic.updateFeedbackSession(
                 FeedbackSessionAttributes
                         .updateOptionsBuilder(session1.getFeedbackSessionName(), session1.getCourseId())
                         .withStartTime(session1.getStartTime())

@@ -9,6 +9,7 @@ import teammates.common.datatransfer.InstructorPermissionSet;
 import teammates.common.datatransfer.InstructorPrivileges;
 import teammates.common.datatransfer.attributes.InstructorAttributes;
 import teammates.common.util.Const;
+import teammates.logic.api.InstructorsLogicAPI;
 import teammates.ui.output.InstructorPrivilegeData;
 import teammates.ui.request.InstructorPrivilegeUpdateRequest;
 
@@ -16,6 +17,7 @@ import teammates.ui.request.InstructorPrivilegeUpdateRequest;
  * SUT: {@link UpdateInstructorPrivilegeAction}.
  */
 public class UpdateInstructorPrivilegeActionTest extends BaseActionTest<UpdateInstructorPrivilegeAction> {
+    private final InstructorsLogicAPI instructorsLogic = InstructorsLogicAPI.inst();
 
     @Override
     protected String getActionUri() {
@@ -77,7 +79,7 @@ public class UpdateInstructorPrivilegeActionTest extends BaseActionTest<UpdateIn
         assertFalse(courseLevelPrivilege.isCanModifySessionCommentsInSections());
 
         // verify the privilege has indeed been updated
-        InstructorAttributes instructor = logic.getInstructorForGoogleId(
+        InstructorAttributes instructor = instructorsLogic.getInstructorForGoogleId(
                 instructor1OfCourse1.getCourseId(), instructor1OfCourse1.getGoogleId());
 
         assertFalse(instructor.getPrivileges().isAllowedForPrivilege(
@@ -140,7 +142,7 @@ public class UpdateInstructorPrivilegeActionTest extends BaseActionTest<UpdateIn
         assertTrue(sectionLevelPrivilege.isCanModifySessionCommentsInSections());
 
         // verify the privilege has indeed been updated
-        InstructorAttributes instructor = logic.getInstructorForGoogleId(
+        InstructorAttributes instructor = instructorsLogic.getInstructorForGoogleId(
                 helper1OfCourse1.getCourseId(), helper1OfCourse1.getGoogleId());
 
         assertFalse(instructor.getPrivileges().isAllowedForPrivilege(
@@ -215,7 +217,7 @@ public class UpdateInstructorPrivilegeActionTest extends BaseActionTest<UpdateIn
         assertTrue(sessionLevelPrivilege.isCanModifySessionCommentsInSections());
 
         // verify the privilege has indeed been updated
-        InstructorAttributes instructor = logic.getInstructorForGoogleId(
+        InstructorAttributes instructor = instructorsLogic.getInstructorForGoogleId(
                 helper1OfCourse1.getCourseId(), helper1OfCourse1.getGoogleId());
 
         assertFalse(instructor.getPrivileges().isAllowedForPrivilege(
@@ -307,7 +309,7 @@ public class UpdateInstructorPrivilegeActionTest extends BaseActionTest<UpdateIn
                 Const.InstructorPermissions.CAN_MODIFY_SESSION_COMMENT_IN_SECTIONS));
 
         List<InstructorAttributes> instructorsWithModifyInstructorPrivilege =
-                logic.getInstructorsForCourse(instructor1OfCourse4.getCourseId()).stream().filter(
+                instructorsLogic.getInstructorsForCourse(instructor1OfCourse4.getCourseId()).stream().filter(
                         instructor -> instructor.getPrivileges().isAllowedForPrivilege(
                         Const.InstructorPermissions.CAN_MODIFY_INSTRUCTOR)).collect(Collectors.toList());
         assertEquals(1, instructorsWithModifyInstructorPrivilege.size());

@@ -2,6 +2,7 @@ package teammates.ui.webapi;
 
 import teammates.common.exception.EntityDoesNotExistException;
 import teammates.common.util.Const;
+import teammates.logic.api.CoursesLogicAPI;
 
 /**
  * Action: Restores a course from Recycle Bin.
@@ -19,8 +20,8 @@ class RestoreCourseAction extends Action {
             throw new UnauthorizedAccessException("Instructor privilege is required to access this resource.");
         }
         String idOfCourseToRestore = getNonNullRequestParamValue(Const.ParamsNames.COURSE_ID);
-        gateKeeper.verifyAccessible(logic.getInstructorForGoogleId(idOfCourseToRestore, userInfo.id),
-                logic.getCourse(idOfCourseToRestore),
+        gateKeeper.verifyAccessible(instructorsLogic.getInstructorForGoogleId(idOfCourseToRestore, userInfo.id),
+                coursesLogic.getCourse(idOfCourseToRestore),
                 Const.InstructorPermissions.CAN_MODIFY_COURSE);
     }
 
@@ -31,7 +32,7 @@ class RestoreCourseAction extends Action {
         String statusMessage;
 
         try {
-            logic.restoreCourseFromRecycleBin(idOfCourseToRestore);
+            coursesLogic.restoreCourseFromRecycleBin(idOfCourseToRestore);
 
             statusMessage = "The course " + idOfCourseToRestore + " has been restored.";
         } catch (EntityDoesNotExistException e) {

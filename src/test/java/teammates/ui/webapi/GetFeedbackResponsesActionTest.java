@@ -15,6 +15,7 @@ import teammates.common.datatransfer.attributes.StudentAttributes;
 import teammates.common.util.Const;
 import teammates.common.util.JsonUtils;
 import teammates.common.util.StringHelper;
+import teammates.logic.api.FeedbackResponsesLogicAPI;
 import teammates.ui.output.FeedbackResponseCommentData;
 import teammates.ui.output.FeedbackResponseData;
 import teammates.ui.output.FeedbackResponsesData;
@@ -24,6 +25,7 @@ import teammates.ui.request.Intent;
  * SUT: {@link GetFeedbackResponsesAction}.
  */
 public class GetFeedbackResponsesActionTest extends BaseActionTest<GetFeedbackResponsesAction> {
+    private final FeedbackResponsesLogicAPI feedbackResponsesLogic = FeedbackResponsesLogicAPI.inst();
 
     private FeedbackQuestionAttributes qn1InSession1InCourse1;
     private StudentAttributes student1InCourse1;
@@ -96,7 +98,7 @@ public class GetFeedbackResponsesActionTest extends BaseActionTest<GetFeedbackRe
         assertEquals(1, actualResponses.size());
         FeedbackResponseData actualResponse = actualResponses.get(0);
         FeedbackResponseAttributes expected =
-                logic.getFeedbackResponsesFromStudentOrTeamForQuestion(qn1InSession1InCourse1,
+                feedbackResponsesLogic.getFeedbackResponsesFromStudentOrTeamForQuestion(qn1InSession1InCourse1,
                         student1InCourse1).get(0);
         assertNotNull(actualResponse.getFeedbackResponseId());
         verifyFeedbackResponseEquals(expected, actualResponse);
@@ -116,7 +118,7 @@ public class GetFeedbackResponsesActionTest extends BaseActionTest<GetFeedbackRe
 
         FeedbackResponseData actualResponse = actualResponses.get(0);
         FeedbackResponseAttributes expected =
-                logic.getFeedbackResponsesFromInstructorForQuestion(qn2InGracePeriodInCourse1, instructor1OfCourse1)
+                feedbackResponsesLogic.getFeedbackResponsesFromInstructorForQuestion(qn2InGracePeriodInCourse1, instructor1OfCourse1)
                         .get(0);
         assertNotNull(actualResponse.getFeedbackResponseId());
         verifyFeedbackResponseEquals(expected, actualResponse);
